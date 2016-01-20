@@ -1,0 +1,29 @@
+{
+  "name": "metamodel",
+  "version": "0.1.0",
+  "description": "Meta Model for JS apps, to help with JSON schema processing and UI construction.",
+  "main": "index.js",
+  "scripts": {
+    "tsc": "tsc",
+    "tsc:w": "tsc -w",
+    "lite": "lite-server",
+    "start": "concurrent \"npm run tsc:w\" \"npm run lite\" "
+  },
+  "keywords": [
+    "model",
+    "driven",
+    "ui",
+    "json",
+    "schema"
+  ],
+  "author": "Harald Niesche",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^1.0.0",
+    "lite-server": "^1.3.2",
+    "typescript": "^1.7.5"
+  },
+  "dependencies": {
+    "systemjs": "^0.19.14"
+  }
+}
