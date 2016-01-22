@@ -23,15 +23,6 @@ class ModelParseMessage implements IModelParseMessage {
 }
 
 export class ModelParseContext implements IModelParseContext {
-  private _currentValue:any;
-  private _currentRequired:boolean;
-  private _allowConversion:boolean;
-  private _valueStack: any[];
-  private _requiredStack: boolean[];
-  private _keyPath: string[];
-  private _warnings: IModelParseMessage[];
-  private _errors: IModelParseMessage[];
-
   constructor(value:any, required?:boolean, allowConversion:boolean=true) {
     this._currentValue = value;
     this._currentRequired = !!required;
@@ -90,11 +81,18 @@ export class ModelParseContext implements IModelParseContext {
   get allowConversion():boolean {
     return this._allowConversion;
   }
+
+  private _currentValue:any;
+  private _currentRequired:boolean;
+  private _allowConversion:boolean;
+  private _valueStack: any[];
+  private _requiredStack: boolean[];
+  private _keyPath: string[];
+  private _warnings: IModelParseMessage[];
+  private _errors: IModelParseMessage[];
 }
 
 export class ModelTypeRegistry {
-  private _types:{ [name:string]: IModelType<any>; } = {};
-
   add(type:IModelType<any>):IModelType<any> {
     this._types[type.name] = type;
     return type;
@@ -109,6 +107,12 @@ export class ModelTypeRegistry {
   type(name:string) : IModelType<any> {
     return this._types[name];
   }
+
+  createParseContext(obj:any) {
+    return new ModelParseContext(obj);
+  }
+
+  private _types:{ [name:string]: IModelType<any>; } = {};
 }
 
 export class ModelTypeComposite<T> implements IModelTypeCompositeBuilder<T> {
@@ -194,7 +198,7 @@ export class ModelTypeInt implements IModelType<number> {
       result = parseInt(val);
     }
     if (null == result && ctx.currentRequired()) {
-      ctx.addError('can not convert to float', val);
+      ctx.addError('can not convert to int', val);
     }
     return result;
   }
@@ -205,3 +209,34 @@ export class ModelTypeInt implements IModelType<number> {
     return value;
   }
 }
+
+
+export class ModelTypeString implements IModelType<string> {
+  get name():string {
+    return 'string';
+  }
+  parse(ctx:IModelParseContext):string {
+    let val = ctx.currentValue();
+    let result:string = null;
+    if (typeof val === 'string') {
+      result = val;
+    }
+    if (null == result && ctx.currentRequired()) {
+      ctx.addError('can not convert to string', val);
+    }
+    return result;
+  }
+  validate(ctx:IModelParseContext):void {
+    this.parse(ctx);
+  }
+  unparse(value:string):any {
+    return value;
+  }
+}
+
+export var modelTypes = new ModelTypeRegistry();
+
+
+modelTypes.add(new ModelTypeFloat());
+modelTypes.add(new ModelTypeInt());
+modelTypes.add(new ModelTypeString());

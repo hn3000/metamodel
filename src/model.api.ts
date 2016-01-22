@@ -37,8 +37,8 @@ export interface IModelTypeItem<T> extends IModelType<T> {
 }
 
 export interface IModelTypeEntry {
-  type:IModelType<any>;
   key:string;
+  type:IModelType<any>;
 }
 
 export interface IModelTypeComposite<C> extends IModelType<C> {

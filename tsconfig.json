@@ -1,7 +1,7 @@
 {
   "$schema": "http://json.schemastore.org/tsconfig#",
   "compilerOptions": {
-    "target": "ES5",
+    "target": "es5",
     "module": "system",
     "moduleResolution": "node",
     "sourceMap": true,
@@ -12,9 +12,7 @@
     "outDir": "out"
   },
   "files": [
-    "src/model.ts"
-  ],
-  "exclude": [
-    "node_modules"
+    "src/model.ts",
+    "test/allTests.ts"
   ]
 }
