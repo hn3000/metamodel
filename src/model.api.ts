@@ -4,6 +4,7 @@ export interface IModelObject {
 }
 
 export interface IModelParseMessage {
+  path:string;
   msg:string;
   args:any[];
 }

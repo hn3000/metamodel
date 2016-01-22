@@ -10,14 +10,17 @@ import {
 } from "./model.api"
 
 class ModelParseMessage implements IModelParseMessage {
+  private _path:string;
   private _msg:string;
   private _args:any[];
 
-  constructor(msg:string, ...args:any[]) {
+  constructor(path: string, msg:string, ...args:any[]) {
+    this._path = path;
     this._msg = msg;
     this._args = args;
   }
 
+  get path():string { return this._path; }
   get msg():string { return this._msg; }
   get args():any[] { return this._args; }
 }
@@ -55,13 +58,15 @@ export class ModelParseContext implements IModelParseContext {
     if (0 < this._valueStack.length) {
       this._currentValue = this._valueStack.pop();
       this._currentRequired = this._requiredStack.pop();
+      this._keyPath.pop();
     }
   }
 
   addWarning(msg:string, ...args:any[]) {
-    this._warnings.push({
-      msg, args
-    });
+    this._warnings.push(new ModelParseMessage(
+      this.currentKeyPath().join('.'),
+      msg, ...args
+    ));
   }
 
   get warnings():IModelParseMessage[] {
@@ -69,9 +74,10 @@ export class ModelParseContext implements IModelParseContext {
   }
 
   addError(msg:string, ...args:any[]) {
-    this._errors.push({
-      msg, args
-    });
+    this._errors.push(new ModelParseMessage(
+      this.currentKeyPath().join('.'),
+      msg, ...args
+    ));
   }
 
   get errors():IModelParseMessage[] {
@@ -123,6 +129,9 @@ export class ModelTypeComposite<T> implements IModelTypeCompositeBuilder<T> {
 
   constructor(name:string, construct:()=>T) {
     this._name = name;
+    this._constructFun = construct;
+    this._entries = [];
+    this._entriesByName = { };
   }
 
   get name():string {
@@ -130,6 +139,13 @@ export class ModelTypeComposite<T> implements IModelTypeCompositeBuilder<T> {
   }
 
   addItem(key:string, type:IModelType<any>):IModelTypeCompositeBuilder<T> {
+    if (null == key) {
+      throw new Error(`addItem requires valid key, got ${key} and type ${type}`);
+    }
+    if (null == type) {
+      throw new Error(`addItem requires valid type, got ${type} for key ${key}`);
+    }
+
     if (null == this._entriesByName[key]) {
       let entry = {
         key, type
@@ -153,7 +169,11 @@ export class ModelTypeComposite<T> implements IModelTypeCompositeBuilder<T> {
     return result;
   }
   validate(ctx:IModelParseContext):void {
-
+    for (let e of this._entries) {
+      ctx.pushItem(e.key);
+      e.type.validate(ctx);
+      ctx.popItem();
+    }
   }
   unparse(value:T):any {
 
@@ -162,7 +182,7 @@ export class ModelTypeComposite<T> implements IModelTypeCompositeBuilder<T> {
 
 export class ModelTypeFloat implements IModelType<number> {
   get name():string {
-    return 'Float';
+    return 'float';
   }
   parse(ctx:IModelParseContext):number {
     let val = ctx.currentValue();
@@ -187,15 +207,22 @@ export class ModelTypeFloat implements IModelType<number> {
 
 export class ModelTypeInt implements IModelType<number> {
   get name():string {
-    return 'Int';
+    return 'int';
   }
   parse(ctx:IModelParseContext):number {
     let val = ctx.currentValue();
     let result:number = null;
     if (typeof val === 'number') {
-      result = val;
+      result = Math.floor(val);
+      if (val !== result) {
+        ctx.addWarning('expected int value, ignored fractional part', val, result);
+      }
     } else if (typeof val === 'string') {
       result = parseInt(val);
+      let check = parseFloat(val);
+      if (result != check) {
+        ctx.addWarning('ignored non-integer part of value', val, result);
+      }
     }
     if (null == result && ctx.currentRequired()) {
       ctx.addError('can not convert to int', val);
