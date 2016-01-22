@@ -6,8 +6,8 @@
   "scripts": {
     "tsc": "tsc",
     "tsc:w": "tsc -w",
-    "lite": "lite-server",
-    "start": "concurrent \"npm run tsc:w\" \"npm run lite\" "
+    "pretest": "tsc",
+    "test": "node runtest.js"
   },
   "keywords": [
     "model",
@@ -19,8 +19,6 @@
   "author": "Harald Niesche",
   "license": "MIT",
   "devDependencies": {
-    "concurrently": "^1.0.0",
-    "lite-server": "^1.3.2",
     "tsunit.external": "^2.0.1",
     "typescript": "^1.7.5"
   },
