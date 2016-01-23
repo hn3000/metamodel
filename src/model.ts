@@ -6,7 +6,8 @@ import {
   IModelTypeItem,
   IModelTypeEntry,
   IModelTypeComposite,
-  IModelTypeCompositeBuilder
+  IModelTypeCompositeBuilder,
+  IModelItemConstraint
 } from "./model.api"
 
 class ModelParseMessage implements IModelParseMessage {
@@ -99,14 +100,27 @@ export class ModelParseContext implements IModelParseContext {
 }
 
 export class ModelTypeRegistry {
-  add(type:IModelType<any>):IModelType<any> {
+
+  asItemType(type:IModelType<any>) {
+    let result = <IModelTypeItem<any>>type;
+    if (!result.withConstraint) {
+      result = null;
+    }
+    return result;
+  }
+
+  addType(type:IModelType<any>):IModelType<any> {
     this._types[type.name] = type;
+    let itemType = this.asItemType(type);
+    if (itemType) {
+      this._itemTypes[itemType.name] = itemType;
+    }
     return type;
   }
 
-  addComposite<C>(name:string, construct:()=>C):IModelTypeCompositeBuilder<C> {
-    let result = new ModelTypeComposite<C>(name, construct);
-    this.add(result);
+  addObjectType<C>(name:string, construct:()=>C):IModelTypeCompositeBuilder<C> {
+    let result = new ModelTypeObject<C>(name, construct);
+    this.addType(result);
     return result;
   }
 
@@ -114,14 +128,19 @@ export class ModelTypeRegistry {
     return this._types[name];
   }
 
+  itemType(name:string) : IModelTypeItem<any> {
+    return this._itemTypes[name];
+  }
+
   createParseContext(obj:any) {
     return new ModelParseContext(obj);
   }
 
   private _types:{ [name:string]: IModelType<any>; } = {};
+  private _itemTypes:{ [name:string]: IModelTypeItem<any>; } = {};
 }
 
-export class ModelTypeComposite<T> implements IModelTypeCompositeBuilder<T> {
+export class ModelTypeObject<T> implements IModelTypeCompositeBuilder<T> {
   private _name:string;
   private _constructFun: ()=>T;
   private _entries: IModelTypeEntry[];
@@ -180,9 +199,76 @@ export class ModelTypeComposite<T> implements IModelTypeCompositeBuilder<T> {
   }
 }
 
-export class ModelTypeFloat implements IModelType<number> {
-  get name():string {
-    return 'float';
+/* ****** Model Items ******************************************************* */
+
+// Model Item constraints
+class ModelConstraints<T> implements IModelItemConstraint<T> {
+  constructor(constraints:ModelConstraints<T>|IModelItemConstraint<T>[]) {
+    if (Array.isArray(constraints)) {
+      this._constraints = constraints.slice();
+    }
+  }
+  get id():string {
+    return this._constraints.map((x)=>x.id).join('+');
+  }
+  checkAndAdjustValue(val:T, ctx:IModelParseContext):T {
+    let result = val;
+    for (let c of this._constraints) {
+      result = c.checkAndAdjustValue(result, ctx);
+    }
+    return result;
+  }
+  add(c:IModelItemConstraint<T>) {
+    return new ModelConstraints<T>([...this._constraints, c]);
+  }
+
+  private _constraints: IModelItemConstraint<T>[];
+}
+
+export abstract class ModelTypeItem<T> implements IModelTypeItem<T> {
+  constructor(name:string, constraints:ModelConstraints<T> = null) {
+    this._constraints = constraints || new ModelConstraints<T>([]);
+    let cid = this._constraints.id;
+    if ('' !== cid) {
+      this._name = `${name}/${cid}`;
+    } else {
+      this._name = name;
+    }
+  }
+
+  withConstraint(c:IModelItemConstraint<T>):this {
+    let result = this._clone(this._constraints.add(c));
+    return result;
+  }
+
+  get name():string { return this._name; }
+  protected _setName(name:string) {
+    this._name = name;
+  }
+  protected _checkAndAdjustValue(val:T, ctx:IModelParseContext):T {
+    return this._constraints.checkAndAdjustValue(val, ctx);
+  }
+
+  abstract parse(ctx:IModelParseContext):T;
+  abstract validate(ctx:IModelParseContext):void;
+  abstract unparse(val:T):any;
+
+  abstract fromString(val:string):T;
+  abstract asString(val:T):string;
+
+  protected abstract _clone(constraints:ModelConstraints<T>):this;
+
+  private _name:string;
+  private _constraints:ModelConstraints<T>;
+}
+
+export class ModelTypeNumber extends ModelTypeItem<number> {
+  protected _clone(c:ModelConstraints<number>):this {
+    return <this>new ModelTypeNumber(c);
+  }
+
+  constructor(c?:ModelConstraints<number>) {
+    super('number', c);
   }
   parse(ctx:IModelParseContext):number {
     let val = ctx.currentValue();
@@ -194,6 +280,8 @@ export class ModelTypeFloat implements IModelType<number> {
     }
     if (null == result && ctx.currentRequired()) {
       ctx.addError('can not convert to float', val);
+    } else {
+      result = this._checkAndAdjustValue(result, ctx);
     }
     return result;
   }
@@ -203,45 +291,41 @@ export class ModelTypeFloat implements IModelType<number> {
   unparse(value:number):any {
     return value;
   }
+
+  fromString(val:string):number {
+    let result = parseFloat(val);
+    let ctx = new ModelParseContext(result);
+
+    result = this._checkAndAdjustValue(result, ctx);
+    return result;
+  }
+  asString(val:number):string {
+    return val.toString(10);
+  }
+
 }
 
-export class ModelTypeInt implements IModelType<number> {
-  get name():string {
-    return 'int';
-  }
-  parse(ctx:IModelParseContext):number {
-    let val = ctx.currentValue();
-    let result:number = null;
-    if (typeof val === 'number') {
-      result = Math.floor(val);
-      if (val !== result) {
-        ctx.addWarning('expected int value, ignored fractional part', val, result);
-      }
-    } else if (typeof val === 'string') {
-      result = parseInt(val);
-      let check = parseFloat(val);
-      if (result != check) {
-        ctx.addWarning('ignored non-integer part of value', val, result);
-      }
-    }
-    if (null == result && ctx.currentRequired()) {
-      ctx.addError('can not convert to int', val);
+export class ModelItemConstraintInteger implements IModelItemConstraint<number> {
+  get id():string { return 'int'; }
+  checkAndAdjustValue(val:number, ctx:IModelParseContext) {
+    let result = Math.floor(val);
+    if (val !== result) {
+      ctx.addWarning('expected int value, ignored fractional part', val, result);
     }
     return result;
   }
-  validate(ctx:IModelParseContext):void {
-    this.parse(ctx);
-  }
-  unparse(value:number):any {
-    return value;
-  }
 }
 
+export class ModelTypeString extends ModelTypeItem<string> {
 
-export class ModelTypeString implements IModelType<string> {
-  get name():string {
-    return 'string';
+  constructor(c?:ModelConstraints<string>) {
+    super('string', c);
   }
+
+  protected _clone(c?:ModelConstraints<string>):this {
+    return <this>new ModelTypeString(c);
+  }
+
   parse(ctx:IModelParseContext):string {
     let val = ctx.currentValue();
     let result:string = null;
@@ -250,6 +334,8 @@ export class ModelTypeString implements IModelType<string> {
     }
     if (null == result && ctx.currentRequired()) {
       ctx.addError('can not convert to string', val);
+    } else {
+      this._checkAndAdjustValue(result, ctx);
     }
     return result;
   }
@@ -259,11 +345,15 @@ export class ModelTypeString implements IModelType<string> {
   unparse(value:string):any {
     return value;
   }
+
+  asString(val:string):string { return val; }
+  fromString(val:string):string { return val; }
 }
+
 
 export var modelTypes = new ModelTypeRegistry();
 
 
-modelTypes.add(new ModelTypeFloat());
-modelTypes.add(new ModelTypeInt());
-modelTypes.add(new ModelTypeString());
+modelTypes.addType(new ModelTypeNumber());
+modelTypes.addType(modelTypes.itemType('number').withConstraint(new ModelItemConstraintInteger()));
+modelTypes.addType(new ModelTypeString());

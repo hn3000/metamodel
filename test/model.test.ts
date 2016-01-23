@@ -15,10 +15,10 @@ export class ModelTest extends TestClass {
       blub: 3.14
     };
 
-    let exampleModel = modelTypes.addComposite('example', ()=>({}))
-      .addItem('lala', modelTypes.type('int'))
+    let exampleModel = modelTypes.addObjectType('example', ()=>({}))
+      .addItem('lala', modelTypes.type('number/int'))
       .addItem('blah', modelTypes.type('string'))
-      .addItem('blub', modelTypes.type('float'));
+      .addItem('blub', modelTypes.type('number'));
 
 
     let context = new ModelParseContext(example);
@@ -34,10 +34,10 @@ export class ModelTest extends TestClass {
       blub: "3.14"
     };
 
-    let exampleModel = modelTypes.addComposite('example', ()=>({}))
-      .addItem('lala', modelTypes.type('int'))
+    let exampleModel = modelTypes.addObjectType('example/fails', ()=>({}))
+      .addItem('lala', modelTypes.type('number/int'))
       .addItem('blah', modelTypes.type('string'))
-      .addItem('blub', modelTypes.type('int'));
+      .addItem('blub', modelTypes.type('number/int'));
 
 
     let context = new ModelParseContext(example);

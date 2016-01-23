@@ -32,9 +32,15 @@ export interface IModelType<T> {
   unparse(val:T):any;
 }
 
+export interface IModelItemConstraint<T> {
+  id:string;
+  checkAndAdjustValue(val:T, ctx:IModelParseContext):T;
+}
+
 export interface IModelTypeItem<T> extends IModelType<T> {
   fromString(valStr:string):T;
   asString(val:T):string;
+  withConstraint(c:IModelItemConstraint<T>):this;
 }
 
 export interface IModelTypeEntry {
