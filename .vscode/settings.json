@@ -1,0 +1,15 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+	"json.schemas": [
+        {
+            "fileMatch": [
+               "tsconfig.json"
+            ],
+            "url": "http://json.schemastore.org/tsconfig#"
+        }
+    ],
+	"editor.tabSize": 2,
+  "editor.insertSpaces": true,
+	"typescript.useCodeSnippetsOnMethodSuggest": true,
+  "typescript.tsdk": "/usr/local/lib/node_modules/typescript/lib"
+}

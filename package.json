@@ -9,6 +9,7 @@
     "pretest": "tsc",
     "test": "node runtest.js"
   },
+  "index": "out/model.js",
   "keywords": [
     "model",
     "driven",

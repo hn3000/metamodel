@@ -30,6 +30,8 @@ export interface IModelType<T> {
   parse(ctx:IModelParseContext):T;
   validate(ctx:IModelParseContext):void;
   unparse(val:T):any;
+  
+  asItemType(): IModelTypeItem<T>;
 }
 
 export interface IModelItemConstraint<T> {
@@ -40,19 +42,24 @@ export interface IModelItemConstraint<T> {
 export interface IModelTypeItem<T> extends IModelType<T> {
   fromString(valStr:string):T;
   asString(val:T):string;
-  withConstraint(c:IModelItemConstraint<T>):this;
+  withConstraints(...c:IModelItemConstraint<T>[]):this;
+  
+  lowerBound():IModelItemConstraint<T>;
+  upperBound():IModelItemConstraint<T>;
 }
 
 export interface IModelTypeEntry {
   key:string;
   type:IModelType<any>;
+  required:boolean;
 }
 
 export interface IModelTypeComposite<C> extends IModelType<C> {
   items:IModelTypeEntry[];
+  subModel(name:string):IModelType<any>;
 }
 
 export interface IModelTypeCompositeBuilder<C> extends IModelTypeComposite<C> {
   extend<X>(type:IModelTypeComposite<X>):IModelTypeCompositeBuilder<C>;
-  addItem<T>(key:string, type:IModelType<T>):IModelTypeCompositeBuilder<C>;
+  addItem<T>(key:string, type:IModelType<T>, required?:boolean):IModelTypeCompositeBuilder<C>;
 }
