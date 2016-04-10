@@ -1,11 +1,7 @@
 import {
     modelTypes,
     ModelParseContext,
-    ModelItemConstraints,
-    ModelItemConstraintLess,
-    ModelItemConstraintLessEqual,
-    ModelItemConstraintMore,
-    ModelItemConstraintMoreEqual
+    ModelTypeConstraints
 } from "../src/model";
 
 import {
@@ -61,7 +57,7 @@ export class ModelTest extends TestClass {
     };
 
     let exampleModel = modelTypes.addObjectType('example/fails', ()=>({}))
-      .addItem('lala', modelTypes.itemType('number').withConstraints(ModelItemConstraints.less(1).warnOnly()));
+      .addItem('lala', modelTypes.itemType('number').withConstraints(ModelTypeConstraints.less(1).warnOnly()));
 
 
     let context = new ModelParseContext(example);
@@ -79,7 +75,7 @@ export class ModelTest extends TestClass {
     };
 
     let exampleModel = modelTypes.addObjectType('example/fails')
-      .addItem('lala', modelTypes.itemType('number').withConstraints(ModelItemConstraints.less(1)));
+      .addItem('lala', modelTypes.itemType('number').withConstraints(ModelTypeConstraints.less(1)));
 
 
     let context = new ModelParseContext(example);
@@ -98,9 +94,9 @@ export class ModelTest extends TestClass {
     };
 
     let exampleModel = modelTypes.addObjectType('example/fails')
-      .addItem('value', modelTypes.itemType('number').withConstraints(ModelItemConstraints.more(1)))
+      .addItem('value', modelTypes.itemType('number').withConstraints(ModelTypeConstraints.more(1)))
       .addItem('flag', modelTypes.itemType('boolean'))
-      .addItem('choice', modelTypes.itemType('string').withConstraints(ModelItemConstraints.possibleValues(['one','two', 'three'])));
+      .addItem('choice', modelTypes.itemType('string').withConstraints(ModelTypeConstraints.possibleValues(['one','two', 'three'])));
 
 
     let context = new ModelParseContext(example);
@@ -116,13 +112,13 @@ export class ModelTest extends TestClass {
   }
   testMetaModelHasLowerBound() {
     let exampleModel = modelTypes.addObjectType('example/succeds', ()=>({}))
-      .addItem('lala', modelTypes.itemType('number').withConstraints(ModelItemConstraints.more(1)));
+      .addItem('lala', modelTypes.itemType('number').withConstraints(ModelTypeConstraints.more(1)));
       
     this.isTrue(null != exampleModel.subModel('lala').asItemType().lowerBound(), `constraints: ${(<any>exampleModel.subModel("lala"))._constraints}`);
   }
   testMetaModelHasUpperBound() {
     let exampleModel = modelTypes.addObjectType('example/succeds', ()=>({}))
-      .addItem('lala', modelTypes.itemType('number').withConstraints(ModelItemConstraints.less(1)));
+      .addItem('lala', modelTypes.itemType('number').withConstraints(ModelTypeConstraints.less(1)));
       
     this.isTrue(null != exampleModel.subModel('lala').asItemType().upperBound(), `constraints: ${(<any>exampleModel.subModel("lala"))._constraints}`);
   }
@@ -133,7 +129,7 @@ export class ModelTest extends TestClass {
     };
 
     let exampleModel = modelTypes.addObjectType('example/succeeds')
-      .addItem('lala', modelTypes.itemType('string').withConstraints(ModelItemConstraints.possibleValues(['one'])));
+      .addItem('lala', modelTypes.itemType('string').withConstraints(ModelTypeConstraints.possibleValues(['one'])));
 
     let context = new ModelParseContext(example);
     let result:any = exampleModel.parse(context);
@@ -148,7 +144,7 @@ export class ModelTest extends TestClass {
     };
 
     let exampleModel = modelTypes.addObjectType('example/succeeds')
-      .addItem('lala', modelTypes.itemType('string').withConstraints(ModelItemConstraints.possibleValues(['one'])));
+      .addItem('lala', modelTypes.itemType('string').withConstraints(ModelTypeConstraints.possibleValues(['one'])));
 
     let context = new ModelParseContext(example);
     let result:any = exampleModel.parse(context);

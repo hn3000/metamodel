@@ -1,4 +1,8 @@
 
+export interface Predicate<T> {
+  (x:T):boolean;
+}
+
 export interface IModelObject {
   [key:string]:any;
 }
@@ -13,7 +17,7 @@ export interface IModelParseContext {
   currentValue():any;
   currentRequired():boolean;
   currentKeyPath():string[];
-  pushItem(key:string, required?:boolean):void;
+  pushItem(key:string|number, required?:boolean):void;
   popItem():void;
 
   addWarning(msg:string, ...args:any[]):void;
@@ -30,22 +34,26 @@ export interface IModelType<T> {
   parse(ctx:IModelParseContext):T;
   validate(ctx:IModelParseContext):void;
   unparse(val:T):any;
-  
+
   asItemType(): IModelTypeItem<T>;
 }
 
-export interface IModelItemConstraint<T> {
+export interface IModelTypeConstrainable<T> extends IModelType<T> {
+  withConstraints(...c:IModelTypeConstraint<T>[]):this;
+  findConstraints(p:Predicate<IModelTypeConstraint<T>>):IModelTypeConstraint<T>[];
+}
+
+export interface IModelTypeConstraint<T> {
   id:string;
   checkAndAdjustValue(val:T, ctx:IModelParseContext):T;
 }
 
-export interface IModelTypeItem<T> extends IModelType<T> {
+export interface IModelTypeItem<T> extends IModelTypeConstrainable<T> {
   fromString(valStr:string):T;
   asString(val:T):string;
-  withConstraints(...c:IModelItemConstraint<T>[]):this;
-  
-  lowerBound():IModelItemConstraint<T>;
-  upperBound():IModelItemConstraint<T>;
+
+  lowerBound():IModelTypeConstraint<T>;
+  upperBound():IModelTypeConstraint<T>;
 }
 
 export interface IModelTypeEntry {

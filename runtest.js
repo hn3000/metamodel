@@ -17,9 +17,8 @@ System.config({
 
 System.import('out/test/allTests')
   .then(function(x) {
-    console.log('then: ', x);
   })
   .then(null, function(x) {
-    console.log('else: ', x, x.stack);
+    console.log('failure loading all tests: ', x, x.stack);
   })
 ;
