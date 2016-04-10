@@ -9,7 +9,7 @@
 			"stopOnEntry": false,
 			"args": [],
 			"cwd": "${workspaceRoot}",
-			"preLaunchTask": null,
+			"preLaunchTask": "tsc",
 			"runtimeExecutable": null,
 			"runtimeArgs": [
 				"--nolazy"
@@ -18,8 +18,8 @@
 				"NODE_ENV": "development"
 			},
 			"externalConsole": false,
-			"sourceMaps": false,
-			"outDir": null
+			"sourceMaps": true,
+			"outDir": "${workspaceRoot}/out"
 		},
 		{
 			"name": "Attach",
@@ -28,8 +28,8 @@
 			"port": 5858,
 			"address": "localhost",
 			"restart": false,
-			"sourceMaps": false,
-			"outDir": null,
+			"sourceMaps": true,
+			"outDir": "${workspaceRoot}/out",
 			"localRoot": "${workspaceRoot}",
 			"remoteRoot": null
 		}

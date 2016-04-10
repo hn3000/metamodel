@@ -11,5 +11,5 @@
 	"editor.tabSize": 2,
   "editor.insertSpaces": true,
 	"typescript.useCodeSnippetsOnMethodSuggest": true,
-  "typescript.tsdk": "/usr/local/lib/node_modules/typescript/lib"
+  "disabled_typescript.tsdk": "node_modules/typescript/lib"
 }
