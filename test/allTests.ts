@@ -11,8 +11,8 @@ export function runTests() {
   test.addTestClass(new ModelTest());
 
   let result = test.run();
-  //console.log(result);
-  result.err
+  console.log(result);
+  //result.err
 }
 
 runTests();
