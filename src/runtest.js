@@ -11,8 +11,7 @@ System.config({
   },
   paths: {
     'tsunit.external/*': 'node_modules/tsunit.external/*.js'
-  },
-  __x__defaultJSExtensions: true
+  }
 });
 
 System.import('out/test/allTests')
