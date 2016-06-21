@@ -1,6 +1,8 @@
 
 var System = require('systemjs');
 
+global.nodeRequire = require;
+
 System.config({
   trace:true,
   packages: {

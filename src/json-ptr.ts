@@ -3,7 +3,7 @@
 
 export class JsonPointer {
   constructor(ref:string) {
-    this._keypath = (ref || "").split('/').map(JsonPointer.unquote);
+    this._keypath = (ref || "").split('/').slice(1).map(JsonPointer.unquote);
   }
 
   public static unquote(s:string) {
@@ -70,96 +70,159 @@ export class JsonReference {
 }
 
 export interface Fetcher {
-  (url:string): Promise<string>;
+  (url:string, base?:string): Promise<string>;
 }
 
 export class JsonReferenceExpander {
   constructor(fetch:Fetcher) {
     this._fetch = fetch;
     this._cache = {};
+    this._contents = {};
   }
 
   expandRef(url:string):Promise<any> {
     let ref = new JsonReference(url);
-    var contentPromise = this._fetchWithRefs(ref.filename);
+    var contentPromise = this._fetchContent(ref.filename);
 
-    return contentPromise.then((x) => {
-      return this._expandRefs(url, ref.filename);
-    });
+    return contentPromise
+      .then((x)=>{
+        //console.log("fetching refs for ", x, ref.filename);
+        return this._fetchRefs(x,ref.filename).then(()=>x);
+      })
+      .then((x) => {
+        // at this point all referenced files should be in _cache
+        //console.log("expanding refs for ", x, ref.filename);
+        return this._expandRefs(url;
+      });
   }
 
   _expandRefs(url:string, base?:string):any {
     let ref = new JsonReference(url);
 
-    let filename = ref.filename || base;
+    let filename = this._adjustUrl(ref.filename, base);
     if (!filename) {
       throw new Error('invalid reference: no file');
     }
-    if (-1 != visited.indexOf(filename)) {
-      throw new Error('invalid reference: loop detected');
+    if (!this._contents.hasOwnProperty(filename)) {
+      throw new Error(`file not found: ${filename}`);
     }
 
-    var jsonPromise = this._fetchContent(filename);
-    visited.push(filename);
-  
-    return jsonPromise.then((json) =>{
-      var obj = ref.getValue(json);
+    let json = this._contents[filename];
+    let obj = ref.pointer.getValue(json);
 
-      var thisRef = obj["$ref"];
-      if (null != thisRef) {
-        return this._expandRef(thisRef, visited, ref.filename);
-      }
+    return this._expandDynamic(obj, filename, base);
+  }
 
-      var result = {};
-      var keys = Object.keys(json);
+  _expandDynamic(obj:any, filename:string, base?:string) {
+    var url = this._adjustUrl(filename, base);
+    if (obj.hasOwnProperty("$ref")) {
+      return this._expandRefs(obj["$ref"], url);
+    }
+
+    var result = obj; 
+    if (typeof obj === 'object') {
+      result = {};
+      var keys = Object.keys(obj);
       for (var k of keys) {
-
+        //console.log("define property", k, result);
+        Object.defineProperty(
+          result,
+          k,
+          {
+            enumerable: true, 
+            get: ((obj:any,k)=>this._expandDynamic(obj[k], url)).bind(this,obj,k)
+          }
+        );
       }
-      return result;
-    });
+    }
+    return result;
+
   }
 
   _findRefs(x:any) {
-    var queue = [];
-    var result = [];
+    var queue:any[] = [];
+    var result:string[] = [];
+    //console.log('findRefs',x);
     queue.push(x);
     while (0 != queue.length) {
       let thisOne = queue.shift();
+      //console.log('findRefs',thisOne);
       let ref = thisOne["$ref"];
-      if (ref) {
+      if (null != ref) {
         result.push(ref);
-      } else {
-        queue.push(Object.keys(thisOne).map((k) => thisOne[k]));
+      } else if (typeof thisOne === 'object') {
+        var keys = Object.keys(thisOne);
+        var objs = keys.map((k) => thisOne[k]);
+        queue.push(...objs);
       }
     }
+
+    //console.log('findRefs done',x, result);
 
     return result;
   }
 
-  _fetchContent(url:string):Promise<any> {
+  _fetchContent(urlArg:string, base?:string):Promise<any> {
+    var url = this._adjustUrl(urlArg, base);
     if (this._cache.hasOwnProperty(url)) {
       return this._cache[url];
     }
     let result = this._fetch(url).then((x)=>JSON.parse(x));
     this._cache[url] = result;
-    result.then((x) => (this._contents[url]=x, x);
+    result.then((x) => (this._contents[url]=x, x));
 
     return result;
   }
 
-  _fetchRefs(x:any, base:string) {
-    var refs = this._findRefs(x);
-    var files = refs.map(x => JsonReference.getFilename);
-    var filesHash = files.reduce((c,f) => c[f] = f, {});
-    files = Object.keys(filesHash);
+  _adjustUrl(url:string, base?:string) {
+    return this._urlAdjuster(base)(url);
+  }
 
+  _urlAdjuster(base:string):(x:string)=>string {
+    if (null != base) {
+      var hashPos = base.indexOf('#');
+      if (hashPos == -1) {
+        hashPos = base.length;
+      } 
+      var slashPos = base.lastIndexOf('/', hashPos);
+      if (-1 != slashPos) {
+        var prefix = base.substring(0, slashPos+1);
+        return (x) => {
+          if (null == x || 0 === x.length || '/' === x.substring(0,1)) {
+            return x;
+          }
+          return prefix + x;
+        };
+      }
+    }
+    return (x) => x;
+  }
+
+  _fetchRefs(x:any, base:string):Promise<any[]> {
+    var adjuster = this._urlAdjuster(base);
+    var refs = this._findRefs(x);
+    //console.log("found refs ", refs);
+
+    var files = refs.map(x => adjuster(JsonReference.getFilename(x)));
+    var filesHash:any = files.reduce((c:any,f) => { c[f] = f; return c; }, {});
+    files = Object.keys(filesHash);
+    //console.log("found files ", refs, files, " fetching ...");
+
+    var needThen = false;
     var filesPromises = files.map((x) => {
-      return _contents.hasOwnProperty(x) ? _contents[x] : _fetchContent(x);
+      if (this._contents.hasOwnProperty(x)) {
+        return this._contents[x];
+      } else {
+        needThen = true;
+        return this._fetchContent(x);
+      }
     });
+
+    //console.log("got promises ", filesPromises);
 
     var promise = Promise.all(filesPromises);
 
-    if (filesPromises.any(x => x["then"])) {
+    if (needThen) {
       return promise.then(this._fetchRefsAll.bind(this, files));
     }
 
@@ -167,8 +230,8 @@ export class JsonReferenceExpander {
   }
 
   _fetchRefsAll(files:string[], x:any[]) {
-    var result:Promise<any> = [];
-    for (var i=0, n=x.length; ++i) {
+    var result:Promise<any>[] = [];
+    for (var i=0, n=x.length; i<n; ++i) {
       result.push(this._fetchRefs(x[i], files[i]));
     }
     return Promise.all(result);

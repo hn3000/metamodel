@@ -1,6 +1,9 @@
 import {ModelTest} from "./model.test";
 import {ModelParsingTest} from "./model.parsing.test";
-import {JsonPointerTest} from "./json-ptr.test";
+import {
+  JsonPointerTest,
+  JsonReferenceTest
+} from "./json-ptr.test";
 
 import {
   Test
@@ -10,8 +13,10 @@ import {
 export function runTests() {
   "use strict";
   let test = new Test();
+  test.addTestClass(new JsonPointerTest(), "JsonPointerTest");
+  test.addTestClass(new JsonReferenceTest(), "JsonReferenceTest");
   test.addTestClass(new ModelTest(), "ModelTest");
-  test.addTestClass(new ModelParsingTest(), "ModelParseTest");
+  test.addTestClass(new ModelParsingTest(), "ModelParsingTest");
 
   let result = test.run();
   //console.log(result);
