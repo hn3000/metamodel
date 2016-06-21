@@ -64,10 +64,18 @@ export interface IModelTypeEntry {
 
 export interface IModelTypeComposite<C> extends IModelType<C> {
   items:IModelTypeEntry[];
-  subModel(name:string):IModelType<any>;
+  subModel(name:string|number):IModelType<any>;
+  slice(name:string[]|number[]):IModelTypeComposite<C>;
 }
 
 export interface IModelTypeCompositeBuilder<C> extends IModelTypeComposite<C> {
   extend<X>(type:IModelTypeComposite<X>):IModelTypeCompositeBuilder<C>;
   addItem<T>(key:string, type:IModelType<T>, required?:boolean):IModelTypeCompositeBuilder<C>;
+}
+
+export interface IModelTypeRegistry {
+  type(name:string) : IModelType<any>;
+  itemType(name:string) : IModelTypeItem<any>;
+  addType(type:IModelType<any>): void;
+  getRegisteredNames():string[];
 }

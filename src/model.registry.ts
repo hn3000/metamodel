@@ -1,7 +1,8 @@
 import {
   IModelType,
   IModelTypeItem,
-  IModelTypeCompositeBuilder
+  IModelTypeCompositeBuilder,
+  IModelTypeRegistry
 } from "./model.api"
 
 import {
@@ -53,6 +54,10 @@ export class ModelTypeRegistry {
 
   itemType(name:string) : IModelTypeItem<any> {
     return this._itemTypes[name];
+  }
+  
+  getRegisteredNames() {
+    return Object.keys(this._types);
   }
 
   createParseContext(obj:any) {

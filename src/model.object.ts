@@ -5,7 +5,7 @@ import {
   IModelTypeEntry,
   IModelTypeComposite,
   IModelParseContext
-} from "./model.api.ts"
+} from "./model.api"
 
 function constructionNotAllowed<T>():T {
   throw new Error('can not use subtype for construction');
@@ -50,17 +50,22 @@ export class ModelTypeObject<T> implements IModelTypeCompositeBuilder<T> {
     return this;
   }
 
-  subModel(name:string|string[]) {
+  subModel(name:string|number) {
     if (typeof name === 'string') {
       return this._entriesByName[name].type;
-    } else if (Array.isArray(name)) {
-      var result = new ModelTypeObject<any>(`${this.name}[${name.join(',')}]`, constructionNotAllowed);
-      for (var i=0,n=name.length; i<n; ++i) {
-        result.addItem(name[i], this._entriesByName[name[i]].type);
+    }
+
+    return null;
+  }
+
+  slice(names:string[]|number[]):IModelTypeComposite<T> {
+    if (Array.isArray(names)) {
+      var result = new ModelTypeObject<any>(`${this.name}[${names.join(',')}]`, constructionNotAllowed);
+      for (var i=0,n=names.length; i<n; ++i) {
+        result.addItem(''+names[i], this._entriesByName[names[i]].type);
       }
       return result;
     }
-
     return null;
   }
 

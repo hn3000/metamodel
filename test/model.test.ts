@@ -155,4 +155,26 @@ export class ModelTest extends TestClass {
     this.areIdentical(null, result['lala']);
   }
 
+  testArrayTypeParsesArray() {
+    let example = {
+      numbers: [1,2,3],
+      strings: ['one', 'two', 'three']
+    };
+
+    let exampleModel = modelTypes.addObjectType('example/succeeds')
+      .addItem('numbers', modelTypes.itemType('number[]'))
+      .addItem('strings', modelTypes.itemType('string[]'))
+      ;
+
+    let context = new ModelParseContext(example);
+    let result:any = exampleModel.parse(context);
+
+    this.areIdentical(0, context.warnings.length);
+    this.areIdentical(0, context.errors.length);
+
+    this.areNotIdentical(result.numbers, example.numbers);
+    this.areNotIdentical(result.strings, example.strings);
+    this.areCollectionsIdentical(result.numbers, example.numbers);
+    this.areCollectionsIdentical(result.strings, example.strings);
+  }
 }

@@ -1,5 +1,4 @@
 {
-  "$schema": "http://json.schemastore.org/tsconfig#",
   "compilerOptions": {
     "target": "es5",
     "module": "system",
@@ -9,10 +8,13 @@
     "experimentalDecorators": true,
     "removeComments": false,
     "noImplicitAny": true,
-    "outDir": "out"
+    "outDir": "out",
+    "declaration": true
   },
   "files": [
     "src/model.ts",
-    "test/allTests.ts"
+    "src/model.api.ts",
+    "test/allTests.ts",
+    "test/model.test.ts"
   ]
 }

@@ -3,7 +3,7 @@ import {
   IModelTypeItem,
   IModelParseContext,
   IModelTypeConstraint
-} from "./model.api.ts"
+} from "./model.api"
 
 import {
   ModelParseContext
@@ -85,6 +85,31 @@ export class ModelTypeConstraintInteger implements IModelTypeConstraint<number> 
     }
     return result;
   }
+}
+
+export class ModelTypeConstraintMultipleOf extends ModelTypeConstraintOptional<number> {
+  constructor(modulus:number|ModelTypeConstraintMultipleOf) {
+    super();
+    if (typeof(modulus) === 'number') {
+      this._modulus = <number>modulus;
+    } else {
+      this._modulus = (<this>modulus)._modulus;
+    }
+  }
+  _id():string { return `mult(${this._modulus})`; }
+  checkAndAdjustValue(val:number, ctx:IModelParseContext) {
+    let result = Math.floor(val / this._modulus) * this._modulus;
+    if (result !== val) {
+      ctx.addWarning(`expected multiple of ${this._modulus}, ignoring remainder`, val, result);
+    }
+    return result;
+  }
+  
+  get modulus():number {
+    return this._modulus;
+  }
+  
+  private _modulus:number;
 }
 
 export abstract class ModelTypeConstraintComparison extends ModelTypeConstraintOptional<number> {

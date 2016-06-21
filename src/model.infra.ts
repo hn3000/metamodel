@@ -2,7 +2,8 @@ import {
   Predicate,
   IModelParseMessage,
   IModelParseContext,
-  IModelTypeConstraint
+  IModelTypeConstraint,
+  IModelTypeComposite
 } from "./model.api"
 
 export class ModelParseMessage implements IModelParseMessage {
@@ -25,6 +26,7 @@ export class ObjectTraversal {
   constructor(obj:any) {
     this._top = obj;
     this._stack = [];
+    this._keyPath = [];
   }
 
   get top(): any {
@@ -35,15 +37,18 @@ export class ObjectTraversal {
     const top = this._top;
     this._stack.push(top);
     this._top = top != null ? top[key] : undefined;
+    this._keyPath.push(key);
   }
   ascend() {
     if (0 < this._stack.length) {
       this._top = this._stack.pop();
+      this._keyPath.pop();
     }
   }
 
   private _top:any;
   private _stack:any[];
+  private _keyPath:string[];
 }
 
 export class ParallelTraversal {

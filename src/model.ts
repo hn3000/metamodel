@@ -1,4 +1,4 @@
-import {
+export {
   Predicate,
   IModelObject,
   IModelParseMessage,
@@ -9,7 +9,8 @@ import {
   IModelTypeEntry,
   IModelTypeComposite,
   IModelTypeCompositeBuilder,
-  IModelTypeConstraint
+  IModelTypeConstraint,
+  IModelTypeRegistry
 } from "./model.api"
 
 import {
@@ -20,7 +21,7 @@ import {
   ModelTypeRegistry
 } from "./model.registry"
 
-import {
+export {
   ModelTypeConstrainable,
   ModelTypeItem,
   ModelConstraints,
@@ -46,8 +47,13 @@ import {
 } from "./model.bool"
 
 export {
-  ModelParseContext
+  ModelParseContext,
+  ObjectTraversal
 } from "./model.infra"
+
+export {
+  ModelTypeRegistry
+} from "./model.registry"
 
 export {
     ModelTypeNumber,
@@ -74,11 +80,16 @@ export {
   ModelTypeObject
 } from "./model.object"
 
+export {
+  ModelSchemaParser
+} from "./model.parsing"
+
 export class ModelTypeConstraints {
   static less(v:number)      { return new ModelTypeConstraintLess(v); }
   static lessEqual(v:number) { return new ModelTypeConstraintLessEqual(v); }
   static more(v:number)      { return new ModelTypeConstraintMore(v); }
   static moreEqual(v:number) { return new ModelTypeConstraintMoreEqual(v); }
+
   static possibleValues(v:string[]) { return new ModelTypeConstraintPossibleValues(v); }
   static recommendedValues(v:string[]) { return new ModelTypeConstraintPossibleValues(v).warnOnly(); }
 }
@@ -91,6 +102,6 @@ modelTypes.addType(modelTypes.itemType('number').withConstraints(new ModelTypeCo
 modelTypes.addType(new ModelTypeString());
 
 modelTypes.addArrayType(modelTypes.type('number'));
-modelTypes.addArrayType(modelTypes.type('number'));
+modelTypes.addArrayType(modelTypes.type('number/int'));
 modelTypes.addArrayType(modelTypes.type('string'));
 modelTypes.addArrayType(modelTypes.type('boolean'));

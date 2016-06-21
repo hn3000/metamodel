@@ -39,4 +39,3 @@ export class ModelTypeArray<T> extends ModelTypeConstrainable<T[]> {
 
   private _elementType: IModelType<T>;
 }
-

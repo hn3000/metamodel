@@ -3,7 +3,7 @@ import {
   IModelTypeItem,
   IModelParseContext,
   IModelTypeConstraint
-} from "./model.api.ts"
+} from "./model.api"
 
 import {
   ModelParseContext
@@ -72,5 +72,38 @@ export class ModelTypeConstraintPossibleValues<T> extends ModelTypeConstraintOpt
 
 
   private _allowedValues:T[];
+}
+
+export class ModelTypeConstraintRegex extends ModelTypeConstraintOptional<string> {
+  constructor(pattern:string|RegExp, flags?:string, message?:string) {
+    super();
+    
+    var patternSource = (<RegExp>pattern).source || pattern.toString();
+    this._pattern = new RegExp(patternSource, flags||'');
+    if (null != message) {
+      this._message = message;
+    } else {
+      this._message = `value does not match ${this._pattern.toString()}:`;
+    }
+  }
+
+  protected _id():string { return `pattern[${this._pattern}]`; }
+
+  checkAndAdjustValue(val:string, ctx:IModelParseContext):string {
+    var result = val;
+    if (! this._pattern.exec(val)) {
+      if (this.isWarningOnly) {
+        ctx.addWarning(this._message, val);
+        result = val;
+      } else {
+        ctx.addError(this._message, val);
+        result = null;
+      }
+    }
+    return result;
+  }
+
+  private _pattern:RegExp;
+  private _message:string;
 }
 

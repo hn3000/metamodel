@@ -4,7 +4,7 @@ import {
   IModelTypeConstrainable,
   Predicate,
   IModelTypeItem
-} from "./model.api.ts"
+} from "./model.api"
 
 export class ModelConstraints<T> implements IModelTypeConstraint<T> {
   constructor(constraints:ModelConstraints<T>|IModelTypeConstraint<T>[]) {

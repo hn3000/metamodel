@@ -1,5 +1,5 @@
 {
-  "name": "metamodel",
+  "name": "@hn3000/metamodel",
   "version": "0.1.0",
   "description": "Meta Model for JS apps, to help with JSON schema processing and UI construction.",
   "main": "index.js",
@@ -7,23 +7,28 @@
     "tsc": "tsc",
     "tsc:w": "tsc -w",
     "pretest": "tsc",
-    "test": "node runtest.js"
+    "test": "node src/runtest.js"
   },
-  "index": "out/model.js",
+  "index": "out/src/model.js",
+  "typings": "out/src/model.d.ts",
   "keywords": [
     "model",
     "driven",
-    "ui",
-    "json",
-    "schema"
+    "metamodel"
   ],
   "author": "Harald Niesche",
   "license": "MIT",
   "devDependencies": {
     "tsunit.external": "^2.0.1",
-    "typescript": "^1.7.5"
+    "typescript": "^1.8.9"
   },
   "dependencies": {
     "systemjs": "^0.19.14"
+  },
+  "jspm": {
+    "dependencies": {},
+    "devDependencies": {
+      "typescript": "npm:typescript@^1.6.2"
+    }
   }
 }
