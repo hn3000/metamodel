@@ -73,26 +73,29 @@ export interface Fetcher {
   (url:string, base?:string): Promise<string>;
 }
 
-export class JsonReferenceExpander {
+export class JsonReferenceProcessor {
   constructor(fetch:Fetcher) {
     this._fetch = fetch;
     this._cache = {};
     this._contents = {};
   }
 
-  expandRef(url:string):Promise<any> {
+  fetchRef(url:string):Promise<any> {
     let ref = new JsonReference(url);
     var contentPromise = this._fetchContent(ref.filename);
-
     return contentPromise
       .then((x)=>{
         //console.log("fetching refs for ", x, ref.filename);
         return this._fetchRefs(x,ref.filename).then(()=>x);
       })
+  }
+
+  expandRef(url:string):Promise<any> {
+    return this.fetchRef(url)
       .then((x) => {
         // at this point all referenced files should be in _cache
         //console.log("expanding refs for ", x, ref.filename);
-        return this._expandRefs(url;
+        return this._expandRefs(url);
       });
   }
 

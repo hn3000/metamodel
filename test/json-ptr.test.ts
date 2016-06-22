@@ -94,7 +94,7 @@ export class JsonReferenceTest extends TestClass {
   testResolveRefs() {
 
     var fetch = (x:string) => Promise.resolve(fs.readFileSync(x, 'utf-8'));
-    var expander = new JsonReferenceExpander(fetch);
+    var expander = new JsonReferenceProcessor(fetch);
     var r = expander.expandRef ("./test/json-ptr.test.json#/foo");
 
     var result = null;
@@ -111,6 +111,6 @@ export class JsonReferenceTest extends TestClass {
       done = true;
     });
 
-    
+
   }
 } 

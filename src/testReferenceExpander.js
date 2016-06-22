@@ -1,13 +1,13 @@
 var fs = require('fs');
 var x = require('../out/json-ptr.js');
-var ee = new x.JsonReferenceExpander(x => {
+var ee = new x.JsonReferenceProcessor(x => {
   console.log("reading ",x);
   return Promise.resolve(fs.readFileSync(x,'utf-8'))
 });
 
 function logger(m, p) {
   return (x) => {
-    console.log(m, p, x);
+    console.log(m, p);
     try {
       console.log(JSON.stringify(x,null,2));
     }
