@@ -133,7 +133,7 @@ export class JsonReferenceProcessor {
           k,
           {
             enumerable: true, 
-            get: ((obj:any,k)=>this._expandDynamic(obj[k], url)).bind(this,obj,k)
+            get: ((obj:any,k:string)=>this._expandDynamic(obj[k], url)).bind(this,obj,k)
           }
         );
       }
@@ -207,7 +207,7 @@ export class JsonReferenceProcessor {
     //console.log("found refs ", refs);
 
     var files = refs.map(x => adjuster(JsonReference.getFilename(x)));
-    var filesHash:any = files.reduce((c:any,f) => { c[f] = f; return c; }, {});
+    var filesHash:any = files.reduce((c:any,f:string) => { c[f] = f; return c; }, {});
     files = Object.keys(filesHash);
     //console.log("found files ", refs, files, " fetching ...");
 

@@ -1,22 +1,11 @@
 ///<reference path="../typings/globals/node/index.d.ts"  />
 
-/*
-declare module "@node/fs" {
-  import * as fs from 'fs';
-  export = fs;
-}
-
 import * as fs from 'fs';
-*/
-
-declare function nodeRequire(m:string):any;
-
-var fs = nodeRequire('fs');
 
 import {
     JsonPointer,
     JsonReference,
-    JsonReferenceExpander
+    JsonReferenceProcessor
 } from "../src/json-ptr";
 
 import {
@@ -97,18 +86,11 @@ export class JsonReferenceTest extends TestClass {
     var expander = new JsonReferenceProcessor(fetch);
     var r = expander.expandRef ("./test/json-ptr.test.json#/foo");
 
-    var result = null;
-    var done = false;
-
     r.then ((x:any) => {
-      result = x;
       console.log("success!", x);
-      done = true;
       return x;
     }, (err:any) => { 
-      result = err; 
       console.log("failure!", err);
-      done = true;
     });
 
 

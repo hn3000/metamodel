@@ -1,10 +1,11 @@
 
 var System = require('systemjs');
 
-global.nodeRequire = require;
-
 System.config({
   trace:true,
+  map: {
+    "fs": "@node/fs"
+  },
   packages: {
     out: {
       format: 'register',
