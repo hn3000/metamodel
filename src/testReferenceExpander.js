@@ -1,3 +1,10 @@
+// since tsUnit can't really be used to test async stuff, 
+// this runs some tests for ocular inspection
+// requires json-ptr module to be compiled manually like:
+// $ tsc src/json-ptr.ts -t es5 -m commonjs -outDir out
+//
+// we apologize for the inconvenience
+
 var fs = require('fs');
 var x = require('../out/json-ptr.js');
 var ee = new x.JsonReferenceProcessor(x => {
