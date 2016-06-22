@@ -2,14 +2,13 @@
   "name": "@hn3000/metamodel",
   "version": "0.1.0",
   "description": "Meta Model for JS apps, to help with JSON schema processing and UI construction.",
-  "main": "index.js",
   "scripts": {
     "tsc": "tsc",
     "tsc:w": "tsc -w",
     "pretest": "tsc",
     "test": "node src/runtest.js"
   },
-  "index": "out/src/model.js",
+  "main": "out/src/model.js",
   "typings": "out/src/model.d.ts",
   "keywords": [
     "model",
@@ -29,6 +28,7 @@
     "dependencies": {},
     "devDependencies": {
       "typescript": "npm:typescript@^1.6.2"
-    }
+    },
+    "format": "cjs" 
   }
 }

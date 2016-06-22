@@ -6,7 +6,7 @@
 // we apologize for the inconvenience
 
 var fs = require('fs');
-var x = require('../out/json-ptr.js');
+var x = require('../out/src/json-ptr.js');
 var ee = new x.JsonReferenceProcessor(x => {
   console.log("reading ",x);
   return Promise.resolve(fs.readFileSync(x,'utf-8'))
