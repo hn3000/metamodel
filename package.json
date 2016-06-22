@@ -22,7 +22,6 @@
     "typescript": "^1.8.9"
   },
   "dependencies": {
-    "systemjs": "^0.19.14"
   },
   "jspm": {
     "dependencies": {},
