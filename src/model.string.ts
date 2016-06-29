@@ -57,6 +57,10 @@ export class ModelTypeConstraintPossibleValues<T> extends ModelTypeConstraintOpt
     this._allowedValues = values || [];
   }
 
+  public get allowedValues():T[] {
+    return this._allowedValues; // might wanna return a copy
+  }
+
   protected _id():string { return `oneof[${this._allowedValues.join(',')}]`; }
 
   checkAndAdjustValue(val:T, ctx:IModelParseContext):T {
