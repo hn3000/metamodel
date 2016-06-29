@@ -44,11 +44,15 @@ var ModelSchemaParser = (function () {
             case 'integer':
                 result = this.parseSchemaObjectTypeNumber(schemaObject, new model_number_1.ModelTypeConstraintInteger());
                 break;
+            case 'boolean':
+                result = this.parseSchemaObjectTypeString(schemaObject);
+                break;
             case 'bool':
+                console.log("warning: non-standard type 'bool' found in schema");
                 result = this.parseSchemaObjectTypeString(schemaObject);
                 break;
             default:
-                console.log("don't know how to handle " + schemaObject);
+                console.log("don't know how to handle " + schemaObject + " / " + schemaType);
                 break;
         }
         if (result != null) {

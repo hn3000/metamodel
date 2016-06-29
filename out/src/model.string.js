@@ -46,6 +46,13 @@ var ModelTypeConstraintPossibleValues = (function (_super) {
         _super.call(this);
         this._allowedValues = values || [];
     }
+    Object.defineProperty(ModelTypeConstraintPossibleValues.prototype, "allowedValues", {
+        get: function () {
+            return this._allowedValues; // might wanna return a copy
+        },
+        enumerable: true,
+        configurable: true
+    });
     ModelTypeConstraintPossibleValues.prototype._id = function () { return "oneof[" + this._allowedValues.join(',') + "]"; };
     ModelTypeConstraintPossibleValues.prototype.checkAndAdjustValue = function (val, ctx) {
         var result = val;
