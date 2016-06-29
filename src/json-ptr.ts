@@ -113,17 +113,28 @@ export class JsonReferenceProcessor {
     let json = this._contents[filename];
     let obj = ref.pointer.getValue(json);
 
-    return this._expandDynamic(obj, filename, base);
+    return this._expandDynamic(obj, filename, base,[]);
   }
 
-  _expandDynamic(obj:any, filename:string, base?:string) {
+  _expandDynamic(obj:any, filename:string, base?:string, keypath?:string[]) {
     var url = this._adjustUrl(filename, base);
-    if (obj.hasOwnProperty("$ref")) {
+    if (obj && obj.hasOwnProperty && obj.hasOwnProperty("$ref")) {
       return this._expandRefs(obj["$ref"], url);
+    } else {
+      if (!obj) {
+        var error:Error = null;
+        try { throw new Error("here is a stacktrace"); }
+        catch (xx) {
+          error = xx;
+        }
+        console.log("expanding undefined? ", obj, filename, base, keypath, error.stack);
+      }
     }
 
     var result = obj; 
-    if (typeof obj === 'object') {
+    if (typeof obj === 'object' && Array.isArray(obj)) {
+      result = (<any[]>obj).map((x)=>this._expandDynamic(x, url, null, [...keypath]));
+    } else if (typeof obj === 'object') {
       result = {};
       var keys = Object.keys(obj);
       for (var k of keys) {
@@ -133,7 +144,7 @@ export class JsonReferenceProcessor {
           k,
           {
             enumerable: true, 
-            get: ((obj:any,k:string)=>this._expandDynamic(obj[k], url)).bind(this,obj,k)
+            get: ((obj:any,k:string)=>this._expandDynamic(obj[k], url,null,[...keypath,k])).bind(this,obj,k)
           }
         );
       }

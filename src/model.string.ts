@@ -46,6 +46,9 @@ export class ModelTypeString extends ModelTypeItem<string> {
 
   asString(val:string):string { return val; }
   fromString(val:string):string { return val; }
+
+  protected _kind() { return 'string'; }
+
 }
 
 export class ModelTypeConstraintPossibleValues<T> extends ModelTypeConstraintOptional<T> {

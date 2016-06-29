@@ -53,6 +53,8 @@ export class ModelTypeBool extends ModelTypeItem<boolean> {
     return val.toString();
   }
 
+  protected _kind() { return 'bool'; }
+
   private _parseString(val:string):boolean {
     let result:boolean = null;
     switch(val) {

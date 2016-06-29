@@ -10,7 +10,9 @@ export {
   IModelTypeComposite,
   IModelTypeCompositeBuilder,
   IModelTypeConstraint,
-  IModelTypeRegistry
+  IModelTypeRegistry,
+  IModelView,
+  IModelViewField
 } from "./model.api"
 
 import {
@@ -84,6 +86,10 @@ export {
   ModelSchemaParser
 } from "./model.parsing"
 
+
+export {
+  ModelView
+} from "./model.view"
 export class ModelTypeConstraints {
   static less(v:number)      { return new ModelTypeConstraintLess(v); }
   static lessEqual(v:number) { return new ModelTypeConstraintLessEqual(v); }

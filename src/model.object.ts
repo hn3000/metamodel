@@ -4,28 +4,36 @@ import {
   IModelTypeCompositeBuilder,
   IModelTypeEntry,
   IModelTypeComposite,
-  IModelParseContext
+  IModelParseContext,
+  IModelTypeConstraint
 } from "./model.api"
+
+import {
+  ModelTypeConstrainable,
+  ModelConstraints
+} from "./model.base"
 
 function constructionNotAllowed<T>():T {
   throw new Error('can not use subtype for construction');
 }
 
-export class ModelTypeObject<T> implements IModelTypeCompositeBuilder<T> {
-  private _name:string;
+export class ModelTypeObject<T> 
+  extends ModelTypeConstrainable<T>
+  implements IModelTypeCompositeBuilder<T>
+{
   private _constructFun: ()=>T;
   private _entries: IModelTypeEntry[];
   private _entriesByName: { [key:string]:IModelTypeEntry };
 
-  constructor(name:string, construct?:()=>T) {
-    this._name = name;
+  constructor(name:string, construct?:()=>T, constraints?:ModelConstraints<T>) {
+    super(name, constraints);
     this._constructFun = construct || (()=>(<T>{}));
     this._entries = [];
     this._entriesByName = { };
   }
 
-  get name():string {
-    return this._name;
+  protected _clone(constraints:ModelConstraints<T>):this {
+    return new (<any>this.constructor)(this.name, this._constructFun, constraints);
   }
 
   asItemType():IModelTypeItem<T> {
@@ -51,8 +59,9 @@ export class ModelTypeObject<T> implements IModelTypeCompositeBuilder<T> {
   }
 
   subModel(name:string|number) {
-    if (typeof name === 'string') {
-      return this._entriesByName[name].type;
+    if (typeof name === 'string' || typeof name === 'number') {
+      let entry = this._entriesByName[name]; 
+      return entry && entry.type;
     }
 
     return null;
@@ -104,5 +113,8 @@ export class ModelTypeObject<T> implements IModelTypeCompositeBuilder<T> {
     }
     return result;
   }
+
+  protected _kind() { return 'object'; }
+
 }
 

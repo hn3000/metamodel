@@ -3,8 +3,27 @@ import {
   IModelTypeConstraint,
   IModelTypeConstrainable,
   Predicate,
-  IModelTypeItem
+  IModelTypeItem,
+  IClientProps
 } from "./model.api"
+
+export class ClientProps implements IClientProps {
+  propExists(key:string):boolean {
+    return this._data.hasOwnProperty(key);
+  }
+  propGet(key:string):any {
+    return this._data[key];
+  }
+  propSet(key:string, val:any):void {
+    this._data[key] = val;
+  }
+  propKeys():string[] {
+    return Object.keys(this._data);
+  }
+
+  private _data:any = {};
+}
+
 
 export class ModelConstraints<T> implements IModelTypeConstraint<T> {
   constructor(constraints:ModelConstraints<T>|IModelTypeConstraint<T>[]) {
@@ -37,8 +56,12 @@ export class ModelConstraints<T> implements IModelTypeConstraint<T> {
   private _constraints: IModelTypeConstraint<T>[];
 }
 
-export abstract class ModelTypeConstrainable<T> implements IModelTypeConstrainable<T> {
+export abstract class ModelTypeConstrainable<T> 
+  extends ClientProps
+  implements IModelTypeConstrainable<T> 
+{
   constructor(name:string, constraints:ModelConstraints<T> = null) {
+    super();
     this._constraints = constraints || new ModelConstraints<T>([]);
     let cid = this._constraints.id;
     if ('' !== cid) {
@@ -49,6 +72,8 @@ export abstract class ModelTypeConstrainable<T> implements IModelTypeConstrainab
   }
 
   get name():string { return this._name; }
+  get kind():string { return this._kind(); }
+
   asItemType() : IModelTypeItem<T> { return null; }
 
   withConstraints(...c:IModelTypeConstraint<T>[]):this {
@@ -64,6 +89,8 @@ export abstract class ModelTypeConstrainable<T> implements IModelTypeConstrainab
   abstract validate(ctx:IModelParseContext):void;
   abstract unparse(val:T):any;
 
+  protected abstract _kind():string;
+
   protected _setName(name:string) {
     this._name = name;
   }
@@ -76,6 +103,7 @@ export abstract class ModelTypeConstrainable<T> implements IModelTypeConstrainab
   protected _getConstraints(): ModelConstraints<T> {
     return this._constraints;
   }
+
 
   private _name:string;
   private _constraints:ModelConstraints<T>;

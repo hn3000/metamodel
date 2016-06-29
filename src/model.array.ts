@@ -37,5 +37,7 @@ export class ModelTypeArray<T> extends ModelTypeConstrainable<T[]> {
     return <any>result;
   }
 
+  protected _kind() { return 'array'; }
+
   private _elementType: IModelType<T>;
 }

@@ -10,16 +10,19 @@ export class ModelParseMessage implements IModelParseMessage {
   private _path:string;
   private _msg:string;
   private _args:any[];
+  private _isError:boolean;
 
-  constructor(path: string, msg:string, ...args:any[]) {
+  constructor(isError:boolean, path: string, msg:string, ...args:any[]) {
     this._path = path;
     this._msg = msg;
     this._args = args;
+    this._isError = isError;
   }
 
   get path():string { return this._path; }
   get msg():string { return this._msg; }
   get args():any[] { return this._args; }
+  get isError():boolean { return this._isError; }
 }
 
 export class ObjectTraversal {
@@ -129,6 +132,7 @@ export class ModelParseContext implements IModelParseContext {
 
   addWarning(msg:string, ...args:any[]) {
     this._warnings.push(new ModelParseMessage(
+      false,
       this.currentKeyPath().join('.'),
       msg, ...args
     ));
@@ -140,6 +144,7 @@ export class ModelParseContext implements IModelParseContext {
 
   addError(msg:string, ...args:any[]) {
     this._errors.push(new ModelParseMessage(
+      true,
       this.currentKeyPath().join('.'),
       msg, ...args
     ));

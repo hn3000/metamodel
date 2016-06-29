@@ -7,10 +7,18 @@ export interface IModelObject {
   [key:string]:any;
 }
 
+export interface IClientProps {
+  propExists(key:string):boolean;
+  propGet(key:string):any;
+  propSet(key:string, val:any):void;
+  propKeys():string[];
+}
+
 export interface IModelParseMessage {
   path:string;
   msg:string;
   args:any[];
+  isError:boolean;
 }
 
 export interface IModelParseContext {
@@ -31,6 +39,7 @@ export interface IModelParseContext {
 
 export interface IModelType<T> {
   name:string;
+  kind:string;
   parse(ctx:IModelParseContext):T;
   validate(ctx:IModelParseContext):void;
   unparse(val:T):any;
@@ -46,6 +55,7 @@ export interface IModelTypeConstrainable<T> extends IModelType<T> {
 export interface IModelTypeConstraint<T> {
   id:string;
   checkAndAdjustValue(val:T, ctx:IModelParseContext):T;
+  usedFields?():string[];
 }
 
 export interface IModelTypeItem<T> extends IModelTypeConstrainable<T> {
@@ -78,4 +88,28 @@ export interface IModelTypeRegistry {
   itemType(name:string) : IModelTypeItem<any>;
   addType(type:IModelType<any>): void;
   getRegisteredNames():string[];
+}
+
+export type Primitive = string|number|boolean|string[]|number[];
+
+export interface IModelViewField {
+  keypath:string[];   // ["a","b","c"]
+  pointer:string;     // "a/b/c"
+  accesspath:string;  // "a.b.c"
+  type:IModelType<any>;
+  validate(val:any):IModelParseMessage[];
+}
+
+/**
+ * Provides an immutable facade for a model, adding IModelType 
+ * based validation and support for copy-on-write mutation.
+ * 
+ */
+export interface IModelView<T> {
+  getModelType():IModelType<T>;
+  getModel():T; // might actually be a read-only view of underlying data
+
+  changeField(keyPath:string|string[], newValue:Primitive|any[]):IModelView<T>;
+  getFieldValue(keyPath:string|string[]):any;
+  getField(keyPath:string|string[]):IModelViewField;
 }

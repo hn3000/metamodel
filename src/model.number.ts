@@ -74,6 +74,8 @@ export class ModelTypeNumber extends ModelTypeItem<number> {
     return val.toString(10);
   }
 
+  protected _kind() { return 'number'; }
+
 }
 
 export class ModelTypeConstraintInteger implements IModelTypeConstraint<number> {

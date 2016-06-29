@@ -10,7 +10,8 @@ import {
 } from "./model.registry";
 
 import {
-  ModelConstraints
+  ModelConstraints,
+  ModelTypeConstrainable
 } from "./model.base";
 
 import {
@@ -62,23 +63,37 @@ export class ModelSchemaParser implements IModelTypeRegistry {
   
   parseSchemaObject(schemaObject:any, name?:string):IModelType<any> {
     var schemaType = schemaObject['type'];
+    var result:ModelTypeConstrainable<any> = null;
+
     switch (schemaType) {
       case 'object':
-        return this.parseSchemaObjectTypeObject(schemaObject, name);
+        result = this.parseSchemaObjectTypeObject(schemaObject, name);
+        break;
       case 'array':
-        return this.parseSchemaObjectTypeArray(schemaObject);
+        result = this.parseSchemaObjectTypeArray(schemaObject);
+        break;
       case 'string':
-        return this.parseSchemaObjectTypeString(schemaObject);
+        result = this.parseSchemaObjectTypeString(schemaObject);
+        break;
       case 'number':
-        return this.parseSchemaObjectTypeNumber(schemaObject);
+        result = this.parseSchemaObjectTypeNumber(schemaObject);
+        break;
       case 'integer':
-        return this.parseSchemaObjectTypeNumber(schemaObject, new ModelTypeConstraintInteger());
+        result = this.parseSchemaObjectTypeNumber(schemaObject, new ModelTypeConstraintInteger());
+        break;
       case 'bool':
-        return this.parseSchemaObjectTypeString(schemaObject);
+        result = this.parseSchemaObjectTypeString(schemaObject);
+        break;
+      default:
+        console.log(`don't know how to handle ${schemaObject}`);
+        break;
     }
     
-    console.log(`don't know how to handle ${schemaObject}`);
-    return null;
+    if (result != null) {
+      result.propSet("schema", schemaObject);
+    }
+
+    return result;
   }
 
   parseSchemaConstraintEnum<T>(schemaObject:any) {
@@ -111,6 +126,12 @@ export class ModelSchemaParser implements IModelTypeRegistry {
     if (pattern != null) {
       constraints.push(new ModelTypeConstraintRegex(pattern, ''));
     }
+
+    let enumConstraint = this.parseSchemaConstraintEnum<string>(schemaObject);
+    if (null != enumConstraint) {
+      constraints.push(enumConstraint);
+    }
+
     return new ModelTypeString(new ModelConstraints(constraints));
   }
   
@@ -139,6 +160,11 @@ export class ModelSchemaParser implements IModelTypeRegistry {
     if (typeof(multipleOf) === "number") {
       constraints.push(new ModelTypeConstraintMultipleOf(multipleOf));
     }
+    let enumConstraint = this.parseSchemaConstraintEnum<number>(schemaObject);
+    if (null != enumConstraint) {
+      constraints.push(enumConstraint);
+    }
+
     return new ModelTypeNumber(new ModelConstraints(constraints));
   }
   
