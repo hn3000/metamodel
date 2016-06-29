@@ -12,6 +12,7 @@
     "declaration": true
   },
   "files": [
+    "typings/index.d.ts",
     "src/model.ts",
     "src/model.api.ts",
     "test/allTests.ts",

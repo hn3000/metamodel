@@ -6,6 +6,7 @@ import { ModelTypeArray } from "./model.array";
 import { ModelTypeObject } from "./model.object";
 export declare class ModelSchemaParser implements IModelTypeRegistry {
     constructor();
+    addSchemaFromURL(url: string): Promise<any>;
     addSchemaObject(name: string, schemaObject: any): IModelType<any>;
     parseSchemaObject(schemaObject: any, name?: string): IModelType<any>;
     parseSchemaConstraintEnum<T>(schemaObject: any): ModelTypeConstraintPossibleValues<T>;
@@ -18,5 +19,7 @@ export declare class ModelSchemaParser implements IModelTypeRegistry {
     itemType(name: string): IModelTypeItem<any>;
     addType(type: IModelType<any>): void;
     getRegisteredNames(): string[];
+    private _ensureRefProcessor();
     private _registry;
+    private _refProcessor;
 }

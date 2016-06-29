@@ -47,11 +47,24 @@ import {
 } from "./model.object"
 
 
+import { JsonReferenceProcessor } from "./json-ptr"
+
+import * as fetch from "isomorphic-fetch";
+import { Promise } from "es6-promise";
+
 export class ModelSchemaParser implements IModelTypeRegistry {
   constructor() {
     this._registry = new ModelTypeRegistry();
   }
   
+  addSchemaFromURL(url:string):Promise<any> {
+    this._ensureRefProcessor();
+    var p = this._refProcessor.expandRef(url);
+
+    return p.then((schema:any) => {
+      return this.addSchemaObject(url, schema);
+    });
+  }
   
   addSchemaObject(name:string, schemaObject:any):IModelType<any> {
     var type = this.parseSchemaObject(schemaObject, name);
@@ -199,10 +212,29 @@ export class ModelSchemaParser implements IModelTypeRegistry {
   addType(type:IModelType<any>) { this._registry.addType(type); }
   getRegisteredNames() { return this._registry.getRegisteredNames(); }
   
+  private _ensureRefProcessor() {
+    if (!this._refProcessor) {
+      this._refProcessor = new JsonReferenceProcessor(fetchFetcher);
+    }
+  }
+
   private _registry:ModelTypeRegistry;
+  private _refProcessor:JsonReferenceProcessor;
 }
 
 function anonymousId(prefix?:string) {
   var suffix = (Math.floor(Math.random()*10e6)+(Date.now()*10e6)).toString(36);
   return (prefix || 'anon') + suffix;
+}
+
+function fetchFetcher(url:string):Promise<string> {
+  var p = fetch(url);
+  
+  return p.then(function (r:any) {
+    if (r.status < 300) {
+      var x = r.text();
+      return x;
+    }
+    return null;
+  });
 }

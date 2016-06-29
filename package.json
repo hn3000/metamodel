@@ -22,12 +22,7 @@
     "typescript": "^1.8.9"
   },
   "dependencies": {
-  },
-  "jspm": {
-    "dependencies": {},
-    "devDependencies": {
-      "typescript": "npm:typescript@^1.6.2"
-    },
-    "format": "cjs" 
+    "es6-promises": "^1.0.10",
+    "isomorphic-fetch": "^2.2.1"
   }
 }

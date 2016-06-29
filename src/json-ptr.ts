@@ -1,5 +1,7 @@
 
-/// <reference path="../typings/index.d.ts" />
+/* /// <reference path="../typings/index.d.ts" /> */
+
+import { Promise } from "es6-promise";
 
 export class JsonPointer {
   constructor(ref:string) {
@@ -87,12 +89,12 @@ export class JsonReferenceProcessor {
       .then((x)=>{
         //console.log("fetching refs for ", x, ref.filename);
         return this._fetchRefs(x,ref.filename).then(()=>x);
-      })
+      });
   }
 
   expandRef(url:string):Promise<any> {
     return this.fetchRef(url)
-      .then((x) => {
+      .then((x:any) => {
         // at this point all referenced files should be in _cache
         //console.log("expanding refs for ", x, ref.filename);
         return this._expandRefs(url);

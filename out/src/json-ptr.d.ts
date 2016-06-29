@@ -1,4 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
 export declare class JsonPointer {
     constructor(ref: string);
     static unquote(s: string): string;

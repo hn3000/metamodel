@@ -1,5 +1,6 @@
-/// <reference path="../typings/index.d.ts" />
+/* /// <reference path="../typings/index.d.ts" /> */
 "use strict";
+var es6_promise_1 = require("es6-promise");
 var JsonPointer = (function () {
     function JsonPointer(ref) {
         this._keypath = (ref || "").split('/').slice(1).map(JsonPointer.unquote);
@@ -222,7 +223,7 @@ var JsonReferenceProcessor = (function () {
             }
         });
         //console.log("got promises ", filesPromises);
-        var promise = Promise.all(filesPromises);
+        var promise = es6_promise_1.Promise.all(filesPromises);
         if (needThen) {
             return promise.then(this._fetchRefsAll.bind(this, files));
         }
@@ -233,7 +234,7 @@ var JsonReferenceProcessor = (function () {
         for (var i = 0, n = x.length; i < n; ++i) {
             result.push(this._fetchRefs(x[i], files[i]));
         }
-        return Promise.all(result);
+        return es6_promise_1.Promise.all(result);
     };
     return JsonReferenceProcessor;
 }());

@@ -6,10 +6,20 @@ var model_string_1 = require("./model.string");
 var model_bool_1 = require("./model.bool");
 var model_array_1 = require("./model.array");
 var model_object_1 = require("./model.object");
+var json_ptr_1 = require("./json-ptr");
+var fetch = require("isomorphic-fetch");
 var ModelSchemaParser = (function () {
     function ModelSchemaParser() {
         this._registry = new model_registry_1.ModelTypeRegistry();
     }
+    ModelSchemaParser.prototype.addSchemaFromURL = function (url) {
+        var _this = this;
+        this._ensureRefProcessor();
+        var p = this._refProcessor.expandRef(url);
+        return p.then(function (schema) {
+            return _this.addSchemaObject(url, schema);
+        });
+    };
     ModelSchemaParser.prototype.addSchemaObject = function (name, schemaObject) {
         var type = this.parseSchemaObject(schemaObject, name);
         type && this._registry.addType(type);
@@ -141,11 +151,26 @@ var ModelSchemaParser = (function () {
     ModelSchemaParser.prototype.itemType = function (name) { return this._registry.itemType(name); };
     ModelSchemaParser.prototype.addType = function (type) { this._registry.addType(type); };
     ModelSchemaParser.prototype.getRegisteredNames = function () { return this._registry.getRegisteredNames(); };
+    ModelSchemaParser.prototype._ensureRefProcessor = function () {
+        if (!this._refProcessor) {
+            this._refProcessor = new json_ptr_1.JsonReferenceProcessor(fetchFetcher);
+        }
+    };
     return ModelSchemaParser;
 }());
 exports.ModelSchemaParser = ModelSchemaParser;
 function anonymousId(prefix) {
     var suffix = (Math.floor(Math.random() * 10e6) + (Date.now() * 10e6)).toString(36);
     return (prefix || 'anon') + suffix;
+}
+function fetchFetcher(url) {
+    var p = fetch(url);
+    return p.then(function (r) {
+        if (r.status < 300) {
+            var x = r.text();
+            return x;
+        }
+        return null;
+    });
 }
 //# sourceMappingURL=model.parsing.js.map
