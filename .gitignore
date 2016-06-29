@@ -1,4 +1,4 @@
-out
+#out
 node_modules
 jspm_packages
 .vscode/settings.json
