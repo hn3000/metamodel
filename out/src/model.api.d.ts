@@ -50,6 +50,7 @@ export interface IModelTypeItem<T> extends IModelTypeConstrainable<T> {
     asString(val: T): string;
     lowerBound(): IModelTypeConstraint<T>;
     upperBound(): IModelTypeConstraint<T>;
+    possibleValues(): T[];
 }
 export interface IModelTypeEntry {
     key: string;
@@ -87,7 +88,7 @@ export interface IModelViewField {
 export interface IModelView<T> {
     getModelType(): IModelType<T>;
     getModel(): T;
-    changeField(keyPath: string | string[], newValue: Primitive | any[]): IModelView<T>;
+    withChangedField(keyPath: string | string[], newValue: Primitive | any[]): IModelView<T>;
     getFieldValue(keyPath: string | string[]): any;
     getField(keyPath: string | string[]): IModelViewField;
 }

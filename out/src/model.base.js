@@ -121,6 +121,18 @@ var ModelTypeItem = (function (_super) {
     ModelTypeItem.prototype.asItemType = function () {
         return this;
     };
+    ModelTypeItem.prototype.possibleValues = function () {
+        var candidates = this.findConstraints(function (x) { return null != x["allowedValues"]; });
+        var values = candidates.reduce(function (pv, c) {
+            var cc = c;
+            return cc.allowedValues.reduce(function (r, v) {
+                if (-1 == r.indexOf(v))
+                    return r.concat([v]);
+                return r;
+            }, pv);
+        }, []);
+        return values;
+    };
     return ModelTypeItem;
 }(ModelTypeConstrainable));
 exports.ModelTypeItem = ModelTypeItem;

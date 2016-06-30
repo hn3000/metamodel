@@ -37,6 +37,7 @@ export declare abstract class ModelTypeItem<T> extends ModelTypeConstrainable<T>
     asItemType(): IModelTypeItem<T>;
     abstract lowerBound(): IModelTypeConstraint<T>;
     abstract upperBound(): IModelTypeConstraint<T>;
+    possibleValues(): T[];
     abstract parse(ctx: IModelParseContext): T;
     abstract validate(ctx: IModelParseContext): void;
     abstract unparse(val: T): any;

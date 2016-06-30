@@ -5,6 +5,7 @@ export declare class JsonPointer {
     static deref(o: any, k: string): any;
     getValue(obj: any): any;
     asString(): string;
+    toString(): string;
     readonly keys: string[];
     private _keypath;
 }
@@ -13,6 +14,7 @@ export declare class JsonReference {
     static getFilename(ref: string): string;
     readonly filename: string;
     readonly pointer: JsonPointer;
+    toString(): string;
     private _filename;
     private _pointer;
 }
@@ -28,6 +30,7 @@ export declare class JsonReferenceProcessor {
     _findRefs(x: any): string[];
     _fetchContent(urlArg: string, base?: string): Promise<any>;
     _adjustUrl(url: string, base?: string): string;
+    private _adjusterCache;
     _urlAdjuster(base: string): (x: string) => string;
     _fetchRefs(x: any, base: string): Promise<any[]>;
     _fetchRefsAll(files: string[], x: any[]): Promise<any[]>;

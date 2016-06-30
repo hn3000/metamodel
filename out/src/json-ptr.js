@@ -22,7 +22,10 @@ var JsonPointer = (function () {
         return this._keypath.reduce(JsonPointer.deref, obj);
     };
     JsonPointer.prototype.asString = function () {
-        return ([''].concat(this._keypath)).map(JsonPointer.quote).join('/');
+        return '/' + (this._keypath.map(JsonPointer.quote).join('/'));
+    };
+    JsonPointer.prototype.toString = function () {
+        return this.asString();
     };
     Object.defineProperty(JsonPointer.prototype, "keys", {
         get: function () {
@@ -68,11 +71,15 @@ var JsonReference = (function () {
         enumerable: true,
         configurable: true
     });
+    JsonReference.prototype.toString = function () {
+        return this._filename + '#' + this._pointer;
+    };
     return JsonReference;
 }());
 exports.JsonReference = JsonReference;
 var JsonReferenceProcessor = (function () {
     function JsonReferenceProcessor(fetch) {
+        this._adjusterCache = {};
         this._fetch = fetch;
         this._cache = {};
         this._contents = {};
@@ -107,7 +114,17 @@ var JsonReferenceProcessor = (function () {
         }
         var json = this._contents[filename];
         var obj = ref.pointer.getValue(json);
-        return this._expandDynamic(obj, filename, base, []);
+        if (null != obj && typeof obj === 'object') {
+            return this._expandDynamic(obj, filename, base, []);
+        }
+        if (null == obj) {
+            return {
+                "$ref": ref.toString(),
+                "$filenotfound": json == null,
+                "$refnotfound": obj == null
+            };
+        }
+        return obj;
     };
     JsonReferenceProcessor.prototype._expandDynamic = function (obj, filename, base, keypath) {
         var _this = this;
@@ -176,7 +193,9 @@ var JsonReferenceProcessor = (function () {
         if (this._cache.hasOwnProperty(url)) {
             return this._cache[url];
         }
-        var result = this._fetch(url).then(function (x) { return JSON.parse(x); });
+        var result = this._fetch(url).then(function (x) {
+            return JSON.parse(x);
+        });
         this._cache[url] = result;
         result.then(function (x) { return (_this._contents[url] = x, x); });
         return result;
@@ -187,18 +206,24 @@ var JsonReferenceProcessor = (function () {
     JsonReferenceProcessor.prototype._urlAdjuster = function (base) {
         if (null != base) {
             var hashPos = base.indexOf('#');
-            if (hashPos == -1) {
-                hashPos = base.length;
+            var theBase = (hashPos === -1) ? base : base.substring(0, hashPos);
+            if (null != this._adjusterCache[theBase]) {
+                return this._adjusterCache[theBase];
             }
-            var slashPos = base.lastIndexOf('/', hashPos);
+            var slashPos = base.lastIndexOf('/');
             if (-1 != slashPos) {
-                var prefix = base.substring(0, slashPos + 1);
-                return function (x) {
-                    if (null == x || 0 === x.length || '/' === x.substring(0, 1)) {
+                var prefix_1 = base.substring(0, slashPos + 1);
+                var result = function (x) {
+                    if (null == x || x === "") {
+                        return theBase;
+                    }
+                    if ('/' === x.substring(0, 1)) {
                         return x;
                     }
-                    return prefix + x;
+                    return prefix_1 + x;
                 };
+                this._adjusterCache[theBase] = result;
+                return result;
             }
         }
         return function (x) { return x; };
