@@ -7,6 +7,10 @@ import {
   IClientProps
 } from "./model.api"
 
+import {
+  ModelTypeConstraintPossibleValues
+} from "./model.string"
+
 export class ClientProps implements IClientProps {
   propExists(key:string):boolean {
     return this._data.hasOwnProperty(key);
@@ -119,6 +123,18 @@ export abstract class ModelTypeItem<T>
 
   abstract lowerBound(): IModelTypeConstraint<T>;
   abstract upperBound(): IModelTypeConstraint<T>;
+  possibleValues(): T[] {
+    let candidates = this.findConstraints((x:any)=>null != x["allowedValues"]);
+    let values = candidates.reduce((pv:T[],c:IModelTypeConstraint<T>) => {
+      var cc = c as ModelTypeConstraintPossibleValues<T>;
+      return cc.allowedValues.reduce((r:T[], v:T) => {
+        if (-1 == r.indexOf(v)) return [...r,v];
+        return r;
+      }, pv);
+  }, []);
+
+    return values;
+  }
 
   abstract parse(ctx:IModelParseContext):T;
   abstract validate(ctx:IModelParseContext):void;

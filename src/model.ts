@@ -90,6 +90,13 @@ export {
 export {
   ModelView
 } from "./model.view"
+
+export {
+  JsonPointer,
+  JsonReference,
+  JsonReferenceProcessor
+} from "./json-ptr"
+
 export class ModelTypeConstraints {
   static less(v:number)      { return new ModelTypeConstraintLess(v); }
   static lessEqual(v:number) { return new ModelTypeConstraintLessEqual(v); }

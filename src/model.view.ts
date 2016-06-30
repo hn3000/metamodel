@@ -29,8 +29,10 @@ export class  ModelViewField implements IModelViewField {
  * 
  */
 export class ModelView<T> implements IModelView<T> {
-  constructor(modelType:IModelType<T>) {
+  constructor(modelType:IModelType<T>, modelData?:any) {
     this._modelType = modelType;
+    this._model = modelData || {};
+    this._inputModel = this._model;
   }
 
   getModelType():IModelType<T> {
@@ -41,9 +43,39 @@ export class ModelView<T> implements IModelView<T> {
 
     return this._model;
   } 
-  changeField(keyPath:string|string[], newValue:Primitive|any[]):IModelView<T> {
-    return null;
+  withChangedField(keyPath:string|string[], newValue:Primitive|any[]):IModelView<T> {
+    var path: string[];
+    if (Array.isArray(keyPath)) {
+      path = keyPath;
+    } else {
+      path = keyPath.split('.');
+    }
+    
+    var newModel = this._updatedModel(this._inputModel, path, newValue) as T; 
+    return new ModelView<T>(this._modelType, newModel);
   }
+
+  _updatedModel(model:any, keyPath:string[], newValue:Primitive|any[]) {
+    var keys = Object.keys(model);
+    var result:any = {};
+
+    var name = keyPath[0];
+    var value:any;
+
+    if (keyPath.length == 1) {
+      value = newValue;
+    } else {
+      value = this._updatedModel(model[name] || {}, keyPath.slice(1), newValue);
+    }
+    for (var k of keys) {
+      result[k] = (k == name) ? value : (model as any)[k];
+    }
+    if (!result.hasOwnProperty(name)) {
+      result[name] = value;
+    }
+    return result;
+  }
+
   getFieldValue(keyPath:string|string[]):any {
     var path: string[];
     if (Array.isArray(keyPath)) {
@@ -52,7 +84,7 @@ export class ModelView<T> implements IModelView<T> {
       path = keyPath.split('.');
     }
 
-    return path.reduce((o:any,k:string):any => (o && o[k]), this._model);
+    return path.reduce((o:any,k:string):any => (o && o[k]), this._inputModel);
   }
   getField(keyPath:string|string[]):IModelViewField {
     let key = (typeof keyPath === 'string') ? keyPath : keyPath.join('.');
@@ -63,4 +95,5 @@ export class ModelView<T> implements IModelView<T> {
   private _fields:{[keypath:string]:ModelViewField};
   private _inputModel:any;
   private _model:T;
+  private _visitedFlags: {[keypath:string]:boolean};
 }

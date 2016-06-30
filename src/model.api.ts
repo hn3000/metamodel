@@ -64,6 +64,7 @@ export interface IModelTypeItem<T> extends IModelTypeConstrainable<T> {
 
   lowerBound():IModelTypeConstraint<T>;
   upperBound():IModelTypeConstraint<T>;
+  possibleValues():T[]; // null -> no list of allowed values
 }
 
 export interface IModelTypeEntry {
@@ -109,7 +110,7 @@ export interface IModelView<T> {
   getModelType():IModelType<T>;
   getModel():T; // might actually be a read-only view of underlying data
 
-  changeField(keyPath:string|string[], newValue:Primitive|any[]):IModelView<T>;
+  withChangedField(keyPath:string|string[], newValue:Primitive|any[]):IModelView<T>;
   getFieldValue(keyPath:string|string[]):any;
   getField(keyPath:string|string[]):IModelViewField;
 }

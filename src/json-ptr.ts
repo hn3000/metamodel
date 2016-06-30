@@ -29,7 +29,11 @@ export class JsonPointer {
   }
 
   asString():string {
-    return (['',...this._keypath]).map(JsonPointer.quote).join('/');
+    return '/'+(this._keypath.map(JsonPointer.quote).join('/'));
+  }
+
+  toString():string {
+    return this.asString();
   }
 
   get keys():string[] {
@@ -65,6 +69,10 @@ export class JsonReference {
   }
   get pointer():JsonPointer {
     return this._pointer;
+  }
+
+  public toString():string {
+    return this._filename+'#'+this._pointer;
   }
 
   private _filename:string;
@@ -115,7 +123,19 @@ export class JsonReferenceProcessor {
     let json = this._contents[filename];
     let obj = ref.pointer.getValue(json);
 
-    return this._expandDynamic(obj, filename, base,[]);
+    if (null != obj && typeof obj === 'object') {
+      return this._expandDynamic(obj, filename, base,[]);
+    }
+
+    if (null == obj) {
+      return { 
+        "$ref": ref.toString(), 
+        "$filenotfound": json == null, 
+        "$refnotfound": obj == null  
+      };
+    }
+
+    return obj;
   }
 
   _expandDynamic(obj:any, filename:string, base?:string, keypath?:string[]) {
@@ -183,7 +203,9 @@ export class JsonReferenceProcessor {
     if (this._cache.hasOwnProperty(url)) {
       return this._cache[url];
     }
-    let result = this._fetch(url).then((x)=>JSON.parse(x));
+    let result = this._fetch(url).then((x)=>{
+      return JSON.parse(x)
+    });
     this._cache[url] = result;
     result.then((x) => (this._contents[url]=x, x));
 
@@ -194,21 +216,32 @@ export class JsonReferenceProcessor {
     return this._urlAdjuster(base)(url);
   }
 
+  private _adjusterCache:{ [base:string]:(x:string)=>string} = {};
+
   _urlAdjuster(base:string):(x:string)=>string {
     if (null != base) {
-      var hashPos = base.indexOf('#');
-      if (hashPos == -1) {
-        hashPos = base.length;
-      } 
-      var slashPos = base.lastIndexOf('/', hashPos);
+      let hashPos = base.indexOf('#');
+      var theBase = (hashPos === -1) ? base : base.substring(0, hashPos);
+
+      if (null != this._adjusterCache[theBase]) {
+        return this._adjusterCache[theBase];
+      }
+
+      let slashPos = base.lastIndexOf('/');
       if (-1 != slashPos) {
-        var prefix = base.substring(0, slashPos+1);
-        return (x) => {
-          if (null == x || 0 === x.length || '/' === x.substring(0,1)) {
+        let prefix = base.substring(0, slashPos+1);
+        let result = (x:string) => {
+          if (null == x || x === "") {
+            return theBase;
+          }
+          if ('/' === x.substring(0,1)) {
             return x;
           }
           return prefix + x;
         };
+        this._adjusterCache[theBase] = result;
+
+        return result;
       }
     }
     return (x) => x;

@@ -95,14 +95,14 @@ export class ModelSchemaParser implements IModelTypeRegistry {
         result = this.parseSchemaObjectTypeNumber(schemaObject, new ModelTypeConstraintInteger());
         break;
       case 'boolean':
-        result = this.parseSchemaObjectTypeString(schemaObject);
+        result = this.parseSchemaObjectTypeBool(schemaObject);
         break;
       case 'bool':
         console.log("warning: non-standard type 'bool' found in schema");
         result = this.parseSchemaObjectTypeString(schemaObject);
         break;
       default:
-        console.log(`don't know how to handle ${schemaObject} / ${schemaType}`);
+        console.log(`don't know how to handle type ${schemaType} in`, schemaObject);
         break;
     }
     
