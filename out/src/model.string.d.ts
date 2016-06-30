@@ -13,7 +13,7 @@ export declare class ModelTypeString extends ModelTypeItem<string> {
 }
 export declare class ModelTypeConstraintPossibleValues<T> extends ModelTypeConstraintOptional<T> {
     constructor(values: T[]);
-    readonly allowedValues: T[];
+    allowedValues: T[];
     protected _id(): string;
     checkAndAdjustValue(val: T, ctx: IModelParseContext): T;
     private _allowedValues;

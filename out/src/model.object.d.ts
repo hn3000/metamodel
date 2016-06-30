@@ -11,7 +11,7 @@ export declare class ModelTypeObject<T> extends ModelTypeConstrainable<T> implem
     subModel(name: string | number): IModelType<any>;
     slice(names: string[] | number[]): IModelTypeComposite<T>;
     extend<X>(type: IModelTypeComposite<X>): IModelTypeCompositeBuilder<T>;
-    readonly items: IModelTypeEntry[];
+    items: IModelTypeEntry[];
     parse(ctx: IModelParseContext): T;
     validate(ctx: IModelParseContext): void;
     unparse(value: T): any;

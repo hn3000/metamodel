@@ -8,7 +8,7 @@ export declare class ClientProps implements IClientProps {
 }
 export declare class ModelConstraints<T> implements IModelTypeConstraint<T> {
     constructor(constraints: ModelConstraints<T> | IModelTypeConstraint<T>[]);
-    readonly id: string;
+    id: string;
     checkAndAdjustValue(val: T, ctx: IModelParseContext): T;
     add(...c: IModelTypeConstraint<T>[]): ModelConstraints<T>;
     filter(p: Predicate<IModelTypeConstraint<T>>): IModelTypeConstraint<T>[];
@@ -17,8 +17,8 @@ export declare class ModelConstraints<T> implements IModelTypeConstraint<T> {
 }
 export declare abstract class ModelTypeConstrainable<T> extends ClientProps implements IModelTypeConstrainable<T> {
     constructor(name: string, constraints?: ModelConstraints<T>);
-    readonly name: string;
-    readonly kind: string;
+    name: string;
+    kind: string;
     asItemType(): IModelTypeItem<T>;
     withConstraints(...c: IModelTypeConstraint<T>[]): this;
     findConstraints(p: (x: IModelTypeConstraint<T>) => boolean): IModelTypeConstraint<T>[];
@@ -48,8 +48,8 @@ export declare abstract class ModelTypeConstraintOptional<T> implements IModelTy
     constructor();
     warnOnly(): this;
     abstract checkAndAdjustValue(v: T, c: IModelParseContext): T;
-    readonly isWarningOnly: boolean;
-    readonly id: string;
+    isWarningOnly: boolean;
+    id: string;
     protected abstract _id(): string;
     private _onlyWarn;
 }
