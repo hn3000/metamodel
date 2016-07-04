@@ -136,12 +136,14 @@ var ModelSchemaParser = (function () {
     ModelSchemaParser.prototype.parseSchemaObjectTypeObject = function (schemaObject, name) {
         var id = name || schemaObject.id || anonymousId();
         var type = new model_object_1.ModelTypeObject(id);
+        var required = schemaObject['required'] || [];
         var props = schemaObject['properties'];
         if (props) {
             var keys = Object.keys(props);
-            for (var i = 0, n = keys.length; i < n; ++i) {
-                var key = keys[i];
-                type.addItem(key, this.parseSchemaObject(props[key], key));
+            for (var _i = 0, keys_1 = keys; _i < keys_1.length; _i++) {
+                var key = keys_1[_i];
+                var isRequired = (-1 != required.indexOf(key));
+                type.addItem(key, this.parseSchemaObject(props[key], key), isRequired);
             }
         }
         return type;

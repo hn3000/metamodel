@@ -36,6 +36,7 @@ var ModelTypeString = (function (_super) {
     };
     ModelTypeString.prototype.asString = function (val) { return val; };
     ModelTypeString.prototype.fromString = function (val) { return val; };
+    ModelTypeString.prototype.create = function () { return ""; };
     ModelTypeString.prototype._kind = function () { return 'string'; };
     return ModelTypeString;
 }(model_base_1.ModelTypeItem));

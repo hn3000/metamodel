@@ -9,11 +9,12 @@ export declare class ModelTypeString extends ModelTypeItem<string> {
     unparse(value: string): any;
     asString(val: string): string;
     fromString(val: string): string;
+    create(): string;
     protected _kind(): string;
 }
 export declare class ModelTypeConstraintPossibleValues<T> extends ModelTypeConstraintOptional<T> {
     constructor(values: T[]);
-    allowedValues: T[];
+    readonly allowedValues: T[];
     protected _id(): string;
     checkAndAdjustValue(val: T, ctx: IModelParseContext): T;
     private _allowedValues;

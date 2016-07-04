@@ -5,6 +5,7 @@ export declare class ModelTypeArray<T> extends ModelTypeConstrainable<T[]> {
     parse(ctx: IModelParseContext): T[];
     validate(ctx: IModelParseContext): void;
     unparse(val: T[]): any;
+    create(): T[];
     protected _kind(): string;
     private _elementType;
 }

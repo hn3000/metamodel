@@ -5,14 +5,14 @@ export declare class ModelParseMessage implements IModelParseMessage {
     private _args;
     private _isError;
     constructor(isError: boolean, path: string, msg: string, ...args: any[]);
-    path: string;
-    msg: string;
-    args: any[];
-    isError: boolean;
+    readonly path: string;
+    readonly msg: string;
+    readonly args: any[];
+    readonly isError: boolean;
 }
 export declare class ObjectTraversal {
     constructor(obj: any);
-    top: any;
+    readonly top: any;
     descend(key: string): void;
     ascend(): void;
     private _top;
@@ -21,9 +21,9 @@ export declare class ObjectTraversal {
 }
 export declare class ParallelTraversal {
     constructor(obj: any[]);
-    top: any[];
-    topDefined: any;
-    topNonNull: any;
+    readonly top: any[];
+    readonly topDefined: any;
+    readonly topNonNull: any;
     descend(key: string): void;
     ascend(): void;
     prependTop(t: any): void;
@@ -42,10 +42,10 @@ export declare class ModelParseContext implements IModelParseContext {
     pushItem(key: string, required?: boolean): void;
     popItem(): void;
     addWarning(msg: string, ...args: any[]): void;
-    warnings: IModelParseMessage[];
+    readonly warnings: IModelParseMessage[];
     addError(msg: string, ...args: any[]): void;
-    errors: IModelParseMessage[];
-    allowConversion: boolean;
+    readonly errors: IModelParseMessage[];
+    readonly allowConversion: boolean;
     private _valueTraversal;
     private _currentRequired;
     private _allowConversion;

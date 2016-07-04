@@ -28,12 +28,13 @@ export interface IModelParseContext {
     warnings: IModelParseMessage[];
     allowConversion: boolean;
 }
-export interface IModelType<T> {
+export interface IModelType<T> extends IClientProps {
     name: string;
     kind: string;
     parse(ctx: IModelParseContext): T;
     validate(ctx: IModelParseContext): void;
     unparse(val: T): any;
+    create(): T;
     asItemType(): IModelTypeItem<T>;
 }
 export interface IModelTypeConstrainable<T> extends IModelType<T> {
@@ -71,24 +72,4 @@ export interface IModelTypeRegistry {
     itemType(name: string): IModelTypeItem<any>;
     addType(type: IModelType<any>): void;
     getRegisteredNames(): string[];
-}
-export declare type Primitive = string | number | boolean | string[] | number[];
-export interface IModelViewField {
-    keypath: string[];
-    pointer: string;
-    accesspath: string;
-    type: IModelType<any>;
-    validate(val: any): IModelParseMessage[];
-}
-/**
- * Provides an immutable facade for a model, adding IModelType
- * based validation and support for copy-on-write mutation.
- *
- */
-export interface IModelView<T> {
-    getModelType(): IModelType<T>;
-    getModel(): T;
-    withChangedField(keyPath: string | string[], newValue: Primitive | any[]): IModelView<T>;
-    getFieldValue(keyPath: string | string[]): any;
-    getField(keyPath: string | string[]): IModelViewField;
 }

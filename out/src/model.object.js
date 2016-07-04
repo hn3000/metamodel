@@ -48,8 +48,10 @@ var ModelTypeObject = (function (_super) {
     ModelTypeObject.prototype.slice = function (names) {
         if (Array.isArray(names)) {
             var result = new ModelTypeObject(this.name + "[" + names.join(',') + "]", constructionNotAllowed);
-            for (var i = 0, n = names.length; i < n; ++i) {
-                result.addItem('' + names[i], this._entriesByName[names[i]].type);
+            for (var _i = 0, names_1 = names; _i < names_1.length; _i++) {
+                var name = names_1[_i];
+                var entry = this._entriesByName[name];
+                result.addItem('' + name, entry.type, entry.required);
             }
             return result;
         }
@@ -66,7 +68,7 @@ var ModelTypeObject = (function (_super) {
         configurable: true
     });
     ModelTypeObject.prototype.parse = function (ctx) {
-        var result = this._constructFun ? this._constructFun() : {};
+        var result = this.create();
         for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
             var e = _a[_i];
             ctx.pushItem(e.key, e.required);
@@ -94,6 +96,9 @@ var ModelTypeObject = (function (_super) {
             }
         }
         return result;
+    };
+    ModelTypeObject.prototype.create = function () {
+        return this._constructFun ? this._constructFun() : {};
     };
     ModelTypeObject.prototype._kind = function () { return 'object'; };
     return ModelTypeObject;

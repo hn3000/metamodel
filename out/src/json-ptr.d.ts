@@ -6,14 +6,14 @@ export declare class JsonPointer {
     getValue(obj: any): any;
     asString(): string;
     toString(): string;
-    keys: string[];
+    readonly keys: string[];
     private _keypath;
 }
 export declare class JsonReference {
     constructor(ref: string);
     static getFilename(ref: string): string;
-    filename: string;
-    pointer: JsonPointer;
+    readonly filename: string;
+    readonly pointer: JsonPointer;
     toString(): string;
     private _filename;
     private _pointer;

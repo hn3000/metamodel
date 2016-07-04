@@ -38,6 +38,9 @@ var ModelTypeBool = (function (_super) {
     ModelTypeBool.prototype.unparse = function (value) {
         return value;
     };
+    ModelTypeBool.prototype.create = function () {
+        return false;
+    };
     ModelTypeBool.prototype.fromString = function (val) {
         var result = this._parseString(val);
         var ctx = new model_infra_1.ModelParseContext(result);

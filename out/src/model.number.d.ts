@@ -7,24 +7,25 @@ export declare class ModelTypeNumber extends ModelTypeItem<number> {
     parse(ctx: IModelParseContext): number;
     validate(ctx: IModelParseContext): void;
     unparse(value: number): any;
+    create(): number;
     fromString(val: string): number;
     asString(val: number): string;
     protected _kind(): string;
 }
 export declare class ModelTypeConstraintInteger implements IModelTypeConstraint<number> {
-    id: string;
+    readonly id: string;
     checkAndAdjustValue(val: number, ctx: IModelParseContext): number;
 }
 export declare class ModelTypeConstraintMultipleOf extends ModelTypeConstraintOptional<number> {
     constructor(modulus: number | ModelTypeConstraintMultipleOf);
     _id(): string;
     checkAndAdjustValue(val: number, ctx: IModelParseContext): number;
-    modulus: number;
+    readonly modulus: number;
     private _modulus;
 }
 export declare abstract class ModelTypeConstraintComparison extends ModelTypeConstraintOptional<number> {
     constructor(val: number | ModelTypeConstraintComparison);
-    value: number;
+    readonly value: number;
     warnOnly(): this;
     protected _id(): string;
     protected _op(): string;

@@ -33,6 +33,9 @@ var ModelTypeArray = (function (_super) {
         }
         return result;
     };
+    ModelTypeArray.prototype.create = function () {
+        return [];
+    };
     ModelTypeArray.prototype._kind = function () { return 'array'; };
     return ModelTypeArray;
 }(model_base_1.ModelTypeConstrainable));

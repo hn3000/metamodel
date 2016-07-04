@@ -1,4 +1,4 @@
-export { Predicate, IModelObject, IModelParseMessage, IModelParseContext, IModelType, IModelTypeConstrainable, IModelTypeItem, IModelTypeEntry, IModelTypeComposite, IModelTypeCompositeBuilder, IModelTypeConstraint, IModelTypeRegistry, IModelView, IModelViewField } from "./model.api";
+export { Predicate, IModelObject, IModelParseMessage, IModelParseContext, IModelType, IModelTypeConstrainable, IModelTypeItem, IModelTypeEntry, IModelTypeComposite, IModelTypeCompositeBuilder, IModelTypeConstraint, IModelTypeRegistry } from "./model.api";
 import { ModelTypeRegistry } from "./model.registry";
 export { ModelTypeConstrainable, ModelTypeItem, ModelConstraints, ModelTypeConstraintOptional } from "./model.base";
 import { ModelTypeConstraintLess, ModelTypeConstraintLessEqual, ModelTypeConstraintMore, ModelTypeConstraintMoreEqual } from "./model.number";
@@ -11,7 +11,7 @@ export { ModelTypeBool } from "./model.bool";
 export { ModelTypeArray } from "./model.array";
 export { ModelTypeObject } from "./model.object";
 export { ModelSchemaParser } from "./model.parsing";
-export { ModelView } from "./model.view";
+export { IValidationMessage, Primitive, IModelViewField, IModelView, ModelView } from "./model.view";
 export { JsonPointer, JsonReference, JsonReferenceProcessor } from "./json-ptr";
 export declare class ModelTypeConstraints {
     static less(v: number): ModelTypeConstraintLess;

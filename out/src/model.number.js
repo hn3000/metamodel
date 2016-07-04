@@ -54,6 +54,9 @@ var ModelTypeNumber = (function (_super) {
     ModelTypeNumber.prototype.unparse = function (value) {
         return value;
     };
+    ModelTypeNumber.prototype.create = function () {
+        return 0;
+    };
     ModelTypeNumber.prototype.fromString = function (val) {
         var result = parseFloat(val);
         var ctx = new model_infra_1.ModelParseContext(result);
