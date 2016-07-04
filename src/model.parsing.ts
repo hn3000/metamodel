@@ -192,14 +192,16 @@ export class ModelSchemaParser implements IModelTypeRegistry {
   parseSchemaObjectTypeObject(schemaObject:any, name?:string) {
     var id = name || schemaObject.id || anonymousId();
     var type = new ModelTypeObject(id);
+    var required:string[] = schemaObject['required'] || [];
     var props = schemaObject['properties'];
     if (props) {
       var keys = Object.keys(props);
-      for (var i = 0, n = keys.length; i < n; ++i) {
-        var key = keys[i];
-        type.addItem(key, this.parseSchemaObject(props[key], key));
+      for (var key of keys) {
+        let isRequired = (-1 != required.indexOf(key));
+        type.addItem(key, this.parseSchemaObject(props[key], key), isRequired);
       }
     }
+
     
     return type;
   }
