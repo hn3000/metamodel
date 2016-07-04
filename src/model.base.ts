@@ -92,6 +92,7 @@ export abstract class ModelTypeConstrainable<T>
   abstract parse(ctx:IModelParseContext):T;
   abstract validate(ctx:IModelParseContext):void;
   abstract unparse(val:T):any;
+  abstract create():T;
 
   protected abstract _kind():string;
 

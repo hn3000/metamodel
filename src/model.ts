@@ -1,3 +1,4 @@
+
 export {
   Predicate,
   IModelObject,
@@ -10,25 +11,23 @@ export {
   IModelTypeComposite,
   IModelTypeCompositeBuilder,
   IModelTypeConstraint,
-  IModelTypeRegistry,
-  IModelView,
-  IModelViewField
-} from "./model.api"
+  IModelTypeRegistry
+} from "./model.api";
 
 import {
   ModelParseContext
-} from "./model.infra"
+} from "./model.infra";
 
 import {
   ModelTypeRegistry
-} from "./model.registry"
+} from "./model.registry";
 
 export {
   ModelTypeConstrainable,
   ModelTypeItem,
   ModelConstraints,
   ModelTypeConstraintOptional
-} from "./model.base"
+} from "./model.base";
 
 import {
   ModelTypeNumber,
@@ -37,25 +36,25 @@ import {
   ModelTypeConstraintLessEqual,
   ModelTypeConstraintMore,
   ModelTypeConstraintMoreEqual
-} from "./model.number"
+} from "./model.number";
 
 import {
     ModelTypeString,
     ModelTypeConstraintPossibleValues
-} from "./model.string"
+} from "./model.string";
 
 import {
     ModelTypeBool
-} from "./model.bool"
+} from "./model.bool";
 
 export {
   ModelParseContext,
   ObjectTraversal
-} from "./model.infra"
+} from "./model.infra";
 
 export {
   ModelTypeRegistry
-} from "./model.registry"
+} from "./model.registry";
 
 export {
     ModelTypeNumber,
@@ -63,33 +62,37 @@ export {
     ModelTypeConstraintLessEqual,
     ModelTypeConstraintMore,
     ModelTypeConstraintMoreEqual
-} from "./model.number"
+} from "./model.number";
 
 export {
     ModelTypeString,
     ModelTypeConstraintPossibleValues
-} from "./model.string"
+} from "./model.string";
 
 export {
     ModelTypeBool
-} from "./model.bool"
+} from "./model.bool";
 
 export {
   ModelTypeArray
-} from "./model.array"
+} from "./model.array";
 
 export {
   ModelTypeObject
-} from "./model.object"
+} from "./model.object";
 
 export {
   ModelSchemaParser
-} from "./model.parsing"
+} from "./model.parsing";
 
 
 export {
+  IValidationMessage,
+  Primitive,
+  IModelViewField,
+  IModelView,
   ModelView
-} from "./model.view"
+} from "./model.view";
 
 export {
   JsonPointer,

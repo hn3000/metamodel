@@ -36,6 +36,9 @@ export class ModelTypeArray<T> extends ModelTypeConstrainable<T[]> {
     }
     return <any>result;
   }
+  create():T[] {
+    return [];
+  }
 
   protected _kind() { return 'array'; }
 

@@ -62,6 +62,9 @@ export class ModelTypeNumber extends ModelTypeItem<number> {
   unparse(value:number):any {
     return value;
   }
+  create():number {
+    return 0;
+  }
 
   fromString(val:string):number {
     let result = parseFloat(val);

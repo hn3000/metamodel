@@ -41,6 +41,10 @@ export class ModelTypeBool extends ModelTypeItem<boolean> {
   unparse(value:boolean):any {
     return value;
   }
+  create():boolean {
+    return false;
+  }
+
 
   fromString(val:string):boolean {
     let result = this._parseString(val);

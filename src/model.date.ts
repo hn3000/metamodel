@@ -66,7 +66,10 @@ export class ModelTypeDate extends ModelTypeItem<Date> {
     this.parse(ctx);
   }
   unparse(value:Date):any {
-    return value;
+    return value.toString();
+  }
+  create():T {
+    return new Date();
   }
 
   fromString(val:string):Date {

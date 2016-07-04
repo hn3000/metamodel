@@ -70,8 +70,9 @@ export class ModelTypeObject<T>
   slice(names:string[]|number[]):IModelTypeComposite<T> {
     if (Array.isArray(names)) {
       var result = new ModelTypeObject<any>(`${this.name}[${names.join(',')}]`, constructionNotAllowed);
-      for (var i=0,n=names.length; i<n; ++i) {
-        result.addItem(''+names[i], this._entriesByName[names[i]].type);
+      for (var name of names) {
+        let entry = this._entriesByName[name]
+        result.addItem(''+name, entry.type, entry.required);
       }
       return result;
     }
@@ -87,7 +88,7 @@ export class ModelTypeObject<T>
   }
 
   parse(ctx:IModelParseContext):T {
-    let result = this._constructFun ? this._constructFun() : <T><any>{};
+    let result = this.create();
     for (let e of this._entries) {
       ctx.pushItem(e.key, e.required);
       (<any>result)[e.key] = e.type.parse(ctx);
@@ -112,6 +113,9 @@ export class ModelTypeObject<T>
       }
     }
     return result;
+  }
+  create():T {
+    return this._constructFun ? this._constructFun() : <T><any>{};
   }
 
   protected _kind() { return 'object'; }

@@ -46,6 +46,7 @@ export class ModelTypeString extends ModelTypeItem<string> {
 
   asString(val:string):string { return val; }
   fromString(val:string):string { return val; }
+  create():string { return ""; }
 
   protected _kind() { return 'string'; }
 
