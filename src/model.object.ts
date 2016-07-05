@@ -71,8 +71,10 @@ export class ModelTypeObject<T>
     if (Array.isArray(names)) {
       var result = new ModelTypeObject<any>(`${this.name}[${names.join(',')}]`, constructionNotAllowed);
       for (var name of names) {
-        let entry = this._entriesByName[name]
-        result.addItem(''+name, entry.type, entry.required);
+        let entry = this._entriesByName[name];
+        if (entry) {
+          result.addItem(''+name, entry.type, entry.required);
+        }
       }
       return result;
     }
