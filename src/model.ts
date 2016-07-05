@@ -90,6 +90,7 @@ export {
   IValidationMessage,
   Primitive,
   IModelViewField,
+  IModelViewPage,
   IModelView,
   ModelView
 } from "./model.view";
