@@ -37,6 +37,7 @@ export interface IModelView<T> {
   getModel():T; // might actually be a read-only view of underlying data
 
   withChangedField(keyPath:string|string[], newValue:Primitive|any[]):IModelView<T>;
+  withAddedData(obj:any):IModelView<T>;
   getFieldValue(keyPath:string|string[]):any;
   getField(keyPath:string|string[]):IModelViewField;
   getFields():IModelViewField[];
@@ -51,6 +52,8 @@ export interface IModelView<T> {
 
   currentPageIndex:number; // 0 based
   currentPageNo:number;    // 1 based
+
+  withValidationMessages(messages:IValidationMessage[]):IModelView<T>;
 
   validateDefault():Promise<IModelView<T>>;
   validateVisited():Promise<IModelView<T>>;
@@ -216,6 +219,9 @@ export class ModelView<T> implements IModelView<T> {
       this._viewMeta = new ModelViewMeta(modelTypeOrSelf);
       this._model = modelData || {};
       this._visitedFields = {};
+      for (var k of Object.keys(this._model)) {
+        this._visitedFields[k] = true;
+      }
       this._currentPage = 0;
     }
     this._inputModel = this._model;
@@ -309,6 +315,14 @@ export class ModelView<T> implements IModelView<T> {
 
     result._visitedFields[keyString] = true;
 
+    return result;
+  }
+
+  withAddedData(obj:any):IModelView<T> {
+    var result:IModelView<T> = this;
+    for (var k of Object.keys(obj)) {
+      result = result.withChangedField(k, obj[k]);
+    }
     return result;
   }
 
