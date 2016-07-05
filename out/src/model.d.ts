@@ -11,7 +11,7 @@ export { ModelTypeBool } from "./model.bool";
 export { ModelTypeArray } from "./model.array";
 export { ModelTypeObject } from "./model.object";
 export { ModelSchemaParser } from "./model.parsing";
-export { IValidationMessage, Primitive, IModelViewField, IModelView, ModelView } from "./model.view";
+export { IValidationMessage, Primitive, IModelViewField, IModelViewPage, IModelView, ModelView } from "./model.view";
 export { JsonPointer, JsonReference, JsonReferenceProcessor } from "./json-ptr";
 export declare class ModelTypeConstraints {
     static less(v: number): ModelTypeConstraintLess;

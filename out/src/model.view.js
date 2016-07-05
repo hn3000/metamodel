@@ -153,6 +153,10 @@ var ModelView = (function () {
             this._viewMeta = new ModelViewMeta(modelTypeOrSelf);
             this._model = modelData || {};
             this._visitedFields = {};
+            for (var _i = 0, _a = Object.keys(this._model); _i < _a.length; _i++) {
+                var k = _a[_i];
+                this._visitedFields[k] = true;
+            }
             this._currentPage = 0;
         }
         this._inputModel = this._model;
@@ -234,6 +238,14 @@ var ModelView = (function () {
         var newModel = this._viewMeta._updatedModel(this._inputModel, path, newValue);
         var result = new ModelView(this, newModel);
         result._visitedFields[keyString] = true;
+        return result;
+    };
+    ModelView.prototype.withAddedData = function (obj) {
+        var result = this;
+        for (var _i = 0, _a = Object.keys(obj); _i < _a.length; _i++) {
+            var k = _a[_i];
+            result = result.withChangedField(k, obj[k]);
+        }
         return result;
     };
     ModelView.prototype._asKeyArray = function (keyPath) {

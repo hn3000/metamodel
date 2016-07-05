@@ -13,7 +13,7 @@ export interface IClientProps {
 export interface IModelParseMessage {
     path: string;
     msg: string;
-    args: any[];
+    args?: any[];
     isError: boolean;
 }
 export interface IModelParseContext {

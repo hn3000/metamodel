@@ -21,6 +21,7 @@ export interface IModelView<T> {
     getModelType(): IModelType<T>;
     getModel(): T;
     withChangedField(keyPath: string | string[], newValue: Primitive | any[]): IModelView<T>;
+    withAddedData(obj: any): IModelView<T>;
     getFieldValue(keyPath: string | string[]): any;
     getField(keyPath: string | string[]): IModelViewField;
     getFields(): IModelViewField[];
@@ -32,6 +33,7 @@ export interface IModelView<T> {
     isPageValid(alias: string): boolean;
     currentPageIndex: number;
     currentPageNo: number;
+    withValidationMessages(messages: IValidationMessage[]): IModelView<T>;
     validateDefault(): Promise<IModelView<T>>;
     validateVisited(): Promise<IModelView<T>>;
     validatePage(): Promise<IModelView<T>>;
@@ -93,6 +95,7 @@ export declare class ModelView<T> implements IModelView<T> {
     validatePage(): Promise<IModelView<T>>;
     private _validateSlice(modelSlice, kind);
     withChangedField(keyPath: string | string[], newValue: Primitive | any[]): IModelView<T>;
+    withAddedData(obj: any): IModelView<T>;
     _asKeyArray(keyPath: string | string[]): string[];
     _asKeyString(keyPath: string | string[]): string;
     getFieldValue(keyPath: string | string[]): any;

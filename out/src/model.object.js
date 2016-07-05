@@ -51,7 +51,9 @@ var ModelTypeObject = (function (_super) {
             for (var _i = 0, names_1 = names; _i < names_1.length; _i++) {
                 var name = names_1[_i];
                 var entry = this._entriesByName[name];
-                result.addItem('' + name, entry.type, entry.required);
+                if (entry) {
+                    result.addItem('' + name, entry.type, entry.required);
+                }
             }
             return result;
         }
