@@ -41,6 +41,7 @@ export declare class ModelParseContext implements IModelParseContext {
     currentKeyPath(): string[];
     pushItem(key: string, required?: boolean): void;
     popItem(): void;
+    addMessage(isError: boolean, msg: string, ...args: any[]): void;
     addWarning(msg: string, ...args: any[]): void;
     readonly warnings: IModelParseMessage[];
     addError(msg: string, ...args: any[]): void;

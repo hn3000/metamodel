@@ -1,5 +1,5 @@
 import { IModelType, IModelTypeItem, IModelTypeCompositeBuilder, IModelTypeEntry, IModelTypeComposite, IModelParseContext } from "./model.api";
-import { ModelTypeConstrainable, ModelConstraints } from "./model.base";
+import { ModelTypeConstrainable, ModelConstraints, ModelTypeConstraintOptional } from "./model.base";
 export declare class ModelTypeObject<T> extends ModelTypeConstrainable<T> implements IModelTypeCompositeBuilder<T> {
     private _constructFun;
     private _entries;
@@ -17,4 +17,32 @@ export declare class ModelTypeObject<T> extends ModelTypeConstrainable<T> implem
     unparse(value: T): any;
     create(): T;
     protected _kind(): string;
+}
+export declare class ModelTypeConstraintEqualFields extends ModelTypeConstraintOptional<any> {
+    constructor(fieldsOrSelf: string[] | ModelTypeConstraintEqualFields);
+    private _isConstraintEqualFields();
+    protected _id(): string;
+    checkAndAdjustValue(val: any, ctx: IModelParseContext): Date;
+    private _fields;
+}
+export interface IRequiredIfOptions {
+    ifField: string;
+    ifValue: string | number | string[] | number[];
+    required: string | string[];
+    possibleValues?: any[];
+}
+export interface IRequiredIfSettings {
+    ifField: string;
+    ifValue: string[] | number[];
+    required: string[];
+    possibleValues?: any[];
+}
+export declare class ModelTypeConstraintRequiredIf extends ModelTypeConstraintOptional<any> {
+    constructor(optionsOrSelf: IRequiredIfOptions | ModelTypeConstraintRequiredIf);
+    private _isConstraintRequiredIf();
+    protected _id(): string;
+    _checkValue(val: any, possible: any | any[]): boolean;
+    _checkIf(val: any): boolean;
+    checkAndAdjustValue(val: any, ctx: IModelParseContext): Date;
+    private _settings;
 }

@@ -1,11 +1,11 @@
-import { IModelType, IModelTypeItem, IModelTypeConstraint, IModelTypeRegistry } from "./model.api";
+import { IModelType, IModelTypeItem, IModelTypeConstraint, IModelTypeConstraintFactory, IModelTypeRegistry } from "./model.api";
 import { ModelTypeNumber } from "./model.number";
 import { ModelTypeString, ModelTypeConstraintPossibleValues } from "./model.string";
 import { ModelTypeBool } from "./model.bool";
 import { ModelTypeArray } from "./model.array";
 import { ModelTypeObject } from "./model.object";
 export declare class ModelSchemaParser implements IModelTypeRegistry {
-    constructor();
+    constructor(constraintFactory?: IModelTypeConstraintFactory);
     addSchemaFromURL(url: string): Promise<any>;
     addSchemaObject(name: string, schemaObject: any): IModelType<any>;
     parseSchemaObject(schemaObject: any, name?: string): IModelType<any>;
@@ -20,6 +20,7 @@ export declare class ModelSchemaParser implements IModelTypeRegistry {
     addType(type: IModelType<any>): void;
     getRegisteredNames(): string[];
     private _ensureRefProcessor();
+    private _constraintFactory;
     private _registry;
     private _refProcessor;
 }

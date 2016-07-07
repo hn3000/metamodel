@@ -1,4 +1,4 @@
-export { Predicate, IModelObject, IModelParseMessage, IModelParseContext, IModelType, IModelTypeConstrainable, IModelTypeItem, IModelTypeEntry, IModelTypeComposite, IModelTypeCompositeBuilder, IModelTypeConstraint, IModelTypeRegistry } from "./model.api";
+export { Predicate, IModelObject, IModelParseMessage, IModelParseContext, IModelType, IModelTypeConstrainable, IModelTypeItem, IModelTypeEntry, IModelTypeComposite, IModelTypeCompositeBuilder, IModelTypeConstraint, IModelTypeConstraintFactory, IModelTypeRegistry } from "./model.api";
 import { ModelTypeRegistry } from "./model.registry";
 export { ModelTypeConstrainable, ModelTypeItem, ModelConstraints, ModelTypeConstraintOptional } from "./model.base";
 import { ModelTypeConstraintLess, ModelTypeConstraintLessEqual, ModelTypeConstraintMore, ModelTypeConstraintMoreEqual } from "./model.number";

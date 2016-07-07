@@ -3,13 +3,44 @@ var model_registry_1 = require("./model.registry");
 var model_base_1 = require("./model.base");
 var model_number_1 = require("./model.number");
 var model_string_1 = require("./model.string");
+var model_date_1 = require("./model.date");
 var model_bool_1 = require("./model.bool");
 var model_array_1 = require("./model.array");
 var model_object_1 = require("./model.object");
 var json_ptr_1 = require("./json-ptr");
 var fetch = require("isomorphic-fetch");
+function shallowMerge(a, b) {
+    var result = {};
+    var tmp = {};
+    Object.keys(a).forEach(function (x) { return tmp[x] = x; });
+    Object.keys(b).forEach(function (x) { return tmp[x] = x; });
+    var keys = Object.keys(tmp);
+    for (var _i = 0, keys_1 = keys; _i < keys_1.length; _i++) {
+        var k = keys_1[_i];
+        result[k] = null != b[k] ? b[k] : a[k];
+    }
+    return result;
+}
+var constraintFactoryDefault = {
+    less: function (o) { return new model_number_1.ModelTypeConstraintLess(o.value); },
+    more: function (o) { return new model_number_1.ModelTypeConstraintMore(o.value); },
+    lessEqual: function (o) { return new model_number_1.ModelTypeConstraintLessEqual(o.value); },
+    moreEqual: function (o) { return new model_number_1.ModelTypeConstraintMoreEqual(o.value); },
+    minAge: function (o) { return new model_date_1.ModelTypeConstraintOlder(o.age); },
+    fieldsEqual: function (o) { return new model_object_1.ModelTypeConstraintEqualFields(o); },
+    requiredIf: function (o) { return new model_object_1.ModelTypeConstraintRequiredIf(o); },
+    valueIf: function (o) {
+        return new model_object_1.ModelTypeConstraintRequiredIf({
+            ifField: o.ifField,
+            ifValue: o.ifValue,
+            required: o.constrainedField,
+            possibleValues: o.possibleValues
+        });
+    }
+};
 var ModelSchemaParser = (function () {
-    function ModelSchemaParser() {
+    function ModelSchemaParser(constraintFactory) {
+        this._constraintFactory = constraintFactory || {};
         this._registry = new model_registry_1.ModelTypeRegistry();
     }
     ModelSchemaParser.prototype.addSchemaFromURL = function (url) {
@@ -140,8 +171,8 @@ var ModelSchemaParser = (function () {
         var props = schemaObject['properties'];
         if (props) {
             var keys = Object.keys(props);
-            for (var _i = 0, keys_1 = keys; _i < keys_1.length; _i++) {
-                var key = keys_1[_i];
+            for (var _i = 0, keys_2 = keys; _i < keys_2.length; _i++) {
+                var key = keys_2[_i];
                 var isRequired = (-1 != required.indexOf(key));
                 type.addItem(key, this.parseSchemaObject(props[key], key), isRequired);
             }

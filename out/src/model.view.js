@@ -155,7 +155,7 @@ var ModelView = (function () {
             this._visitedFields = {};
             for (var _i = 0, _a = Object.keys(this._model); _i < _a.length; _i++) {
                 var k = _a[_i];
-                this._visitedFields[k] = true;
+                this._visitedFields[k] = (null != this._model[k]);
             }
             this._currentPage = 0;
         }
