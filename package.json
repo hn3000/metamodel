@@ -6,6 +6,7 @@
     "tsc": "tsc",
     "tsc:w": "tsc -w",
     "pretest": "tsc",
+    "postinstall": "typings install",
     "test": "node src/runtest.js"
   },
   "main": "out/src/model.js",
@@ -22,6 +23,7 @@
     "typescript": "^1.8.9"
   },
   "dependencies": {
+    "es6-promise": "^3.2.1",
     "es6-promises": "^1.0.10",
     "isomorphic-fetch": "^2.2.1"
   }
