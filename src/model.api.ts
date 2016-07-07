@@ -30,6 +30,7 @@ export interface IModelParseContext {
 
   addWarning(msg:string, ...args:any[]):void;
   addError(msg:string, ...args:any[]):void;
+  addMessage(isError:boolean, msg:string, ...args:any[]):void;
 
   errors:IModelParseMessage[];
   warnings:IModelParseMessage[];
@@ -58,6 +59,12 @@ export interface IModelTypeConstraint<T> {
   id:string;
   checkAndAdjustValue(val:T, ctx:IModelParseContext):T;
   usedFields?():string[];
+
+  appliesTo?(kind:string):boolean;
+}
+
+export interface IModelTypeConstraintFactory {
+  [kind:string]:(options:any) => IModelTypeConstraint<any>;
 }
 
 export interface IModelTypeItem<T> extends IModelTypeConstrainable<T> {

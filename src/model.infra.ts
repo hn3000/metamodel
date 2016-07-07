@@ -130,12 +130,17 @@ export class ModelParseContext implements IModelParseContext {
     }
   }
 
-  addWarning(msg:string, ...args:any[]) {
-    this._warnings.push(new ModelParseMessage(
-      false,
+  addMessage(isError:boolean, msg:string, ...args:any[]) {
+    var message = new ModelParseMessage(
+      isError,
       this.currentKeyPath().join('.'),
       msg, ...args
-    ));
+    );
+    (isError?this._errors:this._warnings).push(message);
+  }
+
+  addWarning(msg:string, ...args:any[]) {
+    this.addMessage(false, msg, ...args);
   }
 
   get warnings():IModelParseMessage[] {
@@ -143,11 +148,7 @@ export class ModelParseContext implements IModelParseContext {
   }
 
   addError(msg:string, ...args:any[]) {
-    this._errors.push(new ModelParseMessage(
-      true,
-      this.currentKeyPath().join('.'),
-      msg, ...args
-    ));
+    this.addMessage(true, msg, ...args);
   }
 
   get errors():IModelParseMessage[] {

@@ -10,7 +10,8 @@ import {
 
 import {
   ModelTypeConstrainable,
-  ModelConstraints
+  ModelConstraints,
+  ModelTypeConstraintOptional
 } from "./model.base"
 
 function constructionNotAllowed<T>():T {
@@ -69,7 +70,7 @@ export class ModelTypeObject<T>
 
   slice(names:string[]|number[]):IModelTypeComposite<T> {
     if (Array.isArray(names)) {
-      var result = new ModelTypeObject<any>(`${this.name}[${names.join(',')}]`, constructionNotAllowed);
+      var result = new ModelTypeObject<any>(`${this.name}[${names.join(',')}]`, this._constructFun); // constructionNotAllowed ?
       for (var name of names) {
         let entry = this._entriesByName[name];
         if (entry) {
@@ -124,3 +125,135 @@ export class ModelTypeObject<T>
 
 }
 
+export class ModelTypeConstraintEqualFields extends ModelTypeConstraintOptional<any> {
+  constructor(fieldsOrSelf:string[]|ModelTypeConstraintEqualFields) {
+    super();
+    if (Array.isArray(fieldsOrSelf)) {
+      this._fields = fieldsOrSelf.slice();
+    } else {
+      this._fields = (<ModelTypeConstraintEqualFields>fieldsOrSelf)._fields.slice();
+    }
+  }
+  private _isConstraintEqualFields() {} // marker property
+
+  protected _id():string {
+    return `equalFields(${this._fields.join(',')})`;
+  }
+
+  checkAndAdjustValue(val:any, ctx:IModelParseContext):Date {
+    let fields = this._fields;
+    var check = true;
+    fields.reduce((a,b) => { check = check && val[a] == val[b]; return b; });
+    let result = val;
+    if (!check) {
+      for (var f of fields) {
+        ctx.pushItem(f, !this.warnOnly());
+        ctx.addError(`expected fields to be equal: ${fields.join(',')}.`);
+        ctx.popItem();
+      }
+    }
+    return result;
+  }
+
+  private _fields:string[];
+}
+
+export interface IRequiredIfOptions {
+  // fieldname
+  ifField: string;   
+  // value(s) that trigger the if
+  ifValue: string|number|string[]|number[];
+  // field(s) to require  
+  required: string|string[];
+  // if required is a single string, this is allowed:
+  possibleValues?: any[];
+}
+
+export interface IRequiredIfSettings {
+  ifField: string;   
+  ifValue: string[]|number[];
+  required: string[];
+  // if required is a single string, this is allowed:
+  possibleValues?: any[];
+}
+
+function safeArray<T>(val:T|T[]):T[] {
+  return  Array.isArray(val) ? val.slice() : [ val ];
+}
+
+export class ModelTypeConstraintRequiredIf extends ModelTypeConstraintOptional<any> {
+  constructor(optionsOrSelf:IRequiredIfOptions|ModelTypeConstraintRequiredIf) {
+    super();
+    let options = optionsOrSelf as IRequiredIfOptions;
+    if (options.ifField && options.ifValue && options.required) {
+
+      if (Array.isArray(options.required) && null != options.possibleValues) {
+        throw new Error("must not combine list of required fields with possibleValues");
+      }
+
+      // so we always have an array:
+      let required = safeArray(options.required); 
+      let ifValue = <string[]|number[]>safeArray<string|number>(options.ifValue);
+
+      // copy the object so the values can't be switched later:
+      this._settings = {
+        ifField: options.ifField,
+        ifValue: ifValue,
+        required: required,
+        possibleValues: options.possibleValues
+      };
+    } else if (this._isConstraintRequiredIf == (<any>optionsOrSelf)["_isConstraintRequiredIf"]) {
+      this._settings = (<ModelTypeConstraintRequiredIf>optionsOrSelf)._settings;
+    }
+  }
+  private _isConstraintRequiredIf() {} // marker property
+
+  protected _id():string {
+    let o = this._settings;
+    let required = Array.isArray(o.required) ? o.required.join(',') : o.required;
+    let values = o.possibleValues ? " == ${o.possibleValues}" : ""
+    return `requiredIf(${o.ifField} == ${o.ifValue} -> ${required}${values})`;
+  }
+
+  _checkValue(val:any, possible:any|any[]) {
+    if (Array.isArray(possible)) {
+      return (<any[]>possible).some((x) => x == val);
+    }
+    return val == possible;  
+  }
+
+  _checkIf(val:any) {
+    let options = this._settings;
+    let fieldValue = val[options.ifField];
+    return this._checkValue(fieldValue, options.ifValue);
+  }
+
+  checkAndAdjustValue(val:any, ctx:IModelParseContext):Date {
+    var check = true;
+    let s = this._settings;
+    if (this._checkIf(val)) {
+      let isError = !this.warnOnly;
+      for (var f of s.required) {
+        ctx.pushItem(f, isError);
+        if (s.possibleValues) {
+          if (!this._checkValue(ctx.currentValue, s.possibleValues)) {
+            ctx.addMessage(isError, `required field has forbidden value.`, ctx.currentValue, s.possibleValues);
+          }
+        } else {
+          if (null == ctx.currentValue) {
+            ctx.addMessage(isError, `required field not filled.`);
+          }
+        }
+        ctx.popItem();
+      }
+    }
+
+    if (!check) {
+      for (var f of s.required) {
+      }
+    }
+    return val;
+  }
+
+  private _settings:IRequiredIfSettings;
+}

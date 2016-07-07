@@ -11,6 +11,7 @@ export {
   IModelTypeComposite,
   IModelTypeCompositeBuilder,
   IModelTypeConstraint,
+	IModelTypeConstraintFactory,
   IModelTypeRegistry
 } from "./model.api";
 

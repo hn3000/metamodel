@@ -220,7 +220,7 @@ export class ModelView<T> implements IModelView<T> {
       this._model = modelData || {};
       this._visitedFields = {};
       for (var k of Object.keys(this._model)) {
-        this._visitedFields[k] = true;
+        this._visitedFields[k] = (null != (<any>this._model)[k]);
       }
       this._currentPage = 0;
     }

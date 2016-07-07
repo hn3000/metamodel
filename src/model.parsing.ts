@@ -2,6 +2,7 @@ import {
   IModelType,
   IModelTypeItem,
   IModelTypeConstraint,
+  IModelTypeConstraintFactory,
   IModelTypeRegistry
 } from "./model.api"
 
@@ -11,7 +12,8 @@ import {
 
 import {
   ModelConstraints,
-  ModelTypeConstrainable
+  ModelTypeConstrainable,
+
 } from "./model.base";
 
 import {
@@ -35,6 +37,13 @@ import {
 } from "./model.string"
 
 import {
+    ModelTypeDate,
+    ModelTypeConstraintBefore,
+    ModelTypeConstraintAfter,
+    ModelTypeConstraintOlder
+} from "./model.date"
+
+import {
     ModelTypeBool
 } from "./model.bool"
 
@@ -43,7 +52,9 @@ import {
 } from "./model.array"
 
 import {
-  ModelTypeObject
+  ModelTypeObject,
+  ModelTypeConstraintEqualFields,
+  ModelTypeConstraintRequiredIf
 } from "./model.object"
 
 
@@ -52,8 +63,41 @@ import { JsonReferenceProcessor } from "./json-ptr"
 import * as fetch from "isomorphic-fetch";
 import { Promise } from "es6-promise";
 
+function shallowMerge(a:any, b:any):any {
+  let result:any = {};
+  let tmp:any = {};
+  Object.keys(a).forEach((x) => tmp[x]=x);
+  Object.keys(b).forEach((x) => tmp[x]=x);
+  let keys = Object.keys(tmp);
+  
+  for (var k of keys) {
+    result[k] = null != b[k] ? b[k] : a[k];
+  }
+  return result;
+}
+
+var constraintFactoryDefault = {
+  less(o:any)         { return new ModelTypeConstraintLess(o.value); },
+  more(o:any)         { return new ModelTypeConstraintMore(o.value); },
+  lessEqual(o:any)    { return new ModelTypeConstraintLessEqual(o.value); },
+  moreEqual(o:any)    { return new ModelTypeConstraintMoreEqual(o.value); },
+  minAge(o:any)       { return new ModelTypeConstraintOlder(o.age); },
+  fieldsEqual(o:any)  { return new ModelTypeConstraintEqualFields(o); },
+  requiredIf(o:any)   { return new ModelTypeConstraintRequiredIf(o); },
+
+  valueIf(o:any) { 
+    return new ModelTypeConstraintRequiredIf({
+      ifField: o.ifField, 
+      ifValue: o.ifValue,
+      required: o.constrainedField,
+      possibleValues: o.possibleValues
+    }); 
+  }
+};
+
 export class ModelSchemaParser implements IModelTypeRegistry {
-  constructor() {
+  constructor(constraintFactory?:IModelTypeConstraintFactory) {
+    this._constraintFactory = constraintFactory || {};
     this._registry = new ModelTypeRegistry();
   }
   
@@ -224,6 +268,7 @@ export class ModelSchemaParser implements IModelTypeRegistry {
     }
   }
 
+  private _constraintFactory:IModelTypeConstraintFactory;
   private _registry:ModelTypeRegistry;
   private _refProcessor:JsonReferenceProcessor;
 }
