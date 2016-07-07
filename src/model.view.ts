@@ -372,7 +372,7 @@ export class ModelView<T> implements IModelView<T> {
     } else if (typeof aliasOrIndex == 'string') {
       throw new Error("not implemented, yet -- do we need it?");
     } else {
-      page = this.getPages()[aliasOrIndex];
+      page = this.getPages()[aliasOrIndex as number];
     }
     return page;
   }
