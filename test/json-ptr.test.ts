@@ -10,7 +10,7 @@ import {
 
 import {
   TestClass
-} from "tsunit.external/tsUnit";
+} from "@hn3000/tsunit-async";
 
 export class JsonPointerTest extends TestClass {
   private json: any;
@@ -86,7 +86,7 @@ export class JsonReferenceTest extends TestClass {
     var expander = new JsonReferenceProcessor(fetch);
     var r = expander.expandRef ("./test/json-ptr.test.json#/foo");
 
-    r.then ((x:any) => {
+    return r.then ((x:any) => {
       console.log("success!", x);
       return x;
     }, (err:any) => { 

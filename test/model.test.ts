@@ -6,7 +6,7 @@ import {
 
 import {
   TestClass
-} from "tsunit.external/tsUnit";
+} from "@hn3000/tsunit-async";
 
 export class ModelTest extends TestClass {
   testSimpleMetaModel() {
