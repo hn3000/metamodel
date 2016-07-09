@@ -93,6 +93,7 @@ export {
   IModelViewField,
   IModelViewPage,
   IModelView,
+  ValidationScope,
   ModelView
 } from "./model.view";
 

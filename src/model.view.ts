@@ -16,7 +16,7 @@ export type Primitive = string|number|boolean|string[]|number[];
 export interface IModelViewField {
   keypath:string[];   // ["a","b","c"]
   pointer:string;     // "/a/b/c"
-  key:string;  // "a.b.c"
+  key:string;         // "a.b.c"
   type:IModelType<any>;
   validate(val:any):IModelParseMessage[];
 }
@@ -25,6 +25,10 @@ export interface IModelViewPage {
   alias:string;
   type:IModelTypeComposite<any>;
   fields:string[];
+}
+
+export enum ValidationScope {
+  VISITED, PAGE, FULL
 }
 
 /**
@@ -55,9 +59,11 @@ export interface IModelView<T> {
 
   withValidationMessages(messages:IValidationMessage[]):IModelView<T>;
 
+  validationScope():ValidationScope;
   validateDefault():Promise<IModelView<T>>;
   validateVisited():Promise<IModelView<T>>;
   validatePage():Promise<IModelView<T>>;
+  validateFull():Promise<IModelView<T>>;
   changePage(step:number):Promise<IModelView<T>>;
 }
 
@@ -262,27 +268,40 @@ export class ModelView<T> implements IModelView<T> {
     return result;
   }
 
+  validationScope() {
+    return this._validationScope;
+  }
+
   validateDefault():Promise<IModelView<T>> {
     switch (this._validationScope) {
-      case 'visited':
-      default:            return this.validateVisited();
+      case ValidationScope.VISITED:
+      default: 
+        return this.validateVisited();
 
-      case 'currentPage': return this.validatePage();
+      case ValidationScope.PAGE: 
+        return this.validatePage();
+      case ValidationScope.FULL: 
+        return this.validateFull();
     }
   }
 
   validateVisited():Promise<IModelView<T>> {
     let fields = Object.keys(this._visitedFields);
     let modelSlice = this._viewMeta.getModelType().slice(fields);
-    return this._validateSlice(modelSlice, "visited");
+    return this._validateSlice(modelSlice, ValidationScope.VISITED);
   }
 
   validatePage():Promise<IModelView<T>> {
     let modelSlice = this.getPage().type;
-    return this._validateSlice(modelSlice, "currentPage");
+    return this._validateSlice(modelSlice, ValidationScope.PAGE);
   }
 
-  private _validateSlice(modelSlice:IModelTypeComposite<T>, kind:string):Promise<IModelView<T>> {
+  validateFull():Promise<IModelView<T>> {
+    let modelSlice = this._viewMeta.getModelType();
+    return this._validateSlice(modelSlice, ValidationScope.FULL);
+  }
+
+  private _validateSlice(modelSlice:IModelTypeComposite<T>, kind:ValidationScope):Promise<IModelView<T>> {
     if (!this._validations[kind]) {
       this._validations[kind] = Promise.resolve(null).then(
         () => {
@@ -399,12 +418,13 @@ export class ModelView<T> implements IModelView<T> {
   changePage(step:number):Promise<IModelView<T>> {
     let nextPage = this._currentPage + step;
 
-    if (nextPage < 0 || nextPage >= this._viewMeta.getPages().length) {
+    if (nextPage < 0 || nextPage > this._viewMeta.getPages().length) {
       return Promise.resolve(this);
     }
 
     let result = new ModelView(this, this._inputModel);
     result._currentPage = nextPage;
+    result._validationScope = ValidationScope.VISITED;
     return Promise.resolve(result);
   }
 
@@ -415,8 +435,8 @@ export class ModelView<T> implements IModelView<T> {
 
   private _currentPage:number;
 
-  private _validationScope:string;
-  private _validations:{[kind:string]:Promise<ModelView<T>>};
+  private _validationScope:ValidationScope;
+  private _validations:{[kind:number]:Promise<ModelView<T>>};
   private _messages:IModelParseMessage[];
   private _messagesByField:{ [keypath:string]:IModelParseMessage[]; };
 
