@@ -2,8 +2,13 @@ import { ModelTest } from "./model.test";
 import { ModelParsingTest } from "./model.parsing.test";
 
 import {
-  TestAsync
+  TestAsync,
+  TestDescription
 } from "@hn3000/tsunit-async";
+
+function parmNum(t:TestDescription) {
+  return (null != t.parameterSetNumber) ? `[${t.parameterSetNumber}]` : '';
+}
 
 export function runTests() {
   "use strict";
@@ -17,13 +22,12 @@ export function runTests() {
     if (result.errors.length) {
       console.log('---');
       result.errors.forEach((e) => {
-        let param = null != e.parameterSetNumber ? e.parameterSetNumber : '';
-        console.log(`Failed: ${e.testName}.${e.funcName}${param} - ${e.message}`);
+        console.log(`Failed: ${e.testName}.${e.funcName}${parmNum} - ${e.message}`);
       });
       console.log('---');
       console.log(`ran unit tests, ${result.passes.length} passed, ${result.errors.length} failed`);
     } else {
-      let testnames = result.passes.map((x) => `${x.testName}.${x.funcName}${x.parameterSetNumber}`).join('\n');
+      let testnames = result.passes.map((x) => `${x.testName}.${x.funcName}${parmNum(x)}`).join('\n');
       console.log('---');
       console.log(testnames);
       console.log('---');
