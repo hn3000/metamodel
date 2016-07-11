@@ -19,7 +19,7 @@
   "author": "Harald Niesche",
   "license": "MIT",
   "devDependencies": {
-    "@hn3000/tsunit-async": "^1.0.0"
+    "@hn3000/tsunit-async": "github:hn3000/tsunit-async"
   },
   "dependencies": {
     "es6-promise": "^3.2.1",
