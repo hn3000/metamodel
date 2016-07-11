@@ -1,4 +1,0 @@
-{
-  "a": { "$ref": "json-ptr.test.json#/foo" },
-  "b": { "$ref": "json-ptr.test.json#/a~1b" }
-}

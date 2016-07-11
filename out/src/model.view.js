@@ -1,6 +1,12 @@
 "use strict";
 var model_infra_1 = require("./model.infra");
 var es6_promise_1 = require('es6-promise');
+(function (ValidationScope) {
+    ValidationScope[ValidationScope["VISITED"] = 0] = "VISITED";
+    ValidationScope[ValidationScope["PAGE"] = 1] = "PAGE";
+    ValidationScope[ValidationScope["FULL"] = 2] = "FULL";
+})(exports.ValidationScope || (exports.ValidationScope = {}));
+var ValidationScope = exports.ValidationScope;
 var ModelViewField = (function () {
     function ModelViewField(key, type) {
         this._keyString = key;
@@ -194,21 +200,32 @@ var ModelView = (function () {
         result._messagesByField = byField;
         return result;
     };
+    ModelView.prototype.validationScope = function () {
+        return this._validationScope;
+    };
     ModelView.prototype.validateDefault = function () {
         switch (this._validationScope) {
-            case 'visited':
-            default: return this.validateVisited();
-            case 'currentPage': return this.validatePage();
+            case ValidationScope.VISITED:
+            default:
+                return this.validateVisited();
+            case ValidationScope.PAGE:
+                return this.validatePage();
+            case ValidationScope.FULL:
+                return this.validateFull();
         }
     };
     ModelView.prototype.validateVisited = function () {
         var fields = Object.keys(this._visitedFields);
         var modelSlice = this._viewMeta.getModelType().slice(fields);
-        return this._validateSlice(modelSlice, "visited");
+        return this._validateSlice(modelSlice, ValidationScope.VISITED);
     };
     ModelView.prototype.validatePage = function () {
         var modelSlice = this.getPage().type;
-        return this._validateSlice(modelSlice, "currentPage");
+        return this._validateSlice(modelSlice, ValidationScope.PAGE);
+    };
+    ModelView.prototype.validateFull = function () {
+        var modelSlice = this._viewMeta.getModelType();
+        return this._validateSlice(modelSlice, ValidationScope.FULL);
     };
     ModelView.prototype._validateSlice = function (modelSlice, kind) {
         var _this = this;
@@ -324,11 +341,12 @@ var ModelView = (function () {
     });
     ModelView.prototype.changePage = function (step) {
         var nextPage = this._currentPage + step;
-        if (nextPage < 0 || nextPage >= this._viewMeta.getPages().length) {
+        if (nextPage < 0 || nextPage > this._viewMeta.getPages().length) {
             return es6_promise_1.Promise.resolve(this);
         }
         var result = new ModelView(this, this._inputModel);
         result._currentPage = nextPage;
+        result._validationScope = ValidationScope.VISITED;
         return es6_promise_1.Promise.resolve(result);
     };
     return ModelView;

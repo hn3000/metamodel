@@ -58,7 +58,7 @@ import {
 } from "./model.object"
 
 
-import { JsonReferenceProcessor } from "./json-ptr"
+import { JsonReferenceProcessor } from "@hn3000/json-ref"
 
 import * as fetch from "isomorphic-fetch";
 import { Promise } from "es6-promise";

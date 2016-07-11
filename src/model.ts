@@ -101,7 +101,7 @@ export {
   JsonPointer,
   JsonReference,
   JsonReferenceProcessor
-} from "./json-ptr"
+} from "@hn3000/json-ref";
 
 export class ModelTypeConstraints {
   static less(v:number)      { return new ModelTypeConstraintLess(v); }

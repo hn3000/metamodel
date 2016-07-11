@@ -7,7 +7,7 @@ var model_date_1 = require("./model.date");
 var model_bool_1 = require("./model.bool");
 var model_array_1 = require("./model.array");
 var model_object_1 = require("./model.object");
-var json_ptr_1 = require("./json-ptr");
+var json_ref_1 = require("@hn3000/json-ref");
 var fetch = require("isomorphic-fetch");
 function shallowMerge(a, b) {
     var result = {};
@@ -190,7 +190,7 @@ var ModelSchemaParser = (function () {
     ModelSchemaParser.prototype.getRegisteredNames = function () { return this._registry.getRegisteredNames(); };
     ModelSchemaParser.prototype._ensureRefProcessor = function () {
         if (!this._refProcessor) {
-            this._refProcessor = new json_ptr_1.JsonReferenceProcessor(fetchFetcher);
+            this._refProcessor = new json_ref_1.JsonReferenceProcessor(fetchFetcher);
         }
     };
     return ModelSchemaParser;

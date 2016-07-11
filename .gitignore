@@ -3,3 +3,5 @@ node_modules
 jspm_packages
 .vscode/settings.json
 typings
+npm-debug.log
+out/test

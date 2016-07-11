@@ -12,6 +12,11 @@ export interface IModelViewPage {
     type: IModelTypeComposite<any>;
     fields: string[];
 }
+export declare enum ValidationScope {
+    VISITED = 0,
+    PAGE = 1,
+    FULL = 2,
+}
 /**
  * Provides an immutable facade for a model, adding IModelType
  * based validation and support for copy-on-write mutation.
@@ -34,9 +39,11 @@ export interface IModelView<T> {
     currentPageIndex: number;
     currentPageNo: number;
     withValidationMessages(messages: IValidationMessage[]): IModelView<T>;
+    validationScope(): ValidationScope;
     validateDefault(): Promise<IModelView<T>>;
     validateVisited(): Promise<IModelView<T>>;
     validatePage(): Promise<IModelView<T>>;
+    validateFull(): Promise<IModelView<T>>;
     changePage(step: number): Promise<IModelView<T>>;
 }
 export interface IValidationMessage extends IModelParseMessage {
@@ -90,9 +97,11 @@ export declare class ModelView<T> implements IModelView<T> {
     getFields(): IModelViewField[];
     getModel(): T;
     withValidationMessages(messages: IValidationMessage[]): ModelView<T>;
+    validationScope(): ValidationScope;
     validateDefault(): Promise<IModelView<T>>;
     validateVisited(): Promise<IModelView<T>>;
     validatePage(): Promise<IModelView<T>>;
+    validateFull(): Promise<IModelView<T>>;
     private _validateSlice(modelSlice, kind);
     withChangedField(keyPath: string | string[], newValue: Primitive | any[]): IModelView<T>;
     withAddedData(obj: any): IModelView<T>;

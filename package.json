@@ -7,7 +7,7 @@
     "tsc:w": "tsc -w",
     "pretest": "tsc",
     "postinstall": "typings install",
-    "test": "node src/runtest.js"
+    "test": "node out/test/allTests.js"
   },
   "main": "out/src/model.js",
   "typings": "out/src/model.d.ts",
@@ -19,12 +19,10 @@
   "author": "Harald Niesche",
   "license": "MIT",
   "devDependencies": {
-    "tsunit.external": "^2.0.1",
-    "typescript": "^1.8.9"
+    "@hn3000/tsunit-async": "^1.0.0"
   },
   "dependencies": {
     "es6-promise": "^3.2.1",
-    "es6-promises": "^1.0.10",
     "isomorphic-fetch": "^2.2.1"
   }
 }

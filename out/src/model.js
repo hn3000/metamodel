@@ -31,11 +31,12 @@ exports.ModelTypeObject = model_object_1.ModelTypeObject;
 var model_parsing_1 = require("./model.parsing");
 exports.ModelSchemaParser = model_parsing_1.ModelSchemaParser;
 var model_view_1 = require("./model.view");
+exports.ValidationScope = model_view_1.ValidationScope;
 exports.ModelView = model_view_1.ModelView;
-var json_ptr_1 = require("./json-ptr");
-exports.JsonPointer = json_ptr_1.JsonPointer;
-exports.JsonReference = json_ptr_1.JsonReference;
-exports.JsonReferenceProcessor = json_ptr_1.JsonReferenceProcessor;
+var json_ref_1 = require("@hn3000/json-ref");
+exports.JsonPointer = json_ref_1.JsonPointer;
+exports.JsonReference = json_ref_1.JsonReference;
+exports.JsonReferenceProcessor = json_ref_1.JsonReferenceProcessor;
 var ModelTypeConstraints = (function () {
     function ModelTypeConstraints() {
     }
