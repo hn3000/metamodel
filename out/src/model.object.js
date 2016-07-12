@@ -52,7 +52,8 @@ var ModelTypeObject = (function (_super) {
     };
     ModelTypeObject.prototype.slice = function (names) {
         if (Array.isArray(names)) {
-            var result = new ModelTypeObject(this.name + "[" + names.join(',') + "]", this._constructFun); // constructionNotAllowed ?
+            var filteredConstraints = this._getConstraints().slice(names);
+            var result = new ModelTypeObject(this.name + "[" + names.join(',') + "]", this._constructFun, filteredConstraints); // constructionNotAllowed ?
             for (var _i = 0, names_1 = names; _i < names_1.length; _i++) {
                 var name = names_1[_i];
                 var entry = this._entriesByName[name];
@@ -148,6 +149,7 @@ var ModelTypeConstraintEqualProperties = (function (_super) {
         }
         return result;
     };
+    ModelTypeConstraintEqualProperties.prototype.usedItems = function () { return this._fields; };
     return ModelTypeConstraintEqualProperties;
 }(model_base_1.ModelTypeConstraintOptional));
 exports.ModelTypeConstraintEqualProperties = ModelTypeConstraintEqualProperties;
@@ -236,6 +238,7 @@ var ModelTypeConstraintConditionalValue = (function (_super) {
         }
         return val;
     };
+    ModelTypeConstraintConditionalValue.prototype.usedItems = function () { return this._settings.properties; };
     return ModelTypeConstraintConditionalValue;
 }(model_base_1.ModelTypeConstraintOptional));
 exports.ModelTypeConstraintConditionalValue = ModelTypeConstraintConditionalValue;

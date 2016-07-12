@@ -26,6 +26,7 @@ export declare class ModelTypeConstraintEqualProperties extends ModelTypeConstra
     private _isConstraintEqualFields();
     protected _id(): string;
     checkAndAdjustValue(val: any, ctx: IModelParseContext): Date;
+    usedItems(): string[];
     private _fields;
 }
 export interface IConditionOptions {
@@ -50,5 +51,6 @@ export declare class ModelTypeConstraintConditionalValue extends ModelTypeConstr
     private _isConstraintConditionalValue();
     protected _id(): string;
     checkAndAdjustValue(val: any, ctx: IModelParseContext): Date;
+    usedItems(): string[];
     private _settings;
 }

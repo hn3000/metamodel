@@ -53,6 +53,16 @@ export class ModelConstraints<T> implements IModelTypeConstraint<T> {
     return this._constraints.filter(p);
   }
 
+  slice(names:string[]|number[]) {
+    let nn = names as string[];
+    let innames = (n:string) => -1 != nn.indexOf(n);
+    let predicate = (x:IModelTypeConstraint<T>) => {
+      return x && (!x.usedItems || !x.usedItems() || x.usedItems().every(innames)); 
+    }
+
+    return new ModelConstraints<T>(this.filter(predicate));
+  }
+
   toString() {
       return this._constraints.map(x=>x.id).join(",");
   }

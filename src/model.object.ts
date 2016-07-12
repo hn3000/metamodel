@@ -74,7 +74,9 @@ export class ModelTypeObject<T>
 
   slice(names:string[]|number[]):IModelTypeComposite<T> {
     if (Array.isArray(names)) {
-      var result = new ModelTypeObject<any>(`${this.name}[${names.join(',')}]`, this._constructFun); // constructionNotAllowed ?
+      let filteredConstraints = this._getConstraints().slice(names);
+
+      var result = new ModelTypeObject<any>(`${this.name}[${names.join(',')}]`, this._constructFun, filteredConstraints); // constructionNotAllowed ?
       for (var name of names) {
         let entry = this._entriesByName[name];
         if (entry) {
@@ -172,6 +174,8 @@ export class ModelTypeConstraintEqualProperties extends ModelTypeConstraintOptio
     return result;
   }
 
+  usedItems():string[] { return this._fields; }
+
   private _fields:string[];
 }
 
@@ -224,6 +228,7 @@ export interface IConditionalValueConstraintSettings {
   valueCheck: (x:any) => boolean;
   properties: string[];
   possibleValues: any[];
+
 }
 
 export class ModelTypeConstraintConditionalValue extends ModelTypeConstraintOptional<any> {
@@ -289,6 +294,9 @@ export class ModelTypeConstraintConditionalValue extends ModelTypeConstraintOpti
 
     return val;
   }
+
+  usedItems():string[] { return this._settings.properties; }
+
 
   private _settings:IConditionalValueConstraintSettings;
 }

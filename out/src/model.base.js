@@ -54,6 +54,14 @@ var ModelConstraints = (function () {
     ModelConstraints.prototype.filter = function (p) {
         return this._constraints.filter(p);
     };
+    ModelConstraints.prototype.slice = function (names) {
+        var nn = names;
+        var innames = function (n) { return -1 != nn.indexOf(n); };
+        var predicate = function (x) {
+            return x && (!x.usedItems || !x.usedItems() || x.usedItems().every(innames));
+        };
+        return new ModelConstraints(this.filter(predicate));
+    };
     ModelConstraints.prototype.toString = function () {
         return this._constraints.map(function (x) { return x.id; }).join(",");
     };

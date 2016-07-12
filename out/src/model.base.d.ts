@@ -12,6 +12,7 @@ export declare class ModelConstraints<T> implements IModelTypeConstraint<T> {
     checkAndAdjustValue(val: T, ctx: IModelParseContext): T;
     add(...c: IModelTypeConstraint<T>[]): ModelConstraints<T>;
     filter(p: Predicate<IModelTypeConstraint<T>>): IModelTypeConstraint<T>[];
+    slice(names: string[] | number[]): ModelConstraints<T>;
     toString(): string;
     private _constraints;
 }

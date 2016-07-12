@@ -45,7 +45,7 @@ export interface IModelTypeConstrainable<T> extends IModelType<T> {
 export interface IModelTypeConstraint<T> {
     id: string;
     checkAndAdjustValue(val: T, ctx: IModelParseContext): T;
-    usedFields?(): string[];
+    usedItems?(): string[];
     appliesTo?(kind: string): boolean;
 }
 export interface IModelTypeConstraintFactory {
