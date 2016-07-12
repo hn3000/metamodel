@@ -97,19 +97,25 @@ var ModelTypeConstraintDateBase = (function (_super) {
         configurable: true
     });
     ModelTypeConstraintDateBase.prototype._id = function () {
-        return "" + this._op() + this._val;
+        return "" + this._op() + this._val();
     };
     ModelTypeConstraintDateBase.prototype._op = function () { return ""; };
     ModelTypeConstraintDateBase.prototype._compare = function (a, b) { return false; };
     ModelTypeConstraintDateBase.prototype._val = function () { return null; };
+    ModelTypeConstraintDateBase.prototype.asDate = function (val) {
+        if (val instanceof Date) {
+            return val;
+        }
+        return new Date(val);
+    };
     ModelTypeConstraintDateBase.prototype.checkAndAdjustValue = function (val, ctx) {
         var comparisonVal = this._val();
-        var check = this._compare(val, comparisonVal);
+        var checkVal = this.asDate(val);
+        var check = this._compare(checkVal, comparisonVal);
         var result = val;
         if (!check) {
-            ctx.addWarning("expected " + val + " " + this._op() + " " + this._val + ".");
-            if (!this.isWarningOnly) {
-                result = comparisonVal;
+            ctx.addMessage(!this.isWarningOnly, "expected " + val + " " + this._op() + " " + this._val() + ".");
+            if (!this.isWarningOnly && ctx.allowConversion) {
             }
         }
         return result;
@@ -121,8 +127,8 @@ var ModelTypeConstraintDateFixed = (function (_super) {
     __extends(ModelTypeConstraintDateFixed, _super);
     function ModelTypeConstraintDateFixed(val) {
         _super.call(this);
-        if (val instanceof Date) {
-            this._value = val;
+        if (val instanceof Date || typeof val === 'string') {
+            this._value = this.asDate(val);
         }
         else {
             this._value = val._value;

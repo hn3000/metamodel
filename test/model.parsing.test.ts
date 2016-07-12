@@ -96,4 +96,56 @@ export class ModelParsingTest extends TestClass {
     this.areIdentical(0, ctx.errors.length);
   }
   
+  testSchemaWithMinAge18YearsConstraintFails() {
+    var parser = new ModelSchemaParser();
+    
+    var type = parser.addSchemaObject('ExampleObject', {
+      type: "object",
+      properties: {
+        "p": { 
+          type: "string", 
+          pattern: /^\d{4}-\d{2}-\d{2}$/,
+          constraints: [
+            { 
+              constraint: 'minAge', 
+              age: "18y"  
+            }
+          ]
+        }
+      },
+    });
+    
+    var ctx = new ModelParseContext({
+      p: '2016-01-01'
+    })
+    type.validate(ctx);
+    this.areIdentical(1, ctx.errors.length);
+    this.areIdentical('p', ctx.errors[0].path);
+  }
+
+  testSchemaWithMinAge18YearsConstraintSucceeds() {
+    var parser = new ModelSchemaParser();
+    
+    var type = parser.addSchemaObject('ExampleObject', {
+      type: "object",
+      properties: {
+        "p": { 
+          type: "string", 
+          pattern: /^\d{4}-\d{2}-\d{2}$/,
+          constraints: [
+            { 
+              constraint: 'minAge', 
+              age: "18y"  
+            }
+          ]
+        }
+      }
+    });
+    
+    var ctx = new ModelParseContext({
+      p: '1998-01-01'
+    })
+    type.validate(ctx);
+    this.areIdentical(0, ctx.errors.length);
+  }
 }

@@ -98,11 +98,15 @@ var constraintFactoriesDefault:IConstraintFactories = {
     moreEqual(o:any)   { return new ModelTypeConstraintMoreEqual(o.value); }
     */
   },
-  strings: { },
+  strings: { 
+    minAge(o:any)      { return new ModelTypeConstraintOlder<string>(o.age); },
+    before(o:any)      { return new ModelTypeConstraintBefore<string>(o.age); },
+    after(o:any)       { return new ModelTypeConstraintAfter<string>(o.age); }
+  },
   dates: {
-    minAge(o:any)      { return new ModelTypeConstraintOlder(o.age); },
-    before(o:any)      { return new ModelTypeConstraintBefore(o.age); },
-    after(o:any)       { return new ModelTypeConstraintBefore(o.age); }
+    minAge(o:any)      { return new ModelTypeConstraintOlder<Date>(o.age); },
+    before(o:any)      { return new ModelTypeConstraintBefore<Date>(o.age); },
+    after(o:any)       { return new ModelTypeConstraintAfter<Date>(o.age); }
   },
   booleans: { },
   objects: {
@@ -202,7 +206,7 @@ export class ModelSchemaParser implements IModelTypeRegistry {
     var maxLen = schemaObject['maxLength'];
     var pattern = schemaObject['pattern'];
     
-    var constraints:IModelTypeConstraint<string>[] = [];
+    var constraints = this._parseConstraints(schemaObject, [ constraintFactoriesDefault.strings, constraintFactoriesDefault.universal ]);
     if (minLen != null || maxLen != null) {
       var msg:string;
       if (minLen == null || minLen == 0) {
@@ -214,18 +218,18 @@ export class ModelSchemaParser implements IModelTypeRegistry {
       }
       var expr =  `^.{${minLen||0},${maxLen||''}}$`;
       
-      constraints.push(new ModelTypeConstraintRegex(expr, '', msg));
+      constraints = constraints.add(new ModelTypeConstraintRegex(expr, '', msg));
     }
     if (pattern != null) {
-      constraints.push(new ModelTypeConstraintRegex(pattern, ''));
+      constraints = constraints.add(new ModelTypeConstraintRegex(pattern, ''));
     }
 
     let enumConstraint = this.parseSchemaConstraintEnum<string>(schemaObject);
     if (null != enumConstraint) {
-      constraints.push(enumConstraint);
+      constraints = constraints.add(enumConstraint);
     }
 
-    return new ModelTypeString(new ModelConstraints(constraints));
+    return new ModelTypeString(constraints);
   }
   
   parseSchemaObjectTypeNumber(schemaObject:any, ...constraints:IModelTypeConstraint<number>[]) {
@@ -304,7 +308,7 @@ export class ModelSchemaParser implements IModelTypeRegistry {
       }).filter((x:IModelTypeConstraint<any>) => x != null);
       return new ModelConstraints<any>(cc); 
     }
-    return null;
+    return new ModelConstraints<any>([]);
   }
   
   type(name:string) { return this._registry.type(name); }

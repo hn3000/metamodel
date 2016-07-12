@@ -21,7 +21,7 @@ export class ModelTypeDate extends ModelTypeItem<Date> {
   }
 
   lowerBound():IModelTypeConstraint<Date> {
-      let lower:ModelTypeConstraintAfter[] = <any>this.findConstraints((x)=>{
+      let lower:ModelTypeConstraintAfter<Date>[] = <any>this.findConstraints((x)=>{
           return 0 == x.id.indexOf(">");
         });
       if (lower.length >= 1) {
@@ -32,7 +32,7 @@ export class ModelTypeDate extends ModelTypeItem<Date> {
   }
 
   upperBound():IModelTypeConstraint<Date> {
-      let upper:ModelTypeConstraintBefore[] = <any>this.findConstraints((x)=>{
+      let upper:ModelTypeConstraintBefore<Date>[] = <any>this.findConstraints((x)=>{
           return 0 == x.id.indexOf("<");
         });
       if (upper.length >= 1) {
@@ -94,7 +94,7 @@ export class ModelTypeDate extends ModelTypeItem<Date> {
 }
 
 
-export abstract class ModelTypeConstraintDateBase extends ModelTypeConstraintOptional<Date> {
+export abstract class ModelTypeConstraintDateBase<D> extends ModelTypeConstraintOptional<D> {
   constructor() {
     super();
   }
@@ -104,48 +104,59 @@ export abstract class ModelTypeConstraintDateBase extends ModelTypeConstraintOpt
   }
 
   protected _id():string {
-    return `${this._op()}${this._val}`;
+    return `${this._op()}${this._val()}`;
   }
 
   protected _op():string { return ""; }
   protected _compare(a:Date, b:Date):boolean { return false; }
   protected _val():Date { return null; }
 
-  checkAndAdjustValue(val:Date, ctx:IModelParseContext):Date {
+  asDate(val:Date|string) {
+    if (val instanceof Date) {
+      return val;
+    }
+    return new Date(val);
+  }
+
+  checkAndAdjustValue(val:D, ctx:IModelParseContext):D {
     let comparisonVal = this._val();
-    let check = this._compare(val, comparisonVal);
+    let checkVal = this.asDate(val as any);
+    let check = this._compare(checkVal, comparisonVal);
     let result = val;
     if (!check) {
-      ctx.addWarning(`expected ${val} ${this._op()} ${this._val}.`);
-      if (!this.isWarningOnly) {
-        result = comparisonVal;
+      ctx.addMessage(!this.isWarningOnly, `expected ${val} ${this._op()} ${this._val()}.`);
+      if (!this.isWarningOnly && ctx.allowConversion) {
+        
+        // does not make sense without improved date-format handling
+        //result = comparisonVal as any;
+
       }
     }
     return result;
   }
 }
 
-export abstract class ModelTypeConstraintDateFixed extends ModelTypeConstraintDateBase {
-  constructor(val:Date|ModelTypeConstraintDateFixed) {
+export abstract class ModelTypeConstraintDateFixed<D> extends ModelTypeConstraintDateBase<D> {
+  constructor(val:Date|string|ModelTypeConstraintDateFixed<D>) {
     super();
-    if (val instanceof Date) {
-      this._value = val;
+    if (val instanceof Date || typeof val === 'string') {
+      this._value = this.asDate(val);
     } else {
-      this._value = (<ModelTypeConstraintDateFixed>val)._value;
+      this._value = (<ModelTypeConstraintDateFixed<D>>val)._value;
     }
   }
   _val() { return this._value; }
   private _value: Date;
 } 
 
-export class ModelTypeConstraintBefore extends ModelTypeConstraintDateFixed {
-  constructor(val:Date) { super(val); }
+export class ModelTypeConstraintBefore<D> extends ModelTypeConstraintDateFixed<D> {
+  constructor(val:Date|string) { super(val); }
   protected _op() { return "<"; }
   protected _compare(a:Date, b:Date):boolean { return a < b; }
 }
 
-export class ModelTypeConstraintAfter extends ModelTypeConstraintDateFixed {
-  constructor(val:Date) { super(val); }
+export class ModelTypeConstraintAfter<D> extends ModelTypeConstraintDateFixed<D> {
+  constructor(val:Date|string) { super(val); }
   protected _op() { return ">"; }
   protected _compare(a:Date, b:Date):boolean { return a > b; }
 }
@@ -159,14 +170,12 @@ export class TimeSpan {
   get amount() { return this._amount; }
   get unit()   { return this._unit; }
 
-
-
   _unit:string;
   _amount:number;
   private static REGEX:RegExp = /([0-9]+(?:\.[0.9]+)?)\s*([a-z]+)/;
 }
 
-export class ModelTypeConstraintOlder extends ModelTypeConstraintDateBase {
+export class ModelTypeConstraintOlder<D> extends ModelTypeConstraintDateBase<D> {
   constructor(timespan:string) { 
     super(); 
     this._timespan = new TimeSpan(timespan);

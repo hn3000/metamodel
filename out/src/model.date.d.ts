@@ -12,27 +12,28 @@ export declare class ModelTypeDate extends ModelTypeItem<Date> {
     asString(val: Date): string;
     protected _kind(): string;
 }
-export declare abstract class ModelTypeConstraintDateBase extends ModelTypeConstraintOptional<Date> {
+export declare abstract class ModelTypeConstraintDateBase<D> extends ModelTypeConstraintOptional<D> {
     constructor();
     readonly value: Date;
     protected _id(): string;
     protected _op(): string;
     protected _compare(a: Date, b: Date): boolean;
     protected _val(): Date;
-    checkAndAdjustValue(val: Date, ctx: IModelParseContext): Date;
+    asDate(val: Date | string): Date;
+    checkAndAdjustValue(val: D, ctx: IModelParseContext): D;
 }
-export declare abstract class ModelTypeConstraintDateFixed extends ModelTypeConstraintDateBase {
-    constructor(val: Date | ModelTypeConstraintDateFixed);
+export declare abstract class ModelTypeConstraintDateFixed<D> extends ModelTypeConstraintDateBase<D> {
+    constructor(val: Date | string | ModelTypeConstraintDateFixed<D>);
     _val(): Date;
     private _value;
 }
-export declare class ModelTypeConstraintBefore extends ModelTypeConstraintDateFixed {
-    constructor(val: Date);
+export declare class ModelTypeConstraintBefore<D> extends ModelTypeConstraintDateFixed<D> {
+    constructor(val: Date | string);
     protected _op(): string;
     protected _compare(a: Date, b: Date): boolean;
 }
-export declare class ModelTypeConstraintAfter extends ModelTypeConstraintDateFixed {
-    constructor(val: Date);
+export declare class ModelTypeConstraintAfter<D> extends ModelTypeConstraintDateFixed<D> {
+    constructor(val: Date | string);
     protected _op(): string;
     protected _compare(a: Date, b: Date): boolean;
 }
@@ -44,7 +45,7 @@ export declare class TimeSpan {
     _amount: number;
     private static REGEX;
 }
-export declare class ModelTypeConstraintOlder extends ModelTypeConstraintDateBase {
+export declare class ModelTypeConstraintOlder<D> extends ModelTypeConstraintDateBase<D> {
     constructor(timespan: string);
     protected _op(): string;
     protected _compare(a: Date, b: Date): boolean;

@@ -23,11 +23,15 @@ function shallowMerge(a, b) {
 }
 var constraintFactoriesDefault = {
     numbers: {},
-    strings: {},
+    strings: {
+        minAge: function (o) { return new model_date_1.ModelTypeConstraintOlder(o.age); },
+        before: function (o) { return new model_date_1.ModelTypeConstraintBefore(o.age); },
+        after: function (o) { return new model_date_1.ModelTypeConstraintAfter(o.age); }
+    },
     dates: {
         minAge: function (o) { return new model_date_1.ModelTypeConstraintOlder(o.age); },
         before: function (o) { return new model_date_1.ModelTypeConstraintBefore(o.age); },
-        after: function (o) { return new model_date_1.ModelTypeConstraintBefore(o.age); }
+        after: function (o) { return new model_date_1.ModelTypeConstraintAfter(o.age); }
     },
     booleans: {},
     objects: {
@@ -115,7 +119,7 @@ var ModelSchemaParser = (function () {
         var minLen = schemaObject['minLength'];
         var maxLen = schemaObject['maxLength'];
         var pattern = schemaObject['pattern'];
-        var constraints = [];
+        var constraints = this._parseConstraints(schemaObject, [constraintFactoriesDefault.strings, constraintFactoriesDefault.universal]);
         if (minLen != null || maxLen != null) {
             var msg;
             if (minLen == null || minLen == 0) {
@@ -128,16 +132,16 @@ var ModelSchemaParser = (function () {
                 msg = "length must be between " + (minLen || 0) + " and " + maxLen + ":";
             }
             var expr = "^.{" + (minLen || 0) + "," + (maxLen || '') + "}$";
-            constraints.push(new model_string_1.ModelTypeConstraintRegex(expr, '', msg));
+            constraints = constraints.add(new model_string_1.ModelTypeConstraintRegex(expr, '', msg));
         }
         if (pattern != null) {
-            constraints.push(new model_string_1.ModelTypeConstraintRegex(pattern, ''));
+            constraints = constraints.add(new model_string_1.ModelTypeConstraintRegex(pattern, ''));
         }
         var enumConstraint = this.parseSchemaConstraintEnum(schemaObject);
         if (null != enumConstraint) {
-            constraints.push(enumConstraint);
+            constraints = constraints.add(enumConstraint);
         }
-        return new model_string_1.ModelTypeString(new model_base_1.ModelConstraints(constraints));
+        return new model_string_1.ModelTypeString(constraints);
     };
     ModelSchemaParser.prototype.parseSchemaObjectTypeNumber = function (schemaObject) {
         var constraints = [];
@@ -210,7 +214,7 @@ var ModelSchemaParser = (function () {
             }).filter(function (x) { return x != null; });
             return new model_base_1.ModelConstraints(cc);
         }
-        return null;
+        return new model_base_1.ModelConstraints([]);
     };
     ModelSchemaParser.prototype.type = function (name) { return this._registry.type(name); };
     ModelSchemaParser.prototype.itemType = function (name) { return this._registry.itemType(name); };
