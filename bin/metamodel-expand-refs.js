@@ -1,5 +1,5 @@
 
-var jp = require('../out/src/json-ptr.js');
+var jp = require('@hn3000/json-ref');
 var fs = require('fs');
 
 function fetcher(x) {
