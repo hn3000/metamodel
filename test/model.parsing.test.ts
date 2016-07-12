@@ -51,4 +51,49 @@ export class ModelParsingTest extends TestClass {
     this.areIdentical('length must be at most 5:', ctx.errors[2].msg);
     this.areIdentical('value does not match /^\\d+$/:', ctx.errors[3].msg);
   }
+
+  testSchemaWithValueIfConstraint() {
+    var parser = new ModelSchemaParser();
+    
+    var type = parser.addSchemaObject('ExampleObject', {
+      type: "object",
+      properties: {
+        "p": { type: "string", pattern: /^\d+$/ },
+        "q": { type: "string", pattern: /^\d+$/ },
+        "r": { type: "string", pattern: /^\d+$/ },
+        "s": { type: "string", pattern: /^\d+$/ }
+      },
+      constraints: [
+        { 
+          constraint: 'valueIf', 
+          condition: { property: 'p', value: '12'},
+          valueProperty: 'q',
+          possibleValue: '13'  
+        }
+      ]
+    });
+    
+    var ctx = new ModelParseContext({
+      p: '12',
+      q: '14'
+    })
+    type.validate(ctx);
+    this.areIdentical(1, ctx.errors.length);
+    this.areIdentical('q', ctx.errors[0].path);
+
+    ctx = new ModelParseContext({
+      p: '12',
+      q: '13'
+    })
+    type.validate(ctx);
+    this.areIdentical(0, ctx.errors.length);
+
+    ctx = new ModelParseContext({
+      p: '11',
+      q: '14'
+    })
+    type.validate(ctx);
+    this.areIdentical(0, ctx.errors.length);
+  }
+  
 }

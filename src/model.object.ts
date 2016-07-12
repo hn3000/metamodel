@@ -34,7 +34,11 @@ export class ModelTypeObject<T>
   }
 
   protected _clone(constraints:ModelConstraints<T>):this {
-    return new (<any>this.constructor)(this.name, this._constructFun, constraints);
+    let result = new (<any>this.constructor)(this.name, this._constructFun, constraints);
+    for (var e of this._entries) {
+      result.addItem(e.key, e.type, e.required);
+    }
+    return result;
   }
 
   asItemType():IModelTypeItem<T> {
@@ -105,6 +109,8 @@ export class ModelTypeObject<T>
       e.type.validate(ctx);
       ctx.popItem();
     }
+
+    this._checkAndAdjustValue(ctx.currentValue(), ctx);
   }
   unparse(value:T):any {
     let result:any = {};
@@ -125,13 +131,24 @@ export class ModelTypeObject<T>
 
 }
 
-export class ModelTypeConstraintEqualFields extends ModelTypeConstraintOptional<any> {
-  constructor(fieldsOrSelf:string[]|ModelTypeConstraintEqualFields) {
+function safeArray<T>(val:T|T[]):T[] {
+  return  Array.isArray(val) ? val.slice() : null != val ? [ val ] : null;
+}
+
+export interface IEqualPropertiesConstraintOptions {
+  properties: string|string[];
+}
+
+
+export class ModelTypeConstraintEqualProperties extends ModelTypeConstraintOptional<any> {
+  constructor(fieldsOrSelf:string[]|IEqualPropertiesConstraintOptions|ModelTypeConstraintEqualProperties) {
     super();
     if (Array.isArray(fieldsOrSelf)) {
       this._fields = fieldsOrSelf.slice();
+    } else if (fieldsOrSelf && (fieldsOrSelf as IEqualPropertiesConstraintOptions).properties) {
+      this._fields = safeArray((fieldsOrSelf as IEqualPropertiesConstraintOptions).properties);
     } else {
-      this._fields = (<ModelTypeConstraintEqualFields>fieldsOrSelf)._fields.slice();
+      this._fields = (<ModelTypeConstraintEqualProperties>fieldsOrSelf)._fields.slice();
     }
   }
   private _isConstraintEqualFields() {} // marker property
@@ -158,89 +175,111 @@ export class ModelTypeConstraintEqualFields extends ModelTypeConstraintOptional<
   private _fields:string[];
 }
 
-export interface IRequiredIfOptions {
-  // fieldname
-  ifField: string;   
-  // value(s) that trigger the if
-  ifValue: string|number|string[]|number[];
-  // field(s) to require  
-  required: string|string[];
+export interface IConditionOptions {
+  property: string;
+  value: string|string[]|number|number[];
+  op?: "=";
+}
+
+function createPredicate(condition: IConditionOptions) {
+  let { property, value, op } = condition;
+
+  if (Array.isArray(value)) {
+    let valueArray = value.slice() as any[];
+
+    return (x:any) => {
+      let p = x[property];
+      return -1 != valueArray.indexOf(p);
+    }
+  }
+  return function(x:any): boolean {
+    return (value === x[property]);
+  }
+}
+
+function createValuePredicate(possibleValues:string[]|number[]): (x:string|number) => boolean {
+  if (null == possibleValues || 0 === possibleValues.length) {
+    return (x:string|number) => x != null;
+  } else if (possibleValues.length == 1) {
+    let val = possibleValues[0];
+    return (x:string|number) => x == val;
+  } else {
+    let valArray = possibleValues as any[];
+    return (x:string|number) => -1 != valArray.indexOf(x as any);
+  }
+}
+
+export interface IConditionalValueConstraintOptions {
+  condition: IConditionOptions;
+
+  // properties to require (may be just single item)  
+  properties: string|string[];
   // if required is a single string, this is allowed:
-  possibleValues?: any[];
+  possibleValue?: string|number|string[]|number[];
 }
 
-export interface IRequiredIfSettings {
-  ifField: string;   
-  ifValue: string[]|number[];
-  required: string[];
-  // if required is a single string, this is allowed:
-  possibleValues?: any[];
+export interface IConditionalValueConstraintSettings {
+  id:string;
+  predicate: (x:any) => boolean;
+  valueCheck: (x:any) => boolean;
+  properties: string[];
+  possibleValues: any[];
 }
 
-function safeArray<T>(val:T|T[]):T[] {
-  return  Array.isArray(val) ? val.slice() : [ val ];
-}
-
-export class ModelTypeConstraintRequiredIf extends ModelTypeConstraintOptional<any> {
-  constructor(optionsOrSelf:IRequiredIfOptions|ModelTypeConstraintRequiredIf) {
+export class ModelTypeConstraintConditionalValue extends ModelTypeConstraintOptional<any> {
+  constructor(optionsOrSelf:IConditionalValueConstraintOptions|ModelTypeConstraintConditionalValue) {
     super();
-    let options = optionsOrSelf as IRequiredIfOptions;
-    if (options.ifField && options.ifValue && options.required) {
+    let options = optionsOrSelf as IConditionalValueConstraintOptions;
 
-      if (Array.isArray(options.required) && null != options.possibleValues) {
-        throw new Error("must not combine list of required fields with possibleValues");
+    if (options.condition && options.properties) {
+      let { condition, properties, possibleValue } = options;
+      let multiple = Array.isArray(properties) && properties.length > 1; 
+      if (multiple && null != possibleValue && !Array.isArray(possibleValue)) {
+        throw new Error("must not combine list of required fields with single possibleValue");
       }
 
-      // so we always have an array:
-      let required = safeArray(options.required); 
-      let ifValue = <string[]|number[]>safeArray<string|number>(options.ifValue);
+      let props = safeArray(properties);
+      let allowed = safeArray<any>(possibleValue);
 
-      // copy the object so the values can't be switched later:
+      let id_p = props.join(',');
+      let id_v = allowed ? " == [${allowed.join(',')}]" : ""
+      let id = `conditionalValue(${condition.property} == ${condition.value} -> ${id_p}${id_v})`;
+
+
       this._settings = {
-        ifField: options.ifField,
-        ifValue: ifValue,
-        required: required,
-        possibleValues: options.possibleValues
+        predicate: createPredicate(condition),
+        valueCheck: createValuePredicate(allowed),
+        properties: props,
+        possibleValues: allowed,
+        id: id
       };
-    } else if (this._isConstraintRequiredIf == (<any>optionsOrSelf)["_isConstraintRequiredIf"]) {
-      this._settings = (<ModelTypeConstraintRequiredIf>optionsOrSelf)._settings;
+
+    } else if (this._isConstraintConditionalValue == (<any>optionsOrSelf)["_isConstraintConditionalValue"]) {
+      this._settings = (<ModelTypeConstraintConditionalValue>optionsOrSelf)._settings;
+    } else {
+      console.log("invalid constructor argument", optionsOrSelf);
+      throw new Error("invalid constructor argument" + optionsOrSelf);
     }
   }
-  private _isConstraintRequiredIf() {} // marker property
+  private _isConstraintConditionalValue() {} // marker property
 
   protected _id():string {
-    let o = this._settings;
-    let required = Array.isArray(o.required) ? o.required.join(',') : o.required;
-    let values = o.possibleValues ? " == ${o.possibleValues}" : ""
-    return `requiredIf(${o.ifField} == ${o.ifValue} -> ${required}${values})`;
-  }
-
-  _checkValue(val:any, possible:any|any[]) {
-    if (Array.isArray(possible)) {
-      return (<any[]>possible).some((x) => x == val);
-    }
-    return val == possible;  
-  }
-
-  _checkIf(val:any) {
-    let options = this._settings;
-    let fieldValue = val[options.ifField];
-    return this._checkValue(fieldValue, options.ifValue);
+    return this._settings.id;
   }
 
   checkAndAdjustValue(val:any, ctx:IModelParseContext):Date {
     var check = true;
     let s = this._settings;
-    if (this._checkIf(val)) {
-      let isError = !this.warnOnly;
-      for (var f of s.required) {
+    if (s.predicate(val)) {
+      let isError = !this.isWarningOnly;
+      for (var f of s.properties) {
         ctx.pushItem(f, isError);
-        if (s.possibleValues) {
-          if (!this._checkValue(ctx.currentValue, s.possibleValues)) {
-            ctx.addMessage(isError, `required field has forbidden value.`, ctx.currentValue, s.possibleValues);
-          }
-        } else {
-          if (null == ctx.currentValue) {
+        let thisValue = ctx.currentValue();
+        let valid = s.valueCheck(thisValue);
+        if (!valid) {
+          if (s.possibleValues) {
+            ctx.addMessage(isError, `illegal value.`, ctx.currentValue(), s.possibleValues);
+          } else {
             ctx.addMessage(isError, `required field not filled.`);
           }
         }
@@ -248,12 +287,8 @@ export class ModelTypeConstraintRequiredIf extends ModelTypeConstraintOptional<a
       }
     }
 
-    if (!check) {
-      for (var f of s.required) {
-      }
-    }
     return val;
   }
 
-  private _settings:IRequiredIfSettings;
+  private _settings:IConditionalValueConstraintSettings;
 }

@@ -1,5 +1,6 @@
 import { ModelTest } from "./model.test";
 import { ModelParsingTest } from "./model.parsing.test";
+import { ModelObjectTest } from "./model.object.test";
 
 import {
   TestAsync,
@@ -14,6 +15,7 @@ export function runTests() {
   "use strict";
   let test = new TestAsync();
   test.addTestClass(new ModelTest(), "ModelTest");
+  test.addTestClass(new ModelObjectTest(), "ModelObjectTest");
   test.addTestClass(new ModelParsingTest(), "ModelParsingTest");
 
   let promise = test.runAsync();
@@ -22,7 +24,7 @@ export function runTests() {
     if (result.errors.length) {
       console.log('---');
       result.errors.forEach((e) => {
-        console.log(`Failed: ${e.testName}.${e.funcName}${parmNum} - ${e.message}`);
+        console.log(`Failed: ${e.testName}.${e.funcName}${parmNum(e)} - ${e.message}`);
       });
       console.log('---');
       console.log(`ran unit tests, ${result.passes.length} passed, ${result.errors.length} failed`);

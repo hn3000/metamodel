@@ -53,8 +53,8 @@ import {
 
 import {
   ModelTypeObject,
-  ModelTypeConstraintEqualFields,
-  ModelTypeConstraintRequiredIf
+  ModelTypeConstraintEqualProperties,
+  ModelTypeConstraintConditionalValue
 } from "./model.object"
 
 
@@ -76,22 +76,54 @@ function shallowMerge(a:any, b:any):any {
   return result;
 }
 
-var constraintFactoryDefault = {
-  less(o:any)         { return new ModelTypeConstraintLess(o.value); },
-  more(o:any)         { return new ModelTypeConstraintMore(o.value); },
-  lessEqual(o:any)    { return new ModelTypeConstraintLessEqual(o.value); },
-  moreEqual(o:any)    { return new ModelTypeConstraintMoreEqual(o.value); },
-  minAge(o:any)       { return new ModelTypeConstraintOlder(o.age); },
-  fieldsEqual(o:any)  { return new ModelTypeConstraintEqualFields(o); },
-  requiredIf(o:any)   { return new ModelTypeConstraintRequiredIf(o); },
+export interface IConstraintFactory<T> {
+  [k:string]: (o:any) => IModelTypeConstraint<T>;
+}
 
-  valueIf(o:any) { 
-    return new ModelTypeConstraintRequiredIf({
-      ifField: o.ifField, 
-      ifValue: o.ifValue,
-      required: o.constrainedField,
-      possibleValues: o.possibleValues
-    }); 
+export interface IConstraintFactories {
+  numbers:   IConstraintFactory<number>;
+  strings:   IConstraintFactory<string>;
+  dates:     IConstraintFactory<Date>;
+  booleans:  IConstraintFactory<boolean>;
+  objects:   IConstraintFactory<any>;
+  universal: IConstraintFactory<any>;
+}
+
+var constraintFactoriesDefault:IConstraintFactories = {
+  numbers: {
+    /* unnecessary: available via minimum / maximum
+    less(o:any)        { return new ModelTypeConstraintLess(o.value); },
+    more(o:any)        { return new ModelTypeConstraintMore(o.value); },
+    lessEqual(o:any)   { return new ModelTypeConstraintLessEqual(o.value); },
+    moreEqual(o:any)   { return new ModelTypeConstraintMoreEqual(o.value); }
+    */
+  },
+  strings: { },
+  dates: {
+    minAge(o:any)      { return new ModelTypeConstraintOlder(o.age); },
+    before(o:any)      { return new ModelTypeConstraintBefore(o.age); },
+    after(o:any)       { return new ModelTypeConstraintBefore(o.age); }
+  },
+  booleans: { },
+  objects: {
+    equalProperties(o:any) { return new ModelTypeConstraintEqualProperties(o); },
+    requiredIf(o:any) { 
+      return new ModelTypeConstraintConditionalValue({
+        condition: o.condition,
+        properties: o.properties
+      }); 
+    },
+    valueIf(o:any) { 
+      return new ModelTypeConstraintConditionalValue({
+        condition: o.condition, 
+        properties: o.valueProperty,
+        possibleValue: o.possibleValue
+      }); 
+    }
+  },
+  universal: {
+    possibleValue(o:any)   { return new ModelTypeConstraintPossibleValues(o); },
+    possibleValues(o:any)  { return new ModelTypeConstraintPossibleValues(o); },
   }
 };
 
@@ -235,7 +267,8 @@ export class ModelSchemaParser implements IModelTypeRegistry {
   
   parseSchemaObjectTypeObject(schemaObject:any, name?:string) {
     var id = name || schemaObject.id || anonymousId();
-    var type = new ModelTypeObject(id);
+    let constraints = this._parseConstraints(schemaObject, [constraintFactoriesDefault.objects,constraintFactoriesDefault.universal]);
+    var type = new ModelTypeObject(id, null, constraints);
     var required:string[] = schemaObject['required'] || [];
     var props = schemaObject['properties'];
     if (props) {
@@ -246,7 +279,6 @@ export class ModelSchemaParser implements IModelTypeRegistry {
       }
     }
 
-    
     return type;
   }
   
@@ -255,6 +287,24 @@ export class ModelSchemaParser implements IModelTypeRegistry {
     var type = new ModelTypeArray(elementType);
     
     return type;
+  }
+
+  _parseConstraints(
+    schemaObject:any, 
+    factories:IConstraintFactory<any>[]
+  ):ModelConstraints<any> {
+    var constraints = schemaObject.constraints;
+    if (constraints && Array.isArray(constraints)) {
+      var cc = constraints.map((c:any) => {
+        var fact:(o:any) => ModelTypeConstrainable<any> = findfirst(factories, c.constraint as string);
+        if (!fact) {
+          console.log("unrecognized constraint", c.constraint, c);
+        }
+        return fact && fact(c);
+      }).filter((x:IModelTypeConstraint<any>) => x != null);
+      return new ModelConstraints<any>(cc); 
+    }
+    return null;
   }
   
   type(name:string) { return this._registry.type(name); }
@@ -288,4 +338,11 @@ function fetchFetcher(url:string):Promise<string> {
     }
     return null;
   });
+}
+
+function findfirst(tt:any[], name:string):any {
+  for (var t of tt) {
+    if (t[name]) return t[name];
+  }
+  return null;
 }

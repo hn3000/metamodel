@@ -99,6 +99,11 @@ export class ModelTypeConstraintRegex extends ModelTypeConstraintOptional<string
 
   checkAndAdjustValue(val:string, ctx:IModelParseContext):string {
     var result = val;
+
+    if (!ctx.currentRequired() && (null == val || '' == val)) {
+      return val;
+    }
+
     if (! this._pattern.exec(val)) {
       if (this.isWarningOnly) {
         ctx.addWarning(this._message, val);

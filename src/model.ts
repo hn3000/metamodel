@@ -79,7 +79,9 @@ export {
 } from "./model.array";
 
 export {
-  ModelTypeObject
+  ModelTypeObject,
+  ModelTypeConstraintConditionalValue,
+  ModelTypeConstraintEqualProperties
 } from "./model.object";
 
 export {
