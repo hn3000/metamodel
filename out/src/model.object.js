@@ -17,7 +17,12 @@ var ModelTypeObject = (function (_super) {
         this._entriesByName = {};
     }
     ModelTypeObject.prototype._clone = function (constraints) {
-        return new this.constructor(this.name, this._constructFun, constraints);
+        var result = new this.constructor(this.name, this._constructFun, constraints);
+        for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
+            var e = _a[_i];
+            result.addItem(e.key, e.type, e.required);
+        }
+        return result;
     };
     ModelTypeObject.prototype.asItemType = function () {
         return null;
@@ -86,6 +91,7 @@ var ModelTypeObject = (function (_super) {
             e.type.validate(ctx);
             ctx.popItem();
         }
+        this._checkAndAdjustValue(ctx.currentValue(), ctx);
     };
     ModelTypeObject.prototype.unparse = function (value) {
         var result = {};
@@ -106,22 +112,28 @@ var ModelTypeObject = (function (_super) {
     return ModelTypeObject;
 }(model_base_1.ModelTypeConstrainable));
 exports.ModelTypeObject = ModelTypeObject;
-var ModelTypeConstraintEqualFields = (function (_super) {
-    __extends(ModelTypeConstraintEqualFields, _super);
-    function ModelTypeConstraintEqualFields(fieldsOrSelf) {
+function safeArray(val) {
+    return Array.isArray(val) ? val.slice() : null != val ? [val] : null;
+}
+var ModelTypeConstraintEqualProperties = (function (_super) {
+    __extends(ModelTypeConstraintEqualProperties, _super);
+    function ModelTypeConstraintEqualProperties(fieldsOrSelf) {
         _super.call(this);
         if (Array.isArray(fieldsOrSelf)) {
             this._fields = fieldsOrSelf.slice();
+        }
+        else if (fieldsOrSelf && fieldsOrSelf.properties) {
+            this._fields = safeArray(fieldsOrSelf.properties);
         }
         else {
             this._fields = fieldsOrSelf._fields.slice();
         }
     }
-    ModelTypeConstraintEqualFields.prototype._isConstraintEqualFields = function () { }; // marker property
-    ModelTypeConstraintEqualFields.prototype._id = function () {
+    ModelTypeConstraintEqualProperties.prototype._isConstraintEqualFields = function () { }; // marker property
+    ModelTypeConstraintEqualProperties.prototype._id = function () {
         return "equalFields(" + this._fields.join(',') + ")";
     };
-    ModelTypeConstraintEqualFields.prototype.checkAndAdjustValue = function (val, ctx) {
+    ModelTypeConstraintEqualProperties.prototype.checkAndAdjustValue = function (val, ctx) {
         var fields = this._fields;
         var check = true;
         fields.reduce(function (a, b) { check = check && val[a] == val[b]; return b; });
@@ -136,83 +148,95 @@ var ModelTypeConstraintEqualFields = (function (_super) {
         }
         return result;
     };
-    return ModelTypeConstraintEqualFields;
+    return ModelTypeConstraintEqualProperties;
 }(model_base_1.ModelTypeConstraintOptional));
-exports.ModelTypeConstraintEqualFields = ModelTypeConstraintEqualFields;
-function safeArray(val) {
-    return Array.isArray(val) ? val.slice() : [val];
+exports.ModelTypeConstraintEqualProperties = ModelTypeConstraintEqualProperties;
+function createPredicate(condition) {
+    var property = condition.property, value = condition.value, op = condition.op;
+    if (Array.isArray(value)) {
+        var valueArray_1 = value.slice();
+        return function (x) {
+            var p = x[property];
+            return -1 != valueArray_1.indexOf(p);
+        };
+    }
+    return function (x) {
+        return (value === x[property]);
+    };
 }
-var ModelTypeConstraintRequiredIf = (function (_super) {
-    __extends(ModelTypeConstraintRequiredIf, _super);
-    function ModelTypeConstraintRequiredIf(optionsOrSelf) {
+function createValuePredicate(possibleValues) {
+    if (null == possibleValues || 0 === possibleValues.length) {
+        return function (x) { return x != null; };
+    }
+    else if (possibleValues.length == 1) {
+        var val_1 = possibleValues[0];
+        return function (x) { return x == val_1; };
+    }
+    else {
+        var valArray_1 = possibleValues;
+        return function (x) { return -1 != valArray_1.indexOf(x); };
+    }
+}
+var ModelTypeConstraintConditionalValue = (function (_super) {
+    __extends(ModelTypeConstraintConditionalValue, _super);
+    function ModelTypeConstraintConditionalValue(optionsOrSelf) {
         _super.call(this);
         var options = optionsOrSelf;
-        if (options.ifField && options.ifValue && options.required) {
-            if (Array.isArray(options.required) && null != options.possibleValues) {
-                throw new Error("must not combine list of required fields with possibleValues");
+        if (options.condition && options.properties) {
+            var condition = options.condition, properties = options.properties, possibleValue = options.possibleValue;
+            var multiple = Array.isArray(properties) && properties.length > 1;
+            if (multiple && null != possibleValue && !Array.isArray(possibleValue)) {
+                throw new Error("must not combine list of required fields with single possibleValue");
             }
-            // so we always have an array:
-            var required = safeArray(options.required);
-            var ifValue = safeArray(options.ifValue);
-            // copy the object so the values can't be switched later:
+            var props = safeArray(properties);
+            var allowed = safeArray(possibleValue);
+            var id_p = props.join(',');
+            var id_v = allowed ? " == [${allowed.join(',')}]" : "";
+            var id = "conditionalValue(" + condition.property + " == " + condition.value + " -> " + id_p + id_v + ")";
             this._settings = {
-                ifField: options.ifField,
-                ifValue: ifValue,
-                required: required,
-                possibleValues: options.possibleValues
+                predicate: createPredicate(condition),
+                valueCheck: createValuePredicate(allowed),
+                properties: props,
+                possibleValues: allowed,
+                id: id
             };
         }
-        else if (this._isConstraintRequiredIf == optionsOrSelf["_isConstraintRequiredIf"]) {
+        else if (this._isConstraintConditionalValue == optionsOrSelf["_isConstraintConditionalValue"]) {
             this._settings = optionsOrSelf._settings;
         }
-    }
-    ModelTypeConstraintRequiredIf.prototype._isConstraintRequiredIf = function () { }; // marker property
-    ModelTypeConstraintRequiredIf.prototype._id = function () {
-        var o = this._settings;
-        var required = Array.isArray(o.required) ? o.required.join(',') : o.required;
-        var values = o.possibleValues ? " == ${o.possibleValues}" : "";
-        return "requiredIf(" + o.ifField + " == " + o.ifValue + " -> " + required + values + ")";
-    };
-    ModelTypeConstraintRequiredIf.prototype._checkValue = function (val, possible) {
-        if (Array.isArray(possible)) {
-            return possible.some(function (x) { return x == val; });
+        else {
+            console.log("invalid constructor argument", optionsOrSelf);
+            throw new Error("invalid constructor argument" + optionsOrSelf);
         }
-        return val == possible;
+    }
+    ModelTypeConstraintConditionalValue.prototype._isConstraintConditionalValue = function () { }; // marker property
+    ModelTypeConstraintConditionalValue.prototype._id = function () {
+        return this._settings.id;
     };
-    ModelTypeConstraintRequiredIf.prototype._checkIf = function (val) {
-        var options = this._settings;
-        var fieldValue = val[options.ifField];
-        return this._checkValue(fieldValue, options.ifValue);
-    };
-    ModelTypeConstraintRequiredIf.prototype.checkAndAdjustValue = function (val, ctx) {
+    ModelTypeConstraintConditionalValue.prototype.checkAndAdjustValue = function (val, ctx) {
         var check = true;
         var s = this._settings;
-        if (this._checkIf(val)) {
-            var isError = !this.warnOnly;
-            for (var _i = 0, _a = s.required; _i < _a.length; _i++) {
+        if (s.predicate(val)) {
+            var isError = !this.isWarningOnly;
+            for (var _i = 0, _a = s.properties; _i < _a.length; _i++) {
                 var f = _a[_i];
                 ctx.pushItem(f, isError);
-                if (s.possibleValues) {
-                    if (!this._checkValue(ctx.currentValue, s.possibleValues)) {
-                        ctx.addMessage(isError, "required field has forbidden value.", ctx.currentValue, s.possibleValues);
+                var thisValue = ctx.currentValue();
+                var valid = s.valueCheck(thisValue);
+                if (!valid) {
+                    if (s.possibleValues) {
+                        ctx.addMessage(isError, "illegal value.", ctx.currentValue(), s.possibleValues);
                     }
-                }
-                else {
-                    if (null == ctx.currentValue) {
+                    else {
                         ctx.addMessage(isError, "required field not filled.");
                     }
                 }
                 ctx.popItem();
             }
         }
-        if (!check) {
-            for (var _b = 0, _c = s.required; _b < _c.length; _b++) {
-                var f = _c[_b];
-            }
-        }
         return val;
     };
-    return ModelTypeConstraintRequiredIf;
+    return ModelTypeConstraintConditionalValue;
 }(model_base_1.ModelTypeConstraintOptional));
-exports.ModelTypeConstraintRequiredIf = ModelTypeConstraintRequiredIf;
+exports.ModelTypeConstraintConditionalValue = ModelTypeConstraintConditionalValue;
 //# sourceMappingURL=model.object.js.map

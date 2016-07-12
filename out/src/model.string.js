@@ -88,6 +88,9 @@ var ModelTypeConstraintRegex = (function (_super) {
     ModelTypeConstraintRegex.prototype._id = function () { return "pattern[" + this._pattern + "]"; };
     ModelTypeConstraintRegex.prototype.checkAndAdjustValue = function (val, ctx) {
         var result = val;
+        if (!ctx.currentRequired() && (null == val || '' == val)) {
+            return val;
+        }
         if (!this._pattern.exec(val)) {
             if (this.isWarningOnly) {
                 ctx.addWarning(this._message, val);

@@ -18,31 +18,37 @@ export declare class ModelTypeObject<T> extends ModelTypeConstrainable<T> implem
     create(): T;
     protected _kind(): string;
 }
-export declare class ModelTypeConstraintEqualFields extends ModelTypeConstraintOptional<any> {
-    constructor(fieldsOrSelf: string[] | ModelTypeConstraintEqualFields);
+export interface IEqualPropertiesConstraintOptions {
+    properties: string | string[];
+}
+export declare class ModelTypeConstraintEqualProperties extends ModelTypeConstraintOptional<any> {
+    constructor(fieldsOrSelf: string[] | IEqualPropertiesConstraintOptions | ModelTypeConstraintEqualProperties);
     private _isConstraintEqualFields();
     protected _id(): string;
     checkAndAdjustValue(val: any, ctx: IModelParseContext): Date;
     private _fields;
 }
-export interface IRequiredIfOptions {
-    ifField: string;
-    ifValue: string | number | string[] | number[];
-    required: string | string[];
-    possibleValues?: any[];
+export interface IConditionOptions {
+    property: string;
+    value: string | string[] | number | number[];
+    op?: "=";
 }
-export interface IRequiredIfSettings {
-    ifField: string;
-    ifValue: string[] | number[];
-    required: string[];
-    possibleValues?: any[];
+export interface IConditionalValueConstraintOptions {
+    condition: IConditionOptions;
+    properties: string | string[];
+    possibleValue?: string | number | string[] | number[];
 }
-export declare class ModelTypeConstraintRequiredIf extends ModelTypeConstraintOptional<any> {
-    constructor(optionsOrSelf: IRequiredIfOptions | ModelTypeConstraintRequiredIf);
-    private _isConstraintRequiredIf();
+export interface IConditionalValueConstraintSettings {
+    id: string;
+    predicate: (x: any) => boolean;
+    valueCheck: (x: any) => boolean;
+    properties: string[];
+    possibleValues: any[];
+}
+export declare class ModelTypeConstraintConditionalValue extends ModelTypeConstraintOptional<any> {
+    constructor(optionsOrSelf: IConditionalValueConstraintOptions | ModelTypeConstraintConditionalValue);
+    private _isConstraintConditionalValue();
     protected _id(): string;
-    _checkValue(val: any, possible: any | any[]): boolean;
-    _checkIf(val: any): boolean;
     checkAndAdjustValue(val: any, ctx: IModelParseContext): Date;
     private _settings;
 }

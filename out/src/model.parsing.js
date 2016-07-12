@@ -21,21 +21,34 @@ function shallowMerge(a, b) {
     }
     return result;
 }
-var constraintFactoryDefault = {
-    less: function (o) { return new model_number_1.ModelTypeConstraintLess(o.value); },
-    more: function (o) { return new model_number_1.ModelTypeConstraintMore(o.value); },
-    lessEqual: function (o) { return new model_number_1.ModelTypeConstraintLessEqual(o.value); },
-    moreEqual: function (o) { return new model_number_1.ModelTypeConstraintMoreEqual(o.value); },
-    minAge: function (o) { return new model_date_1.ModelTypeConstraintOlder(o.age); },
-    fieldsEqual: function (o) { return new model_object_1.ModelTypeConstraintEqualFields(o); },
-    requiredIf: function (o) { return new model_object_1.ModelTypeConstraintRequiredIf(o); },
-    valueIf: function (o) {
-        return new model_object_1.ModelTypeConstraintRequiredIf({
-            ifField: o.ifField,
-            ifValue: o.ifValue,
-            required: o.constrainedField,
-            possibleValues: o.possibleValues
-        });
+var constraintFactoriesDefault = {
+    numbers: {},
+    strings: {},
+    dates: {
+        minAge: function (o) { return new model_date_1.ModelTypeConstraintOlder(o.age); },
+        before: function (o) { return new model_date_1.ModelTypeConstraintBefore(o.age); },
+        after: function (o) { return new model_date_1.ModelTypeConstraintBefore(o.age); }
+    },
+    booleans: {},
+    objects: {
+        equalProperties: function (o) { return new model_object_1.ModelTypeConstraintEqualProperties(o); },
+        requiredIf: function (o) {
+            return new model_object_1.ModelTypeConstraintConditionalValue({
+                condition: o.condition,
+                properties: o.properties
+            });
+        },
+        valueIf: function (o) {
+            return new model_object_1.ModelTypeConstraintConditionalValue({
+                condition: o.condition,
+                properties: o.valueProperty,
+                possibleValue: o.possibleValue
+            });
+        }
+    },
+    universal: {
+        possibleValue: function (o) { return new model_string_1.ModelTypeConstraintPossibleValues(o); },
+        possibleValues: function (o) { return new model_string_1.ModelTypeConstraintPossibleValues(o); },
     }
 };
 var ModelSchemaParser = (function () {
@@ -166,7 +179,8 @@ var ModelSchemaParser = (function () {
     };
     ModelSchemaParser.prototype.parseSchemaObjectTypeObject = function (schemaObject, name) {
         var id = name || schemaObject.id || anonymousId();
-        var type = new model_object_1.ModelTypeObject(id);
+        var constraints = this._parseConstraints(schemaObject, [constraintFactoriesDefault.objects, constraintFactoriesDefault.universal]);
+        var type = new model_object_1.ModelTypeObject(id, null, constraints);
         var required = schemaObject['required'] || [];
         var props = schemaObject['properties'];
         if (props) {
@@ -183,6 +197,20 @@ var ModelSchemaParser = (function () {
         var elementType = this.parseSchemaObject(schemaObject.items);
         var type = new model_array_1.ModelTypeArray(elementType);
         return type;
+    };
+    ModelSchemaParser.prototype._parseConstraints = function (schemaObject, factories) {
+        var constraints = schemaObject.constraints;
+        if (constraints && Array.isArray(constraints)) {
+            var cc = constraints.map(function (c) {
+                var fact = findfirst(factories, c.constraint);
+                if (!fact) {
+                    console.log("unrecognized constraint", c.constraint, c);
+                }
+                return fact && fact(c);
+            }).filter(function (x) { return x != null; });
+            return new model_base_1.ModelConstraints(cc);
+        }
+        return null;
     };
     ModelSchemaParser.prototype.type = function (name) { return this._registry.type(name); };
     ModelSchemaParser.prototype.itemType = function (name) { return this._registry.itemType(name); };
@@ -209,5 +237,13 @@ function fetchFetcher(url) {
         }
         return null;
     });
+}
+function findfirst(tt, name) {
+    for (var _i = 0, tt_1 = tt; _i < tt_1.length; _i++) {
+        var t = tt_1[_i];
+        if (t[name])
+            return t[name];
+    }
+    return null;
 }
 //# sourceMappingURL=model.parsing.js.map
