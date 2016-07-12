@@ -242,4 +242,32 @@ var ModelTypeConstraintConditionalValue = (function (_super) {
     return ModelTypeConstraintConditionalValue;
 }(model_base_1.ModelTypeConstraintOptional));
 exports.ModelTypeConstraintConditionalValue = ModelTypeConstraintConditionalValue;
+/**
+ * can be used for validation, only, not for value modification
+ */
+var ModelTypePropertyConstraint = (function (_super) {
+    __extends(ModelTypePropertyConstraint, _super);
+    function ModelTypePropertyConstraint(property, constraint) {
+        _super.call(this);
+        this._property = property;
+        this._constraint = constraint;
+    }
+    ModelTypePropertyConstraint.prototype._id = function () {
+        return this._constraint.id + "@" + this._property;
+    };
+    ModelTypePropertyConstraint.prototype.checkAndAdjustValue = function (val, ctx) {
+        ctx.pushItem(this._property);
+        try {
+            this._constraint.checkAndAdjustValue(ctx.currentValue(), ctx);
+        }
+        catch (err) {
+            ctx.addMessage(!this.isWarningOnly, "value had unexpected type", err);
+        }
+        ctx.popItem();
+        return val;
+    };
+    ModelTypePropertyConstraint.prototype.usedItems = function () { return [this._property]; };
+    return ModelTypePropertyConstraint;
+}(model_base_1.ModelTypeConstraintOptional));
+exports.ModelTypePropertyConstraint = ModelTypePropertyConstraint;
 //# sourceMappingURL=model.object.js.map

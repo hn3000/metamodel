@@ -54,7 +54,8 @@ import {
 import {
   ModelTypeObject,
   ModelTypeConstraintEqualProperties,
-  ModelTypeConstraintConditionalValue
+  ModelTypeConstraintConditionalValue,
+  ModelTypePropertyConstraint
 } from "./model.object"
 
 
@@ -89,6 +90,11 @@ export interface IConstraintFactories {
   universal: IConstraintFactory<any>;
 }
 
+function parseAge(o:any) {
+  let result = o.age ? o.age : o.years ? o.years+'y' : '0y';
+  return result;
+}
+
 var constraintFactoriesDefault:IConstraintFactories = {
   numbers: {
     /* unnecessary: available via minimum / maximum
@@ -99,17 +105,26 @@ var constraintFactoriesDefault:IConstraintFactories = {
     */
   },
   strings: { 
-    minAge(o:any)      { return new ModelTypeConstraintOlder<string>(o.age); },
-    before(o:any)      { return new ModelTypeConstraintBefore<string>(o.age); },
-    after(o:any)       { return new ModelTypeConstraintAfter<string>(o.age); }
+    minAge(o:any)      { return new ModelTypeConstraintOlder<string>(parseAge(o)); },
+    before(o:any)      { return new ModelTypeConstraintBefore<string>(o.date); },
+    after(o:any)       { return new ModelTypeConstraintAfter<string>(o.date); }
   },
   dates: {
     minAge(o:any)      { return new ModelTypeConstraintOlder<Date>(o.age); },
-    before(o:any)      { return new ModelTypeConstraintBefore<Date>(o.age); },
-    after(o:any)       { return new ModelTypeConstraintAfter<Date>(o.age); }
+    before(o:any)      { return new ModelTypeConstraintBefore<Date>(o.date); },
+    after(o:any)       { return new ModelTypeConstraintAfter<Date>(o.date); }
   },
   booleans: { },
   objects: {
+    minAge(o:any) {
+      return new ModelTypePropertyConstraint(o.property, new ModelTypeConstraintOlder<string>(parseAge(o)));
+    },
+    before(o:any) {
+      return new ModelTypePropertyConstraint(o.property, new ModelTypeConstraintBefore<string>(o.date));
+    },
+    after(o:any) {
+      return new ModelTypePropertyConstraint(o.property, new ModelTypeConstraintAfter<string>(o.date));
+    },
     equalProperties(o:any) { return new ModelTypeConstraintEqualProperties(o); },
     requiredIf(o:any) { 
       return new ModelTypeConstraintConditionalValue({

@@ -300,3 +300,34 @@ export class ModelTypeConstraintConditionalValue extends ModelTypeConstraintOpti
 
   private _settings:IConditionalValueConstraintSettings;
 }
+
+/**
+ * can be used for validation, only, not for value modification
+ */
+export class ModelTypePropertyConstraint extends ModelTypeConstraintOptional<any> {
+  constructor(property:string, constraint: IModelTypeConstraint<any>) {
+    super();
+    this._property = property;
+    this._constraint = constraint;
+  }
+
+  _id():string {
+    return `${this._constraint.id}@${this._property}`; 
+  }
+
+  checkAndAdjustValue(val:any, ctx:IModelParseContext):any {
+    ctx.pushItem(this._property);
+    try {
+      this._constraint.checkAndAdjustValue(ctx.currentValue(), ctx);
+    } catch (err) {
+      ctx.addMessage(!this.isWarningOnly, "value had unexpected type", err);
+    }
+    ctx.popItem();
+    return val;
+  }
+
+  usedItems():string[] { return [ this._property ]; }  
+
+  private _property:string;
+  private _constraint:IModelTypeConstraint<any>
+}

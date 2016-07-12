@@ -1,4 +1,4 @@
-import { IModelType, IModelTypeItem, IModelTypeCompositeBuilder, IModelTypeEntry, IModelTypeComposite, IModelParseContext } from "./model.api";
+import { IModelType, IModelTypeItem, IModelTypeCompositeBuilder, IModelTypeEntry, IModelTypeComposite, IModelParseContext, IModelTypeConstraint } from "./model.api";
 import { ModelTypeConstrainable, ModelConstraints, ModelTypeConstraintOptional } from "./model.base";
 export declare class ModelTypeObject<T> extends ModelTypeConstrainable<T> implements IModelTypeCompositeBuilder<T> {
     private _constructFun;
@@ -53,4 +53,15 @@ export declare class ModelTypeConstraintConditionalValue extends ModelTypeConstr
     checkAndAdjustValue(val: any, ctx: IModelParseContext): Date;
     usedItems(): string[];
     private _settings;
+}
+/**
+ * can be used for validation, only, not for value modification
+ */
+export declare class ModelTypePropertyConstraint extends ModelTypeConstraintOptional<any> {
+    constructor(property: string, constraint: IModelTypeConstraint<any>);
+    _id(): string;
+    checkAndAdjustValue(val: any, ctx: IModelParseContext): any;
+    usedItems(): string[];
+    private _property;
+    private _constraint;
 }

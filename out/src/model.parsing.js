@@ -21,20 +21,33 @@ function shallowMerge(a, b) {
     }
     return result;
 }
+function parseAge(o) {
+    var result = o.age ? o.age : o.years ? o.years + 'y' : '0y';
+    return result;
+}
 var constraintFactoriesDefault = {
     numbers: {},
     strings: {
-        minAge: function (o) { return new model_date_1.ModelTypeConstraintOlder(o.age); },
-        before: function (o) { return new model_date_1.ModelTypeConstraintBefore(o.age); },
-        after: function (o) { return new model_date_1.ModelTypeConstraintAfter(o.age); }
+        minAge: function (o) { return new model_date_1.ModelTypeConstraintOlder(parseAge(o)); },
+        before: function (o) { return new model_date_1.ModelTypeConstraintBefore(o.date); },
+        after: function (o) { return new model_date_1.ModelTypeConstraintAfter(o.date); }
     },
     dates: {
         minAge: function (o) { return new model_date_1.ModelTypeConstraintOlder(o.age); },
-        before: function (o) { return new model_date_1.ModelTypeConstraintBefore(o.age); },
-        after: function (o) { return new model_date_1.ModelTypeConstraintAfter(o.age); }
+        before: function (o) { return new model_date_1.ModelTypeConstraintBefore(o.date); },
+        after: function (o) { return new model_date_1.ModelTypeConstraintAfter(o.date); }
     },
     booleans: {},
     objects: {
+        minAge: function (o) {
+            return new model_object_1.ModelTypePropertyConstraint(o.property, new model_date_1.ModelTypeConstraintOlder(parseAge(o)));
+        },
+        before: function (o) {
+            return new model_object_1.ModelTypePropertyConstraint(o.property, new model_date_1.ModelTypeConstraintBefore(o.date));
+        },
+        after: function (o) {
+            return new model_object_1.ModelTypePropertyConstraint(o.property, new model_date_1.ModelTypeConstraintAfter(o.date));
+        },
         equalProperties: function (o) { return new model_object_1.ModelTypeConstraintEqualProperties(o); },
         requiredIf: function (o) {
             return new model_object_1.ModelTypeConstraintConditionalValue({

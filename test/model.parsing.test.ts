@@ -3,7 +3,8 @@ import {
     ModelParseContext,
     ModelTypeConstraints,
     ModelSchemaParser,
-    ModelTypeRegistry
+    ModelTypeRegistry,
+    ModelTypeObject
 } from "../src/model";
 
 import {
@@ -147,5 +148,78 @@ export class ModelParsingTest extends TestClass {
     })
     type.validate(ctx);
     this.areIdentical(0, ctx.errors.length);
+  }
+  testSchemaWithMinAge18OnObject() {
+    var parser = new ModelSchemaParser();
+    
+    var type = parser.addSchemaObject('ExampleObject', {
+      type: "object",
+      properties: {
+        "p": { 
+          type: "string", 
+          pattern: /^\d{4}-\d{2}-\d{2}$/
+        }
+      },
+      constraints: [
+        { 
+          constraint: 'minAge', 
+          property: 'p',
+          years: "18"  
+        }
+      ]
+    });
+    
+    var ctx = new ModelParseContext({
+      p: '1998-01-01'
+    })
+    type.validate(ctx);
+    this.areIdentical(0, ctx.errors.length);
+
+    ctx = new ModelParseContext({
+      p: '2050-01-01'
+    })
+    type.validate(ctx);
+    this.areIdentical(1, ctx.errors.length);
+    this.areIdentical('p', ctx.errors[0].path);
+  }
+  testSchemaWithMinAge18OnSlicedObject() {
+    var parser = new ModelSchemaParser();
+    
+    var type = parser.addSchemaObject('ExampleObject', {
+      type: "object",
+      properties: {
+        "p": { 
+          type: "string", 
+          pattern: /^\d{4}-\d{2}-\d{2}$/
+        }
+      },
+      constraints: [
+        { 
+          constraint: 'minAge', 
+          property: 'p',
+          years: "18"  
+        },
+        { 
+          constraint: 'minAge', 
+          property: 'q',
+          years: "18"  
+        }
+      ]
+    });
+    
+    var slice = (type as ModelTypeObject<any>).slice(['p']);
+
+    var ctx = new ModelParseContext({
+      p: '1998-01-01'
+    })
+    slice.validate(ctx);
+    this.areIdentical(0, ctx.errors.length);
+
+    ctx = new ModelParseContext({
+      p: '2050-01-01'
+    })
+    slice.validate(ctx);
+    this.areIdentical(1, ctx.errors.length);
+    this.areIdentical('p', ctx.errors[0].path);
   }
 }
