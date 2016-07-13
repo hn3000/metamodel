@@ -197,7 +197,8 @@ var ModelSchemaParser = (function () {
     ModelSchemaParser.prototype.parseSchemaObjectTypeObject = function (schemaObject, name) {
         var id = name || schemaObject.id || anonymousId();
         var constraints = this._parseConstraints(schemaObject, [constraintFactoriesDefault.objects, constraintFactoriesDefault.universal]);
-        var type = new model_object_1.ModelTypeObject(id, null, constraints);
+        var type;
+        type = new model_object_1.ModelTypeObject(id, null, constraints);
         var required = schemaObject['required'] || [];
         var props = schemaObject['properties'];
         if (props) {
@@ -208,10 +209,29 @@ var ModelSchemaParser = (function () {
                 type.addItem(key, this.parseSchemaObject(props[key], key), isRequired);
             }
         }
+        var allOf = schemaObject['allOf'];
+        if (allOf && Array.isArray(allOf)) {
+            var index = 0;
+            for (var _a = 0, allOf_1 = allOf; _a < allOf_1.length; _a++) {
+                var inner = allOf_1[_a];
+                var innerType = this.parseSchemaObjectTypeObject(inner, name + "/allOf[" + index + "]");
+                type = type.extend(innerType);
+                ++index;
+            }
+        }
         return type;
     };
     ModelSchemaParser.prototype.parseSchemaObjectTypeArray = function (schemaObject, name) {
-        var elementType = this.parseSchemaObject(schemaObject.items);
+        var elementType = null;
+        if (Array.isArray(schemaObject.items)) {
+            console.log('metamodel unhandled schema construct: array items property is array');
+        }
+        else {
+            elementType = this.parseSchemaObject(schemaObject.items);
+        }
+        if (null != elementType) {
+            elementType = new model_object_1.ModelTypeObject("any");
+        }
         var type = new model_array_1.ModelTypeArray(elementType);
         return type;
     };

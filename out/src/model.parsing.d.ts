@@ -1,10 +1,9 @@
-import { IModelType, IModelTypeItem, IModelTypeConstraint, IModelTypeConstraintFactory, IModelTypeRegistry } from "./model.api";
+import { IModelType, IModelTypeItem, IModelTypeConstraint, IModelTypeConstraintFactory, IModelTypeRegistry, IModelTypeCompositeBuilder } from "./model.api";
 import { ModelConstraints } from "./model.base";
 import { ModelTypeNumber } from "./model.number";
 import { ModelTypeString, ModelTypeConstraintPossibleValues } from "./model.string";
 import { ModelTypeBool } from "./model.bool";
 import { ModelTypeArray } from "./model.array";
-import { ModelTypeObject } from "./model.object";
 export interface IConstraintFactory<T> {
     [k: string]: (o: any) => IModelTypeConstraint<T>;
 }
@@ -25,7 +24,7 @@ export declare class ModelSchemaParser implements IModelTypeRegistry {
     parseSchemaObjectTypeString(schemaObject: any): ModelTypeString;
     parseSchemaObjectTypeNumber(schemaObject: any, ...constraints: IModelTypeConstraint<number>[]): ModelTypeNumber;
     parseSchemaObjectTypeBool(schemaObject: any): ModelTypeBool;
-    parseSchemaObjectTypeObject(schemaObject: any, name?: string): ModelTypeObject<any>;
+    parseSchemaObjectTypeObject(schemaObject: any, name?: string): IModelTypeCompositeBuilder<any>;
     parseSchemaObjectTypeArray(schemaObject: any, name?: string): ModelTypeArray<any>;
     _parseConstraints(schemaObject: any, factories: IConstraintFactory<any>[]): ModelConstraints<any>;
     type(name: string): IModelType<any>;

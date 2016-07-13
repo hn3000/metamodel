@@ -66,7 +66,14 @@ var ModelTypeObject = (function (_super) {
         return null;
     };
     ModelTypeObject.prototype.extend = function (type) {
-        return this;
+        var constraints = type.findConstraints(function () { return true; });
+        var result = this.withConstraints.apply(this, constraints);
+        for (var _i = 0, _a = type.items; _i < _a.length; _i++) {
+            var item = _a[_i];
+            var key = item.key, type_1 = item.type, required = item.required;
+            result.addItem(key, type_1, required);
+        }
+        return result;
     };
     Object.defineProperty(ModelTypeObject.prototype, "items", {
         get: function () {
@@ -154,16 +161,16 @@ var ModelTypeConstraintEqualProperties = (function (_super) {
 }(model_base_1.ModelTypeConstraintOptional));
 exports.ModelTypeConstraintEqualProperties = ModelTypeConstraintEqualProperties;
 function createPredicate(condition) {
-    var property = condition.property, value = condition.value, op = condition.op;
+    var property = condition.property, value = condition.value, op = condition.op, invert = condition.invert;
     if (Array.isArray(value)) {
         var valueArray_1 = value.slice();
         return function (x) {
             var p = x[property];
-            return -1 != valueArray_1.indexOf(p);
+            return (-1 != valueArray_1.indexOf(p)) == !invert;
         };
     }
     return function (x) {
-        return (value === x[property]);
+        return (value === x[property]) == !invert;
     };
 }
 function createValuePredicate(possibleValues) {

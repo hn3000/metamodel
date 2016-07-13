@@ -63,7 +63,7 @@ export interface IModelTypeEntry {
     type: IModelType<any>;
     required: boolean;
 }
-export interface IModelTypeComposite<C> extends IModelType<C> {
+export interface IModelTypeComposite<C> extends IModelTypeConstrainable<C> {
     items: IModelTypeEntry[];
     subModel(name: string | number): IModelType<any>;
     slice(name: string[] | number[]): IModelTypeComposite<C>;

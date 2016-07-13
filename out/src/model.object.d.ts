@@ -33,6 +33,7 @@ export interface IConditionOptions {
     property: string;
     value: string | string[] | number | number[];
     op?: "=";
+    invert?: boolean;
 }
 export interface IConditionalValueConstraintOptions {
     condition: IConditionOptions;

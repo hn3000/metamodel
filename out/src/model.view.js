@@ -85,8 +85,17 @@ var ModelViewMeta = (function () {
         if (schema && schema.pages) {
             var pages = schema.pages.map(function (p, index) {
                 var alias = p.alias || '' + index;
-                var fields = p.fields;
-                var model = type.slice(fields);
+                var properties = null;
+                if (null != p.schema) {
+                    properties = Object.keys(p.schema.properties);
+                }
+                if (null == properties) {
+                    properties = p.properties || p.fields;
+                }
+                if (null == properties) {
+                    properties = [];
+                }
+                var model = type.slice(properties);
                 return new ModelViewPage(alias, model);
             });
             this._pages = pages;
