@@ -142,8 +142,18 @@ export class ModelViewMeta<T> {
     if (schema && schema.pages) {
       let pages = schema.pages.map((p:any, index:number) => {
         let alias = p.alias || ''+index;
-        let fields = p.fields;
-        let model = type.slice(fields);
+        var properties:string[] = null;
+        
+        if (null != p.schema) {
+          properties = Object.keys(p.schema.properties);
+        }
+        if (null == properties) {
+          properties = p.properties || p.fields;
+        }
+        if (null == properties) {
+          properties = [];
+        }
+        let model = type.slice(properties);
         return new ModelViewPage(alias, model);
       });
       this._pages = pages;
