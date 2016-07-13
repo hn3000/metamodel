@@ -189,7 +189,7 @@ export interface IConditionOptions {
   property: string;
   value: string|string[]|number|number[];
   op?: "=";
-  invert: boolean;
+  invert?: boolean;
 }
 
 function createPredicate(condition: IConditionOptions) {
