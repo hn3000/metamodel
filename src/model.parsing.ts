@@ -2,8 +2,10 @@ import {
   IModelType,
   IModelTypeItem,
   IModelTypeConstraint,
+  IModelTypeConstrainable,
   IModelTypeConstraintFactory,
-  IModelTypeRegistry
+  IModelTypeRegistry,
+  IModelTypeCompositeBuilder
 } from "./model.api"
 
 import {
@@ -171,7 +173,7 @@ export class ModelSchemaParser implements IModelTypeRegistry {
   
   parseSchemaObject(schemaObject:any, name?:string):IModelType<any> {
     var schemaType = schemaObject['type'];
-    var result:ModelTypeConstrainable<any> = null;
+    var result:IModelTypeConstrainable<any> = null;
 
     switch (schemaType) {
       case 'object':
@@ -287,7 +289,9 @@ export class ModelSchemaParser implements IModelTypeRegistry {
   parseSchemaObjectTypeObject(schemaObject:any, name?:string) {
     var id = name || schemaObject.id || anonymousId();
     let constraints = this._parseConstraints(schemaObject, [constraintFactoriesDefault.objects,constraintFactoriesDefault.universal]);
-    var type = new ModelTypeObject(id, null, constraints);
+    var type:IModelTypeCompositeBuilder<any>;
+    type = new ModelTypeObject(id, null, constraints);
+
     var required:string[] = schemaObject['required'] || [];
     var props = schemaObject['properties'];
     if (props) {
@@ -298,11 +302,30 @@ export class ModelSchemaParser implements IModelTypeRegistry {
       }
     }
 
+    var allOf = schemaObject['allOf'];
+    if (allOf && Array.isArray(allOf)) {
+      var index = 0;
+      for (var inner of allOf) {
+        let innerType = this.parseSchemaObjectTypeObject(inner, `${name}/allOf[${index}]`);
+        type = type.extend(innerType);
+        ++index;
+      }
+    }
+
     return type;
   }
   
   parseSchemaObjectTypeArray(schemaObject:any, name?:string) {
-    var elementType = this.parseSchemaObject(schemaObject.items);
+    var elementType:IModelType<any> = null;
+    if (Array.isArray(schemaObject.items)) {
+      console.log('metamodel unhandled schema construct: array items property is array');
+    } else {
+      elementType = this.parseSchemaObject(schemaObject.items);
+    }
+
+    if (null != elementType) {
+      elementType = new ModelTypeObject("any");
+    }
     var type = new ModelTypeArray(elementType);
     
     return type;

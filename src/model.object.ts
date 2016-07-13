@@ -89,7 +89,13 @@ export class ModelTypeObject<T>
   }
 
   extend<X>(type:IModelTypeComposite<X>):IModelTypeCompositeBuilder<T> {
-    return this;
+    let constraints:IModelTypeConstraint<any>[] = type.findConstraints(()=>true);
+    let result = this.withConstraints(...constraints);
+    for (var item of type.items) {
+      let { key, type, required } = item;
+      result.addItem(key, type, required)
+    }
+    return result;
   }
 
   get items():IModelTypeEntry[] {
