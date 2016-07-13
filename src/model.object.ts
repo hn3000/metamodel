@@ -189,21 +189,22 @@ export interface IConditionOptions {
   property: string;
   value: string|string[]|number|number[];
   op?: "=";
+  invert: boolean;
 }
 
 function createPredicate(condition: IConditionOptions) {
-  let { property, value, op } = condition;
+  let { property, value, op, invert } = condition;
 
   if (Array.isArray(value)) {
     let valueArray = value.slice() as any[];
 
     return (x:any) => {
       let p = x[property];
-      return -1 != valueArray.indexOf(p);
+      return (-1 != valueArray.indexOf(p)) == !invert;
     }
   }
   return function(x:any): boolean {
-    return (value === x[property]);
+    return (value === x[property]) == !invert;
   }
 }
 
