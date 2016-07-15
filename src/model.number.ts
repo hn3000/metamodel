@@ -50,7 +50,11 @@ export class ModelTypeNumber extends ModelTypeItem<number> {
       result = parseFloat(val);
     }
     if (null == result && ctx.currentRequired()) {
-      ctx.addError('can not convert to float', val);
+      if (null == val) {
+        ctx.addError('required value is missing', 'required-empty');
+      } else {
+        ctx.addError('can not convert to float', 'value-invalid', val);
+      }
     } else {
       result = this._checkAndAdjustValue(result, ctx);
     }
@@ -86,7 +90,7 @@ export class ModelTypeConstraintInteger implements IModelTypeConstraint<number> 
   checkAndAdjustValue(val:number, ctx:IModelParseContext) {
     let result = Math.floor(val);
     if (val !== result) {
-      ctx.addWarning('expected int value, ignored fractional part', val, result);
+      ctx.addWarning('expected int value, ignored fractional part', 'value-adjusted', val, result);
     }
     return result;
   }
@@ -105,7 +109,7 @@ export class ModelTypeConstraintMultipleOf extends ModelTypeConstraintOptional<n
   checkAndAdjustValue(val:number, ctx:IModelParseContext) {
     let result = Math.floor(val / this._modulus) * this._modulus;
     if (result !== val) {
-      ctx.addWarning(`expected multiple of ${this._modulus}, ignoring remainder`, val, result);
+      ctx.addWarning(`expected multiple of ${this._modulus}, ignoring remainder`, 'value-adjusted', val, result);
     }
     return result;
   }
@@ -143,13 +147,16 @@ export abstract class ModelTypeConstraintComparison extends ModelTypeConstraintO
 
   protected _op():string { return ""; }
   protected _compare(a:number, b:number):boolean { return false; }
+  protected _code():string { return 'value-invalid' }
 
   checkAndAdjustValue(val:number, ctx:IModelParseContext):number {
     let check = this._compare(val, this._val);
     let result = val;
     if (!check) {
-      ctx.addWarning(`expected ${val} ${this._op()} ${this._val}.`);
-      if (!this.isWarningOnly) {
+      let warning = this.isWarningOnly;
+      let error = !warning && !ctx.allowConversion;
+      ctx.addMessage(error, `expected ${val} ${this._op()} ${this._val}.`, this._code());
+      if (!this.isWarningOnly && ctx.allowConversion) {
         result = this._val;
       }
     }
@@ -162,23 +169,27 @@ export class ModelTypeConstraintLess extends ModelTypeConstraintComparison {
   constructor(val:number) { super(val); }
   protected _op() { return "<"; }
   protected _compare(a:number, b:number):boolean { return a < b; }
+  protected _code():string { return 'value-less'; }
 }
 
 export class ModelTypeConstraintLessEqual extends ModelTypeConstraintComparison {
   constructor(val:number) { super(val); }
   protected _op() { return "<="; }
   protected _compare(a:number, b:number):boolean { return a <= b; }
+  protected _code():string { return 'value-less-or-equal'; }
 }
 
 export class ModelTypeConstraintMore extends ModelTypeConstraintComparison {
   constructor(val:number) { super(val); }
   protected _op() { return ">"; }
   protected _compare(a:number, b:number):boolean { return a > b; }
+  protected _code():string { return 'value-more'; }
 }
 
 export class ModelTypeConstraintMoreEqual extends ModelTypeConstraintComparison {
   constructor(val:number) { super(val); }
   protected _op() { return ">="; }
   protected _compare(a:number, b:number):boolean { return a >= b; }
+  protected _code():string { return 'value-more-or-equal'; }
 }
 

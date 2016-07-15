@@ -150,7 +150,7 @@ var ModelTypeConstraintEqualProperties = (function (_super) {
             for (var _i = 0, fields_1 = fields; _i < fields_1.length; _i++) {
                 var f = fields_1[_i];
                 ctx.pushItem(f, !this.warnOnly());
-                ctx.addError("expected fields to be equal: " + fields.join(',') + ".");
+                ctx.addError("expected fields to be equal: " + fields.join(',') + ".", 'equal-properties');
                 ctx.popItem();
             }
         }
@@ -200,7 +200,7 @@ var ModelTypeConstraintConditionalValue = (function (_super) {
             var props = safeArray(properties);
             var allowed = safeArray(possibleValue);
             var id_p = props.join(',');
-            var id_v = allowed ? " == [${allowed.join(',')}]" : "";
+            var id_v = allowed ? " == [" + allowed.join(',') + "]" : "";
             var id = "conditionalValue(" + condition.property + " == " + condition.value + " -> " + id_p + id_v + ")";
             this._settings = {
                 predicate: createPredicate(condition),
@@ -234,10 +234,10 @@ var ModelTypeConstraintConditionalValue = (function (_super) {
                 var valid = s.valueCheck(thisValue);
                 if (!valid) {
                     if (s.possibleValues) {
-                        ctx.addMessage(isError, "illegal value.", ctx.currentValue(), s.possibleValues);
+                        ctx.addMessage(isError, "illegal value.", 'value-illegal', ctx.currentValue(), s.possibleValues);
                     }
                     else {
-                        ctx.addMessage(isError, "required field not filled.");
+                        ctx.addMessage(isError, "required field not filled.", 'required-empty');
                     }
                 }
                 ctx.popItem();
@@ -268,7 +268,7 @@ var ModelTypePropertyConstraint = (function (_super) {
             this._constraint.checkAndAdjustValue(ctx.currentValue(), ctx);
         }
         catch (err) {
-            ctx.addMessage(!this.isWarningOnly, "value had unexpected type", err);
+            ctx.addMessage(!this.isWarningOnly, 'value had unexpected type', 'value-type', err);
         }
         ctx.popItem();
         return val;

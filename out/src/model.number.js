@@ -41,7 +41,12 @@ var ModelTypeNumber = (function (_super) {
             result = parseFloat(val);
         }
         if (null == result && ctx.currentRequired()) {
-            ctx.addError('can not convert to float', val);
+            if (null == val) {
+                ctx.addError('required value is missing', 'required-empty');
+            }
+            else {
+                ctx.addError('can not convert to float', 'value-invalid', val);
+            }
         }
         else {
             result = this._checkAndAdjustValue(result, ctx);
@@ -81,7 +86,7 @@ var ModelTypeConstraintInteger = (function () {
     ModelTypeConstraintInteger.prototype.checkAndAdjustValue = function (val, ctx) {
         var result = Math.floor(val);
         if (val !== result) {
-            ctx.addWarning('expected int value, ignored fractional part', val, result);
+            ctx.addWarning('expected int value, ignored fractional part', 'value-adjusted', val, result);
         }
         return result;
     };
@@ -103,7 +108,7 @@ var ModelTypeConstraintMultipleOf = (function (_super) {
     ModelTypeConstraintMultipleOf.prototype.checkAndAdjustValue = function (val, ctx) {
         var result = Math.floor(val / this._modulus) * this._modulus;
         if (result !== val) {
-            ctx.addWarning("expected multiple of " + this._modulus + ", ignoring remainder", val, result);
+            ctx.addWarning("expected multiple of " + this._modulus + ", ignoring remainder", 'value-adjusted', val, result);
         }
         return result;
     };
@@ -145,12 +150,15 @@ var ModelTypeConstraintComparison = (function (_super) {
     };
     ModelTypeConstraintComparison.prototype._op = function () { return ""; };
     ModelTypeConstraintComparison.prototype._compare = function (a, b) { return false; };
+    ModelTypeConstraintComparison.prototype._code = function () { return 'value-invalid'; };
     ModelTypeConstraintComparison.prototype.checkAndAdjustValue = function (val, ctx) {
         var check = this._compare(val, this._val);
         var result = val;
         if (!check) {
-            ctx.addWarning("expected " + val + " " + this._op() + " " + this._val + ".");
-            if (!this.isWarningOnly) {
+            var warning = this.isWarningOnly;
+            var error = !warning && !ctx.allowConversion;
+            ctx.addMessage(error, "expected " + val + " " + this._op() + " " + this._val + ".", this._code());
+            if (!this.isWarningOnly && ctx.allowConversion) {
                 result = this._val;
             }
         }
@@ -166,6 +174,7 @@ var ModelTypeConstraintLess = (function (_super) {
     }
     ModelTypeConstraintLess.prototype._op = function () { return "<"; };
     ModelTypeConstraintLess.prototype._compare = function (a, b) { return a < b; };
+    ModelTypeConstraintLess.prototype._code = function () { return 'value-less'; };
     return ModelTypeConstraintLess;
 }(ModelTypeConstraintComparison));
 exports.ModelTypeConstraintLess = ModelTypeConstraintLess;
@@ -176,6 +185,7 @@ var ModelTypeConstraintLessEqual = (function (_super) {
     }
     ModelTypeConstraintLessEqual.prototype._op = function () { return "<="; };
     ModelTypeConstraintLessEqual.prototype._compare = function (a, b) { return a <= b; };
+    ModelTypeConstraintLessEqual.prototype._code = function () { return 'value-less-or-equal'; };
     return ModelTypeConstraintLessEqual;
 }(ModelTypeConstraintComparison));
 exports.ModelTypeConstraintLessEqual = ModelTypeConstraintLessEqual;
@@ -186,6 +196,7 @@ var ModelTypeConstraintMore = (function (_super) {
     }
     ModelTypeConstraintMore.prototype._op = function () { return ">"; };
     ModelTypeConstraintMore.prototype._compare = function (a, b) { return a > b; };
+    ModelTypeConstraintMore.prototype._code = function () { return 'value-more'; };
     return ModelTypeConstraintMore;
 }(ModelTypeConstraintComparison));
 exports.ModelTypeConstraintMore = ModelTypeConstraintMore;
@@ -196,6 +207,7 @@ var ModelTypeConstraintMoreEqual = (function (_super) {
     }
     ModelTypeConstraintMoreEqual.prototype._op = function () { return ">="; };
     ModelTypeConstraintMoreEqual.prototype._compare = function (a, b) { return a >= b; };
+    ModelTypeConstraintMoreEqual.prototype._code = function () { return 'value-more-or-equal'; };
     return ModelTypeConstraintMoreEqual;
 }(ModelTypeConstraintComparison));
 exports.ModelTypeConstraintMoreEqual = ModelTypeConstraintMoreEqual;

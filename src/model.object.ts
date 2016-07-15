@@ -173,7 +173,7 @@ export class ModelTypeConstraintEqualProperties extends ModelTypeConstraintOptio
     if (!check) {
       for (var f of fields) {
         ctx.pushItem(f, !this.warnOnly());
-        ctx.addError(`expected fields to be equal: ${fields.join(',')}.`);
+        ctx.addError(`expected fields to be equal: ${fields.join(',')}.`, 'equal-properties');
         ctx.popItem();
       }
     }
@@ -254,7 +254,7 @@ export class ModelTypeConstraintConditionalValue extends ModelTypeConstraintOpti
       let allowed = safeArray<any>(possibleValue);
 
       let id_p = props.join(',');
-      let id_v = allowed ? " == [${allowed.join(',')}]" : ""
+      let id_v = allowed ? ` == [${allowed.join(',')}]` : ""
       let id = `conditionalValue(${condition.property} == ${condition.value} -> ${id_p}${id_v})`;
 
 
@@ -290,9 +290,9 @@ export class ModelTypeConstraintConditionalValue extends ModelTypeConstraintOpti
         let valid = s.valueCheck(thisValue);
         if (!valid) {
           if (s.possibleValues) {
-            ctx.addMessage(isError, `illegal value.`, ctx.currentValue(), s.possibleValues);
+            ctx.addMessage(isError, `illegal value.`, 'value-illegal', ctx.currentValue(), s.possibleValues);
           } else {
-            ctx.addMessage(isError, `required field not filled.`);
+            ctx.addMessage(isError, `required field not filled.`, 'required-empty');
           }
         }
         ctx.popItem();
@@ -327,7 +327,7 @@ export class ModelTypePropertyConstraint extends ModelTypeConstraintOptional<any
     try {
       this._constraint.checkAndAdjustValue(ctx.currentValue(), ctx);
     } catch (err) {
-      ctx.addMessage(!this.isWarningOnly, "value had unexpected type", err);
+      ctx.addMessage(!this.isWarningOnly, 'value had unexpected type', 'value-type', err);
     }
     ctx.popItem();
     return val;

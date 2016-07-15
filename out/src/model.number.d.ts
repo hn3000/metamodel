@@ -30,6 +30,7 @@ export declare abstract class ModelTypeConstraintComparison extends ModelTypeCon
     protected _id(): string;
     protected _op(): string;
     protected _compare(a: number, b: number): boolean;
+    protected _code(): string;
     checkAndAdjustValue(val: number, ctx: IModelParseContext): number;
     private _val;
 }
@@ -37,19 +38,23 @@ export declare class ModelTypeConstraintLess extends ModelTypeConstraintComparis
     constructor(val: number);
     protected _op(): string;
     protected _compare(a: number, b: number): boolean;
+    protected _code(): string;
 }
 export declare class ModelTypeConstraintLessEqual extends ModelTypeConstraintComparison {
     constructor(val: number);
     protected _op(): string;
     protected _compare(a: number, b: number): boolean;
+    protected _code(): string;
 }
 export declare class ModelTypeConstraintMore extends ModelTypeConstraintComparison {
     constructor(val: number);
     protected _op(): string;
     protected _compare(a: number, b: number): boolean;
+    protected _code(): string;
 }
 export declare class ModelTypeConstraintMoreEqual extends ModelTypeConstraintComparison {
     constructor(val: number);
     protected _op(): string;
     protected _compare(a: number, b: number): boolean;
+    protected _code(): string;
 }

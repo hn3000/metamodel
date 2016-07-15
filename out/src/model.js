@@ -5,6 +5,7 @@ exports.ModelTypeConstrainable = model_base_1.ModelTypeConstrainable;
 exports.ModelTypeItem = model_base_1.ModelTypeItem;
 exports.ModelConstraints = model_base_1.ModelConstraints;
 exports.ModelTypeConstraintOptional = model_base_1.ModelTypeConstraintOptional;
+exports.ClientProps = model_base_1.ClientProps;
 var model_number_1 = require("./model.number");
 var model_string_1 = require("./model.string");
 var model_bool_1 = require("./model.bool");

@@ -48,7 +48,12 @@ var ModelTypeDate = (function (_super) {
             error = xx;
         }
         if (null == result && ctx.currentRequired()) {
-            ctx.addError('can not convert to Date', val, error);
+            if (null == val) {
+                ctx.addError('can not convert to Date', 'required-empty', val, error);
+            }
+            else {
+                ctx.addError('can not convert to Date', 'value-type', val, error);
+            }
         }
         else {
             result = this._checkAndAdjustValue(result, ctx);
@@ -102,6 +107,7 @@ var ModelTypeConstraintDateBase = (function (_super) {
     ModelTypeConstraintDateBase.prototype._op = function () { return ""; };
     ModelTypeConstraintDateBase.prototype._compare = function (a, b) { return false; };
     ModelTypeConstraintDateBase.prototype._val = function () { return null; };
+    ModelTypeConstraintDateBase.prototype._code = function () { return 'value-invalid'; };
     ModelTypeConstraintDateBase.prototype.asDate = function (val) {
         if (val instanceof Date) {
             return val;
@@ -114,7 +120,7 @@ var ModelTypeConstraintDateBase = (function (_super) {
         var check = this._compare(checkVal, comparisonVal);
         var result = val;
         if (!check) {
-            ctx.addMessage(!this.isWarningOnly, "expected " + val + " " + this._op() + " " + this._val() + ".");
+            ctx.addMessage(!this.isWarningOnly, "expected " + val + " " + this._op() + " " + this._val() + ".", this._code(), comparisonVal);
             if (!this.isWarningOnly && ctx.allowConversion) {
             }
         }
@@ -145,6 +151,7 @@ var ModelTypeConstraintBefore = (function (_super) {
     }
     ModelTypeConstraintBefore.prototype._op = function () { return "<"; };
     ModelTypeConstraintBefore.prototype._compare = function (a, b) { return a < b; };
+    ModelTypeConstraintBefore.prototype._code = function () { return 'date-large'; };
     return ModelTypeConstraintBefore;
 }(ModelTypeConstraintDateFixed));
 exports.ModelTypeConstraintBefore = ModelTypeConstraintBefore;
@@ -155,6 +162,7 @@ var ModelTypeConstraintAfter = (function (_super) {
     }
     ModelTypeConstraintAfter.prototype._op = function () { return ">"; };
     ModelTypeConstraintAfter.prototype._compare = function (a, b) { return a > b; };
+    ModelTypeConstraintAfter.prototype._code = function () { return 'date-small'; };
     return ModelTypeConstraintAfter;
 }(ModelTypeConstraintDateFixed));
 exports.ModelTypeConstraintAfter = ModelTypeConstraintAfter;
@@ -202,6 +210,7 @@ var ModelTypeConstraintOlder = (function (_super) {
         }
         return date;
     };
+    ModelTypeConstraintOlder.prototype._code = function () { return 'date-minage'; };
     return ModelTypeConstraintOlder;
 }(ModelTypeConstraintDateBase));
 exports.ModelTypeConstraintOlder = ModelTypeConstraintOlder;

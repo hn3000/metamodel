@@ -40,4 +40,64 @@ var ModelTypeArray = (function (_super) {
     return ModelTypeArray;
 }(model_base_1.ModelTypeConstrainable));
 exports.ModelTypeArray = ModelTypeArray;
+var ModelTypeArraySizeConstraint = (function (_super) {
+    __extends(ModelTypeArraySizeConstraint, _super);
+    function ModelTypeArraySizeConstraint(options) {
+        _super.call(this);
+        var minLength = options.minLength, maxLength = options.maxLength;
+        ;
+        this._settings = {
+            minLength: null != minLength ? Math.max(0, minLength) : null,
+            maxLength: null != maxLength ? Math.max(0, maxLength) : null,
+        };
+    }
+    ModelTypeArraySizeConstraint.prototype._id = function () {
+        var _a = this._settings, minLength = _a.minLength, maxLength = _a.maxLength;
+        return (minLength ? minLength + ' <= ' : '') + "size" + (maxLength ? ' <= ' + maxLength : '');
+    };
+    ModelTypeArraySizeConstraint.prototype.checkAndAdjustValue = function (v, c) {
+        var length = v && v.length;
+        var valid = true;
+        if (null != length) {
+            var _a = this._settings, minLength = _a.minLength, maxLength = _a.maxLength;
+            if (null != minLength) {
+                valid = valid && (length >= minLength);
+            }
+            if (null != maxLength) {
+                valid = valid && (length <= maxLength);
+            }
+        }
+        return v;
+    };
+    return ModelTypeArraySizeConstraint;
+}(model_base_1.ModelTypeConstraintOptional));
+exports.ModelTypeArraySizeConstraint = ModelTypeArraySizeConstraint;
+var ModelTypeArrayUniqueElementsConstraint = (function (_super) {
+    __extends(ModelTypeArrayUniqueElementsConstraint, _super);
+    function ModelTypeArrayUniqueElementsConstraint() {
+        _super.call(this);
+    }
+    ModelTypeArrayUniqueElementsConstraint.prototype._id = function () {
+        return 'uniqueElements';
+    };
+    ModelTypeArrayUniqueElementsConstraint.prototype.checkAndAdjustValue = function (v, c) {
+        var index = 0;
+        var dups = [];
+        for (var _i = 0, v_1 = v; _i < v_1.length; _i++) {
+            var e = v_1[_i];
+            var at = v.indexOf(e);
+            if (at != index) {
+                dups.push(at);
+                dups.push(index);
+            }
+            ++index;
+        }
+        if (dups.length > 0) {
+            c.addMessage(!this.isWarningOnly, 'array has duplicates', 'array-unique', dups);
+        }
+        return v;
+    };
+    return ModelTypeArrayUniqueElementsConstraint;
+}(model_base_1.ModelTypeConstraintOptional));
+exports.ModelTypeArrayUniqueElementsConstraint = ModelTypeArrayUniqueElementsConstraint;
 //# sourceMappingURL=model.array.js.map

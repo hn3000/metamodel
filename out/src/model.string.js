@@ -21,7 +21,12 @@ var ModelTypeString = (function (_super) {
             result = val;
         }
         if (null == result && ctx.currentRequired()) {
-            ctx.addError('can not convert to string', val);
+            if (val == null) {
+                ctx.addError('required value is missing', 'required-empty', val);
+            }
+            else {
+                ctx.addError('value is wrong type', 'value-type', val);
+            }
         }
         else {
             result = this._checkAndAdjustValue(result, ctx);
@@ -59,11 +64,11 @@ var ModelTypeConstraintPossibleValues = (function (_super) {
         var result = val;
         if (-1 === this._allowedValues.indexOf(val)) {
             if (this.isWarningOnly) {
-                ctx.addWarning('not a recommended value', val);
+                ctx.addWarning('not a recommended value', 'value-warning', val);
                 result = val;
             }
             else {
-                ctx.addError('not a valid value', val);
+                ctx.addError('not a valid value', 'value-invalid', val);
                 result = null;
             }
         }
@@ -93,11 +98,11 @@ var ModelTypeConstraintRegex = (function (_super) {
         }
         if (!this._pattern.exec(val)) {
             if (this.isWarningOnly) {
-                ctx.addWarning(this._message, val);
+                ctx.addWarning(this._message, 'value-warning', val, this._pattern.toString());
                 result = val;
             }
             else {
-                ctx.addError(this._message, val);
+                ctx.addError(this._message, 'value-invalid', val, this._pattern.toString());
                 result = null;
             }
         }

@@ -19,6 +19,7 @@ export declare abstract class ModelTypeConstraintDateBase<D> extends ModelTypeCo
     protected _op(): string;
     protected _compare(a: Date, b: Date): boolean;
     protected _val(): Date;
+    protected _code(): string;
     asDate(val: Date | string): Date;
     checkAndAdjustValue(val: D, ctx: IModelParseContext): D;
 }
@@ -31,11 +32,13 @@ export declare class ModelTypeConstraintBefore<D> extends ModelTypeConstraintDat
     constructor(val: Date | string);
     protected _op(): string;
     protected _compare(a: Date, b: Date): boolean;
+    protected _code(): string;
 }
 export declare class ModelTypeConstraintAfter<D> extends ModelTypeConstraintDateFixed<D> {
     constructor(val: Date | string);
     protected _op(): string;
     protected _compare(a: Date, b: Date): boolean;
+    protected _code(): string;
 }
 export declare class TimeSpan {
     constructor(timespan: string);
@@ -50,5 +53,6 @@ export declare class ModelTypeConstraintOlder<D> extends ModelTypeConstraintDate
     protected _op(): string;
     protected _compare(a: Date, b: Date): boolean;
     protected _val(): Date;
+    protected _code(): string;
     private _timespan;
 }

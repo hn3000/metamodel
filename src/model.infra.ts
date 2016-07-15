@@ -9,18 +9,21 @@ import {
 export class ModelParseMessage implements IModelParseMessage {
   private _path:string;
   private _msg:string;
+  private _code:string;
   private _args:any[];
   private _isError:boolean;
 
-  constructor(isError:boolean, path: string, msg:string, ...args:any[]) {
+  constructor(isError:boolean, path: string, msg:string, code:string, ...args:any[]) {
     this._path = path;
     this._msg = msg;
+    this._code = code;
     this._args = args;
     this._isError = isError;
   }
 
   get path():string { return this._path; }
   get msg():string { return this._msg; }
+  get code():string { return this._code; }
   get args():any[] { return this._args; }
   get isError():boolean { return this._isError; }
 }
@@ -130,25 +133,25 @@ export class ModelParseContext implements IModelParseContext {
     }
   }
 
-  addMessage(isError:boolean, msg:string, ...args:any[]) {
+  addMessage(isError:boolean, msg:string, code:string, ...args:any[]) {
     var message = new ModelParseMessage(
       isError,
       this.currentKeyPath().join('.'),
-      msg, ...args
+      msg, code, ...args
     );
     (isError?this._errors:this._warnings).push(message);
   }
 
-  addWarning(msg:string, ...args:any[]) {
-    this.addMessage(false, msg, ...args);
+  addWarning(msg:string, code:string, ...args:any[]) {
+    this.addMessage(false, msg, code, ...args);
   }
 
   get warnings():IModelParseMessage[] {
     return this._warnings;
   }
 
-  addError(msg:string, ...args:any[]) {
-    this.addMessage(true, msg, ...args);
+  addError(msg:string, code:string, ...args:any[]) {
+    this.addMessage(true, msg, code, ...args);
   }
 
   get errors():IModelParseMessage[] {

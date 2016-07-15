@@ -12,7 +12,8 @@ export {
   IModelTypeCompositeBuilder,
   IModelTypeConstraint,
 	IModelTypeConstraintFactory,
-  IModelTypeRegistry
+  IModelTypeRegistry,
+  IClientProps
 } from "./model.api";
 
 import {
@@ -27,7 +28,8 @@ export {
   ModelTypeConstrainable,
   ModelTypeItem,
   ModelConstraints,
-  ModelTypeConstraintOptional
+  ModelTypeConstraintOptional,
+  ClientProps
 } from "./model.base";
 
 import {

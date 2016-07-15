@@ -1,12 +1,13 @@
 "use strict";
 var ModelParseMessage = (function () {
-    function ModelParseMessage(isError, path, msg) {
+    function ModelParseMessage(isError, path, msg, code) {
         var args = [];
-        for (var _i = 3; _i < arguments.length; _i++) {
-            args[_i - 3] = arguments[_i];
+        for (var _i = 4; _i < arguments.length; _i++) {
+            args[_i - 4] = arguments[_i];
         }
         this._path = path;
         this._msg = msg;
+        this._code = code;
         this._args = args;
         this._isError = isError;
     }
@@ -17,6 +18,11 @@ var ModelParseMessage = (function () {
     });
     Object.defineProperty(ModelParseMessage.prototype, "msg", {
         get: function () { return this._msg; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ModelParseMessage.prototype, "code", {
+        get: function () { return this._code; },
         enumerable: true,
         configurable: true
     });
@@ -138,20 +144,20 @@ var ModelParseContext = (function () {
             this._keyPath.pop();
         }
     };
-    ModelParseContext.prototype.addMessage = function (isError, msg) {
+    ModelParseContext.prototype.addMessage = function (isError, msg, code) {
+        var args = [];
+        for (var _i = 3; _i < arguments.length; _i++) {
+            args[_i - 3] = arguments[_i];
+        }
+        var message = new (ModelParseMessage.bind.apply(ModelParseMessage, [void 0].concat([isError, this.currentKeyPath().join('.'), msg, code], args)))();
+        (isError ? this._errors : this._warnings).push(message);
+    };
+    ModelParseContext.prototype.addWarning = function (msg, code) {
         var args = [];
         for (var _i = 2; _i < arguments.length; _i++) {
             args[_i - 2] = arguments[_i];
         }
-        var message = new (ModelParseMessage.bind.apply(ModelParseMessage, [void 0].concat([isError, this.currentKeyPath().join('.'), msg], args)))();
-        (isError ? this._errors : this._warnings).push(message);
-    };
-    ModelParseContext.prototype.addWarning = function (msg) {
-        var args = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            args[_i - 1] = arguments[_i];
-        }
-        this.addMessage.apply(this, [false, msg].concat(args));
+        this.addMessage.apply(this, [false, msg, code].concat(args));
     };
     Object.defineProperty(ModelParseContext.prototype, "warnings", {
         get: function () {
@@ -160,12 +166,12 @@ var ModelParseContext = (function () {
         enumerable: true,
         configurable: true
     });
-    ModelParseContext.prototype.addError = function (msg) {
+    ModelParseContext.prototype.addError = function (msg, code) {
         var args = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            args[_i - 1] = arguments[_i];
+        for (var _i = 2; _i < arguments.length; _i++) {
+            args[_i - 2] = arguments[_i];
         }
-        this.addMessage.apply(this, [true, msg].concat(args));
+        this.addMessage.apply(this, [true, msg, code].concat(args));
     };
     Object.defineProperty(ModelParseContext.prototype, "errors", {
         get: function () {

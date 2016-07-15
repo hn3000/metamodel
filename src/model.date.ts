@@ -56,7 +56,11 @@ export class ModelTypeDate extends ModelTypeItem<Date> {
       error = xx;
     }
     if (null == result && ctx.currentRequired()) {
-      ctx.addError('can not convert to Date', val, error);
+      if (null == val) {
+        ctx.addError('can not convert to Date', 'required-empty', val, error);
+      } else {
+        ctx.addError('can not convert to Date', 'value-type', val, error);
+      }
     } else {
       result = this._checkAndAdjustValue(result, ctx);
     }
@@ -110,6 +114,7 @@ export abstract class ModelTypeConstraintDateBase<D> extends ModelTypeConstraint
   protected _op():string { return ""; }
   protected _compare(a:Date, b:Date):boolean { return false; }
   protected _val():Date { return null; }
+  protected _code():string { return 'value-invalid' }
 
   asDate(val:Date|string) {
     if (val instanceof Date) {
@@ -124,7 +129,7 @@ export abstract class ModelTypeConstraintDateBase<D> extends ModelTypeConstraint
     let check = this._compare(checkVal, comparisonVal);
     let result = val;
     if (!check) {
-      ctx.addMessage(!this.isWarningOnly, `expected ${val} ${this._op()} ${this._val()}.`);
+      ctx.addMessage(!this.isWarningOnly, `expected ${val} ${this._op()} ${this._val()}.`, this._code(), comparisonVal);
       if (!this.isWarningOnly && ctx.allowConversion) {
         
         // does not make sense without improved date-format handling
@@ -153,12 +158,14 @@ export class ModelTypeConstraintBefore<D> extends ModelTypeConstraintDateFixed<D
   constructor(val:Date|string) { super(val); }
   protected _op() { return "<"; }
   protected _compare(a:Date, b:Date):boolean { return a < b; }
+  protected _code() { return 'date-large'; }
 }
 
 export class ModelTypeConstraintAfter<D> extends ModelTypeConstraintDateFixed<D> {
   constructor(val:Date|string) { super(val); }
   protected _op() { return ">"; }
   protected _compare(a:Date, b:Date):boolean { return a > b; }
+  protected _code() { return 'date-small'; }
 }
 
 export class TimeSpan {
@@ -199,6 +206,7 @@ export class ModelTypeConstraintOlder<D> extends ModelTypeConstraintDateBase<D> 
     }
     return date;
   }
+  protected _code() { return 'date-minage'; }
 
   private _timespan: TimeSpan;
 }

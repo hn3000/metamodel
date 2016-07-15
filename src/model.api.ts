@@ -17,6 +17,7 @@ export interface IClientProps {
 export interface IModelParseMessage {
   path:string;
   msg:string;
+  code:string;
   args?:any[];
   isError:boolean;
 }
@@ -28,9 +29,9 @@ export interface IModelParseContext {
   pushItem(key:string|number, required?:boolean):void;
   popItem():void;
 
-  addWarning(msg:string, ...args:any[]):void;
-  addError(msg:string, ...args:any[]):void;
-  addMessage(isError:boolean, msg:string, ...args:any[]):void;
+  addWarning(msg:string, code:string, ...args:any[]):void;
+  addError(msg:string, code:string, ...args:any[]):void;
+  addMessage(isError:boolean, msg:string, code:string, ...args:any[]):void;
 
   errors:IModelParseMessage[];
   warnings:IModelParseMessage[];

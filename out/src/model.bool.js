@@ -25,7 +25,12 @@ var ModelTypeBool = (function (_super) {
             result = this._parseString(val);
         }
         if (null == result && ctx.currentRequired()) {
-            ctx.addError('can not convert to boolean', val);
+            if (val == null) {
+                ctx.addError('required value is missing', 'required-empty', val);
+            }
+            else {
+                ctx.addError('can not convert to boolean', 'value-type', val);
+            }
         }
         else {
             result = this._checkAndAdjustValue(result, ctx);

@@ -5,7 +5,8 @@ import {
 
 import {
   ModelTypeConstrainable,
-  ModelConstraints
+  ModelConstraints,
+  ModelTypeConstraintOptional
 } from "./model.base"
 
 export class ModelTypeArray<T> extends ModelTypeConstrainable<T[]> {
@@ -43,4 +44,73 @@ export class ModelTypeArray<T> extends ModelTypeConstrainable<T[]> {
   protected _kind() { return 'array'; }
 
   private _elementType: IModelType<T>;
+}
+
+export interface IArraySizeConstraintOptions {
+  minLength: number;
+  maxLength: number;
+  
+}
+
+export class ModelTypeArraySizeConstraint<T> extends ModelTypeConstraintOptional<T[]> {
+  constructor(options:IArraySizeConstraintOptions) {
+    super();
+    let { minLength, maxLength } = options;;
+    this._settings = {
+      minLength: null != minLength ? Math.max(0, minLength) : null,
+      maxLength: null != maxLength ? Math.max(0, maxLength) : null,
+    };
+  }
+
+  _id():string {
+    let { minLength, maxLength } = this._settings;
+    
+    return `${minLength ? minLength +' <= ' : ''}size${maxLength ? ' <= ' + maxLength  : ''}`;
+  }
+
+  checkAndAdjustValue(v:T[], c:IModelParseContext):T[] {
+    let length = v && v.length;
+    let valid = true;
+    if (null != length) {
+      let { minLength, maxLength } = this._settings;
+      if (null != minLength) {
+        valid = valid &&  (length >= minLength); 
+      }
+      if (null != maxLength) {
+        valid = valid &&  (length <= maxLength); 
+      }
+    }
+    return v;
+  }  
+
+
+  private _settings:IArraySizeConstraintOptions;
+}
+
+export class ModelTypeArrayUniqueElementsConstraint<T> extends ModelTypeConstraintOptional<T[]> {
+  constructor() {
+    super();
+  }
+
+  _id():string {
+    return 'uniqueElements';
+  }
+
+  checkAndAdjustValue(v:T[], c:IModelParseContext):T[] {
+    var index = 0;
+    var dups:number[] = [];
+    for (var e of v) {
+      let at = v.indexOf(e);
+      if (at != index) {
+        dups.push(at);
+        dups.push(index);
+      }
+      ++index;
+    }
+
+    if (dups.length > 0) {
+      c.addMessage(!this.isWarningOnly, 'array has duplicates', 'array-unique', dups);
+    }
+    return v;
+  }
 }

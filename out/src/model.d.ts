@@ -1,6 +1,6 @@
-export { Predicate, IModelObject, IModelParseMessage, IModelParseContext, IModelType, IModelTypeConstrainable, IModelTypeItem, IModelTypeEntry, IModelTypeComposite, IModelTypeCompositeBuilder, IModelTypeConstraint, IModelTypeConstraintFactory, IModelTypeRegistry } from "./model.api";
+export { Predicate, IModelObject, IModelParseMessage, IModelParseContext, IModelType, IModelTypeConstrainable, IModelTypeItem, IModelTypeEntry, IModelTypeComposite, IModelTypeCompositeBuilder, IModelTypeConstraint, IModelTypeConstraintFactory, IModelTypeRegistry, IClientProps } from "./model.api";
 import { ModelTypeRegistry } from "./model.registry";
-export { ModelTypeConstrainable, ModelTypeItem, ModelConstraints, ModelTypeConstraintOptional } from "./model.base";
+export { ModelTypeConstrainable, ModelTypeItem, ModelConstraints, ModelTypeConstraintOptional, ClientProps } from "./model.base";
 import { ModelTypeConstraintLess, ModelTypeConstraintLessEqual, ModelTypeConstraintMore, ModelTypeConstraintMoreEqual } from "./model.number";
 import { ModelTypeConstraintPossibleValues } from "./model.string";
 export { ModelParseContext, ObjectTraversal } from "./model.infra";
