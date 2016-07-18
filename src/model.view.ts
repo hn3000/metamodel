@@ -195,21 +195,23 @@ export class ModelViewMeta<T> {
     var name = keyPath[0];
     var value:any;
 
-    let entryType = (type as IModelTypeComposite<any>).subModel(name);
+    let entryType = type && (type as IModelTypeComposite<any>).subModel(name);
 
     if (keyPath.length == 1) {
-      let parseCtx = new ModelParseContext(newValue);
-      let modelValue = entryType.parse(parseCtx);
-      if (parseCtx.errors.length) {
-        value = newValue;
-      } else {
-        value = modelValue;
+      value = newValue;
+      
+      if (null != entryType) {
+        let parseCtx = new ModelParseContext(newValue);
+        let modelValue = (null != entryType) ? entryType.parse(parseCtx) : newValue;
+        if (0 == parseCtx.errors.length) {
+          value = modelValue;
+        }
       }
-     } else {
+    } else {
       let entry = model[name];
       if (null == entry) {
         // use model to create missing entry
-        entry = entryType.create();
+        entry = (null != entryType) ? entryType.create() : {};
       }
       value = this._updatedModelWithType(entry, keyPath.slice(1), newValue, entryType);
     }

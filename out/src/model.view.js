@@ -125,22 +125,22 @@ var ModelViewMeta = (function () {
         var result = {};
         var name = keyPath[0];
         var value;
-        var entryType = type.subModel(name);
+        var entryType = type && type.subModel(name);
         if (keyPath.length == 1) {
-            var parseCtx = new model_infra_1.ModelParseContext(newValue);
-            var modelValue = entryType.parse(parseCtx);
-            if (parseCtx.errors.length) {
-                value = newValue;
-            }
-            else {
-                value = modelValue;
+            value = newValue;
+            if (null != entryType) {
+                var parseCtx = new model_infra_1.ModelParseContext(newValue);
+                var modelValue = (null != entryType) ? entryType.parse(parseCtx) : newValue;
+                if (0 == parseCtx.errors.length) {
+                    value = modelValue;
+                }
             }
         }
         else {
             var entry = model[name];
             if (null == entry) {
                 // use model to create missing entry
-                entry = entryType.create();
+                entry = (null != entryType) ? entryType.create() : {};
             }
             value = this._updatedModelWithType(entry, keyPath.slice(1), newValue, entryType);
         }
