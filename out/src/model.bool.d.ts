@@ -8,6 +8,7 @@ export declare class ModelTypeBool extends ModelTypeItem<boolean> {
     validate(ctx: IModelParseContext): void;
     unparse(value: boolean): any;
     create(): boolean;
+    possibleValues(): boolean[];
     fromString(val: string): boolean;
     asString(val: boolean): string;
     protected _kind(): string;

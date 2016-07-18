@@ -49,6 +49,11 @@ export class ModelTypeBool extends ModelTypeItem<boolean> {
     return false;
   }
 
+  possibleValues() {
+    let pv = super.possibleValues();
+    return pv || [true, false];
+  }
+
 
   fromString(val:string):boolean {
     let result = this._parseString(val);

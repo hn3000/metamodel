@@ -133,17 +133,27 @@ var ModelTypeItem = (function (_super) {
         var candidates = this.findConstraints(function (x) { return null != x["allowedValues"]; });
         var values = candidates.reduce(function (pv, c) {
             var cc = c;
-            return cc.allowedValues.reduce(function (r, v) {
-                if (-1 == r.indexOf(v))
-                    return r.concat([v]);
-                return r;
-            }, pv);
-        }, []);
+            return intersectArrays(pv, cc.allowedValues);
+        }, null);
         return values;
     };
     return ModelTypeItem;
 }(ModelTypeConstrainable));
 exports.ModelTypeItem = ModelTypeItem;
+function intersectArrays(a, b) {
+    if (null == a)
+        return b;
+    if (null == b)
+        return a;
+    var result = [];
+    for (var _i = 0, a_1 = a; _i < a_1.length; _i++) {
+        var t = a_1[_i];
+        if (-1 != b.indexOf(t)) {
+            result.push(t);
+        }
+    }
+    return result;
+}
 var ModelTypeConstraintOptional = (function () {
     function ModelTypeConstraintOptional() {
         this._onlyWarn = false;

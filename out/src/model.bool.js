@@ -46,6 +46,10 @@ var ModelTypeBool = (function (_super) {
     ModelTypeBool.prototype.create = function () {
         return false;
     };
+    ModelTypeBool.prototype.possibleValues = function () {
+        var pv = _super.prototype.possibleValues.call(this);
+        return pv || [true, false];
+    };
     ModelTypeBool.prototype.fromString = function (val) {
         var result = this._parseString(val);
         var ctx = new model_infra_1.ModelParseContext(result);

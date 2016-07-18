@@ -138,11 +138,8 @@ export abstract class ModelTypeItem<T>
     let candidates = this.findConstraints((x:any)=>null != x["allowedValues"]);
     let values = candidates.reduce((pv:T[],c:IModelTypeConstraint<T>) => {
       var cc = c as ModelTypeConstraintPossibleValues<T>;
-      return cc.allowedValues.reduce((r:T[], v:T) => {
-        if (-1 == r.indexOf(v)) return [...r,v];
-        return r;
-      }, pv);
-  }, []);
+      return intersectArrays(pv, cc.allowedValues);
+    }, null);
 
     return values;
   }
@@ -154,6 +151,18 @@ export abstract class ModelTypeItem<T>
   abstract fromString(val:string):T;
   abstract asString(val:T):string;
 
+}
+
+function intersectArrays<T>(a:T[], b:T[]) {
+  if (null == a) return b;
+  if (null == b) return a;
+  let result:T[] = [];
+  for (let t of a) {
+    if (-1 != b.indexOf(t)) {
+      result.push(t);
+    }
+  }
+  return result;
 }
 
 export abstract class ModelTypeConstraintOptional<T> implements IModelTypeConstraint<T> {
