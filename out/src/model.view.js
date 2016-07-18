@@ -168,6 +168,7 @@ var ModelView = (function () {
             this._viewMeta = that._viewMeta;
             this._model = modelData || {};
             this._visitedFields = shallowCopy(that._visitedFields);
+            this._readonlyFields = shallowCopy(that._readonlyFields);
             this._currentPage = that._currentPage;
             this._validationScope = that._validationScope;
         }
@@ -179,6 +180,7 @@ var ModelView = (function () {
                 var k = _a[_i];
                 this._visitedFields[k] = (null != this._model[k]);
             }
+            this._readonlyFields = {};
             this._currentPage = 0;
         }
         this._inputModel = this._model;
@@ -256,6 +258,29 @@ var ModelView = (function () {
             });
         }
         return this._validations[kind];
+    };
+    ModelView.prototype.withFieldEditableFlag = function (keypath, flag) {
+        var flags;
+        flags = shallowCopy(this._readonlyFields);
+        for (var _i = 0, _a = Object.keys(flags); _i < _a.length; _i++) {
+            var k = _a[_i];
+            flags[k] = !flags[k];
+        }
+        var key = this._asKeyString(keypath);
+        flags[key] = flag;
+        return this.withFieldEditableFlags(flags);
+    };
+    ModelView.prototype.withFieldEditableFlags = function (flags) {
+        var result = new ModelView(this);
+        for (var _i = 0, _a = Object.keys(flags); _i < _a.length; _i++) {
+            var k = _a[_i];
+            result._readonlyFields[k] = !flags[k];
+        }
+        return result;
+    };
+    ModelView.prototype.isFieldEditable = function (keypath) {
+        var k = this._asKeyString(keypath);
+        return this._readonlyFields[k];
     };
     ModelView.prototype.withChangedField = function (keyPath, newValue) {
         var path;

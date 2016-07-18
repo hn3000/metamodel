@@ -40,6 +40,10 @@ export interface IModelView<T> {
   getModelType():IModelType<T>;
   getModel():T; // might actually be a read-only view of underlying data
 
+  withFieldEditableFlag(keyPath:string|string[], flag:boolean):IModelView<T>;
+  withFieldEditableFlags(flags:{ [keyPath:string]:boolean; }):IModelView<T>;
+  isFieldEditable(keyPath:string|string[]):boolean;
+
   withChangedField(keyPath:string|string[], newValue:Primitive|any[]):IModelView<T>;
   withAddedData(obj:any):IModelView<T>;
   getFieldValue(keyPath:string|string[]):any;
@@ -236,6 +240,7 @@ export class ModelView<T> implements IModelView<T> {
       this._viewMeta = that._viewMeta;
       this._model = modelData || {};
       this._visitedFields = shallowCopy(that._visitedFields);
+      this._readonlyFields = shallowCopy(that._readonlyFields);
       this._currentPage = that._currentPage;
       this._validationScope = that._validationScope;
     } else {
@@ -245,6 +250,7 @@ export class ModelView<T> implements IModelView<T> {
       for (var k of Object.keys(this._model)) {
         this._visitedFields[k] = (null != (<any>this._model)[k]);
       }
+      this._readonlyFields = {};
       this._currentPage = 0;
     }
     this._inputModel = this._model;
@@ -333,6 +339,31 @@ export class ModelView<T> implements IModelView<T> {
       );
     }
     return this._validations[kind];
+  }
+
+  withFieldEditableFlag(keypath:string|string[], flag:boolean) {
+    var flags: {[keypath:string]:boolean};
+    flags = shallowCopy(this._readonlyFields);
+
+    for (let k of Object.keys(flags)) {
+      flags[k] = !flags[k];
+    }
+
+    var key = this._asKeyString(keypath);
+    flags[key] = flag;
+    return this.withFieldEditableFlags(flags);
+  }
+  withFieldEditableFlags(flags:{[keypath:string]:boolean}) {
+    let result = new ModelView<T>(this);
+
+    for (let k of Object.keys(flags)) {
+      result._readonlyFields[k] = !flags[k];
+    }
+    return result;
+  }
+  isFieldEditable(keypath:string|string[]):boolean {
+    let k = this._asKeyString(keypath);
+    return this._readonlyFields[k];
   }
 
   withChangedField(keyPath:string|string[], newValue:Primitive|any[]):IModelView<T> {
@@ -449,6 +480,7 @@ export class ModelView<T> implements IModelView<T> {
   private _inputModel:any;
   private _model:T;
   private _visitedFields: {[keypath:string]:boolean};
+  private _readonlyFields: {[keypath:string]:boolean};
 
   private _currentPage:number;
 

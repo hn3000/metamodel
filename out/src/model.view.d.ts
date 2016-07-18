@@ -25,6 +25,11 @@ export declare enum ValidationScope {
 export interface IModelView<T> {
     getModelType(): IModelType<T>;
     getModel(): T;
+    withFieldEditableFlag(keyPath: string | string[], flag: boolean): IModelView<T>;
+    withFieldEditableFlags(flags: {
+        [keyPath: string]: boolean;
+    }): IModelView<T>;
+    isFieldEditable(keyPath: string | string[]): boolean;
     withChangedField(keyPath: string | string[], newValue: Primitive | any[]): IModelView<T>;
     withAddedData(obj: any): IModelView<T>;
     getFieldValue(keyPath: string | string[]): any;
@@ -103,6 +108,11 @@ export declare class ModelView<T> implements IModelView<T> {
     validatePage(): Promise<IModelView<T>>;
     validateFull(): Promise<IModelView<T>>;
     private _validateSlice(modelSlice, kind);
+    withFieldEditableFlag(keypath: string | string[], flag: boolean): ModelView<T>;
+    withFieldEditableFlags(flags: {
+        [keypath: string]: boolean;
+    }): ModelView<T>;
+    isFieldEditable(keypath: string | string[]): boolean;
     withChangedField(keyPath: string | string[], newValue: Primitive | any[]): IModelView<T>;
     withAddedData(obj: any): IModelView<T>;
     _asKeyArray(keyPath: string | string[]): string[];
@@ -121,6 +131,7 @@ export declare class ModelView<T> implements IModelView<T> {
     private _inputModel;
     private _model;
     private _visitedFields;
+    private _readonlyFields;
     private _currentPage;
     private _validationScope;
     private _validations;
