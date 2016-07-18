@@ -365,7 +365,7 @@ export class ModelView<T> implements IModelView<T> {
   }
   isFieldEditable(keypath:string|string[]):boolean {
     let k = this._asKeyString(keypath);
-    return this._readonlyFields[k];
+    return !this._readonlyFields.hasOwnProperty(k) || !this._readonlyFields[k];
   }
 
   withChangedField(keyPath:string|string[], newValue:Primitive|any[]):IModelView<T> {

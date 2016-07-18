@@ -280,7 +280,7 @@ var ModelView = (function () {
     };
     ModelView.prototype.isFieldEditable = function (keypath) {
         var k = this._asKeyString(keypath);
-        return this._readonlyFields[k];
+        return !this._readonlyFields.hasOwnProperty(k) || !this._readonlyFields[k];
     };
     ModelView.prototype.withChangedField = function (keyPath, newValue) {
         var path;
