@@ -57,6 +57,7 @@ export interface IModelView<T> {
   getPage(alias:string):IModelViewPage;
   getPageMessages(aliasOrIndex?:string|number):IValidationMessage[];
   isPageValid(alias:string):boolean;
+  isVisitedValid():boolean;
 
   currentPageIndex:number; // 0 based
   currentPageNo:number;    // 1 based
@@ -245,6 +246,8 @@ export class ModelView<T> implements IModelView<T> {
       this._readonlyFields = shallowCopy(that._readonlyFields);
       this._currentPage = that._currentPage;
       this._validationScope = that._validationScope;
+      this._messages = that._messages;
+      this._messagesByField = that._messagesByField;
     } else {
       this._viewMeta = new ModelViewMeta(modelTypeOrSelf);
       this._model = modelData || {};
@@ -254,11 +257,12 @@ export class ModelView<T> implements IModelView<T> {
       }
       this._readonlyFields = {};
       this._currentPage = 0;
+      this._validations = {};
+      this._messages = [];
+      this._messagesByField = {};
     }
     this._inputModel = this._model;
     this._validations = {};
-    this._messages = [];
-    this._messagesByField = {};
   }
 
   getModelType():IModelType<T> {
@@ -455,7 +459,15 @@ export class ModelView<T> implements IModelView<T> {
 
   isPageValid(aliasOrIndex?:string|number) {
     let page = this.getPage(aliasOrIndex);
-    return page.fields.every((x) => this.isFieldValid(x));
+    return this.areFieldsValid(page.fields);
+  }
+
+  isVisitedValid() {
+    return this.areFieldsValid(Object.keys(this._visitedFields));
+  }
+
+  areFieldsValid(fields:string[]) {
+    return fields.every((x) => this.isFieldValid(x));
   }
 
   get currentPageIndex():number {

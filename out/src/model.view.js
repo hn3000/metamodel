@@ -171,6 +171,8 @@ var ModelView = (function () {
             this._readonlyFields = shallowCopy(that._readonlyFields);
             this._currentPage = that._currentPage;
             this._validationScope = that._validationScope;
+            this._messages = that._messages;
+            this._messagesByField = that._messagesByField;
         }
         else {
             this._viewMeta = new ModelViewMeta(modelTypeOrSelf);
@@ -182,11 +184,12 @@ var ModelView = (function () {
             }
             this._readonlyFields = {};
             this._currentPage = 0;
+            this._validations = {};
+            this._messages = [];
+            this._messagesByField = {};
         }
         this._inputModel = this._model;
         this._validations = {};
-        this._messages = [];
-        this._messagesByField = {};
     }
     ModelView.prototype.getModelType = function () {
         return this._viewMeta.getModelType();
@@ -362,9 +365,15 @@ var ModelView = (function () {
         return result;
     };
     ModelView.prototype.isPageValid = function (aliasOrIndex) {
-        var _this = this;
         var page = this.getPage(aliasOrIndex);
-        return page.fields.every(function (x) { return _this.isFieldValid(x); });
+        return this.areFieldsValid(page.fields);
+    };
+    ModelView.prototype.isVisitedValid = function () {
+        return this.areFieldsValid(Object.keys(this._visitedFields));
+    };
+    ModelView.prototype.areFieldsValid = function (fields) {
+        var _this = this;
+        return fields.every(function (x) { return _this.isFieldValid(x); });
     };
     Object.defineProperty(ModelView.prototype, "currentPageIndex", {
         get: function () {
