@@ -150,7 +150,7 @@ var ModelTypeConstraintEqualProperties = (function (_super) {
             for (var _i = 0, fields_1 = fields; _i < fields_1.length; _i++) {
                 var f = fields_1[_i];
                 ctx.pushItem(f, !this.warnOnly());
-                ctx.addError("expected fields to be equal: " + fields.join(',') + ".", 'equal-properties');
+                ctx.addError("expected fields to be equal: " + fields.join(',') + ".", 'properties-different');
                 ctx.popItem();
             }
         }
