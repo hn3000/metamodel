@@ -162,7 +162,8 @@ exports.ModelViewMeta = ModelViewMeta;
  *
  */
 var ModelView = (function () {
-    function ModelView(modelTypeOrSelf, modelData) {
+    function ModelView(modelTypeOrSelf, modelData, initialPage) {
+        if (initialPage === void 0) { initialPage = 0; }
         if (modelTypeOrSelf instanceof ModelView) {
             var that = modelTypeOrSelf;
             this._viewMeta = that._viewMeta;
@@ -183,7 +184,7 @@ var ModelView = (function () {
                 this._visitedFields[k] = (null != this._model[k]);
             }
             this._readonlyFields = {};
-            this._currentPage = 0;
+            this._currentPage = initialPage;
             this._validations = {};
             this._messages = [];
             this._messagesByField = {};
@@ -366,7 +367,7 @@ var ModelView = (function () {
     };
     ModelView.prototype.isPageValid = function (aliasOrIndex) {
         var page = this.getPage(aliasOrIndex);
-        return this.areFieldsValid(page.fields);
+        return null == page || this.areFieldsValid(page.fields);
     };
     ModelView.prototype.isVisitedValid = function () {
         return this.areFieldsValid(Object.keys(this._visitedFields));
@@ -392,12 +393,12 @@ var ModelView = (function () {
     ModelView.prototype.changePage = function (step) {
         var nextPage = this._currentPage + step;
         if (nextPage < 0 || nextPage > this._viewMeta.getPages().length) {
-            return es6_promise_1.Promise.resolve(this);
+            return this;
         }
         var result = new ModelView(this, this._inputModel);
         result._currentPage = nextPage;
         result._validationScope = ValidationScope.VISITED;
-        return es6_promise_1.Promise.resolve(result);
+        return result;
     };
     return ModelView;
 }());

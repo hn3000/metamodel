@@ -61,6 +61,7 @@ export interface IModelView<T> {
 
   currentPageIndex:number; // 0 based
   currentPageNo:number;    // 1 based
+  changePage(step:number):IModelView<T>;
 
   withValidationMessages(messages:IValidationMessage[]):IModelView<T>;
 
@@ -69,7 +70,6 @@ export interface IModelView<T> {
   validateVisited():Promise<IModelView<T>>;
   validatePage():Promise<IModelView<T>>;
   validateFull():Promise<IModelView<T>>;
-  changePage(step:number):Promise<IModelView<T>>;
 }
 
 
@@ -237,7 +237,7 @@ export class ModelViewMeta<T> {
  * 
  */
 export class ModelView<T> implements IModelView<T> {
-  constructor(modelTypeOrSelf:IModelTypeComposite<T> | ModelView<T>, modelData?:any) {
+  constructor(modelTypeOrSelf:IModelTypeComposite<T> | ModelView<T>, modelData?:any, initialPage:number=0) {
     if (modelTypeOrSelf instanceof ModelView) {
       let that = <ModelView<T>>modelTypeOrSelf;
       this._viewMeta = that._viewMeta;
@@ -256,7 +256,7 @@ export class ModelView<T> implements IModelView<T> {
         this._visitedFields[k] = (null != (<any>this._model)[k]);
       }
       this._readonlyFields = {};
-      this._currentPage = 0;
+      this._currentPage = initialPage;
       this._validations = {};
       this._messages = [];
       this._messagesByField = {};
@@ -459,7 +459,7 @@ export class ModelView<T> implements IModelView<T> {
 
   isPageValid(aliasOrIndex?:string|number) {
     let page = this.getPage(aliasOrIndex);
-    return this.areFieldsValid(page.fields);
+    return null == page || this.areFieldsValid(page.fields);
   }
 
   isVisitedValid() {
@@ -477,17 +477,17 @@ export class ModelView<T> implements IModelView<T> {
     return this._currentPage+1;
   }
 
-  changePage(step:number):Promise<IModelView<T>> {
+  changePage(step:number):IModelView<T> {
     let nextPage = this._currentPage + step;
 
     if (nextPage < 0 || nextPage > this._viewMeta.getPages().length) {
-      return Promise.resolve(this);
+      return this;
     }
 
     let result = new ModelView(this, this._inputModel);
     result._currentPage = nextPage;
     result._validationScope = ValidationScope.VISITED;
-    return Promise.resolve(result);
+    return result;
   }
 
   private _viewMeta:ModelViewMeta<T>;

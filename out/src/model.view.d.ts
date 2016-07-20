@@ -44,13 +44,13 @@ export interface IModelView<T> {
     isVisitedValid(): boolean;
     currentPageIndex: number;
     currentPageNo: number;
+    changePage(step: number): IModelView<T>;
     withValidationMessages(messages: IValidationMessage[]): IModelView<T>;
     validationScope(): ValidationScope;
     validateDefault(): Promise<IModelView<T>>;
     validateVisited(): Promise<IModelView<T>>;
     validatePage(): Promise<IModelView<T>>;
     validateFull(): Promise<IModelView<T>>;
-    changePage(step: number): Promise<IModelView<T>>;
 }
 export interface IValidationMessage extends IModelParseMessage {
 }
@@ -97,7 +97,7 @@ export declare class ModelViewMeta<T> {
  *
  */
 export declare class ModelView<T> implements IModelView<T> {
-    constructor(modelTypeOrSelf: IModelTypeComposite<T> | ModelView<T>, modelData?: any);
+    constructor(modelTypeOrSelf: IModelTypeComposite<T> | ModelView<T>, modelData?: any, initialPage?: number);
     getModelType(): IModelType<T>;
     getField(keyPath: string | string[]): IModelViewField;
     getFields(): IModelViewField[];
@@ -129,7 +129,7 @@ export declare class ModelView<T> implements IModelView<T> {
     areFieldsValid(fields: string[]): boolean;
     readonly currentPageIndex: number;
     readonly currentPageNo: number;
-    changePage(step: number): Promise<IModelView<T>>;
+    changePage(step: number): IModelView<T>;
     private _viewMeta;
     private _inputModel;
     private _model;
