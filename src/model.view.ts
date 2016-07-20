@@ -54,9 +54,9 @@ export interface IModelView<T> {
   isFieldValid(keyPath:string|string[]):boolean;
 
   getPages():IModelViewPage[];
-  getPage(alias:string):IModelViewPage;
+  getPage(aliasOrIndex?:string|number):IModelViewPage;
   getPageMessages(aliasOrIndex?:string|number):IValidationMessage[];
-  isPageValid(alias:string):boolean;
+  isPageValid(aliasOrIndex?:string|number):boolean;
   isVisitedValid():boolean;
 
   currentPageIndex:number; // 0 based

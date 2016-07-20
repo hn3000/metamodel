@@ -38,9 +38,9 @@ export interface IModelView<T> {
     getFieldMessages(keyPath: string | string[]): IValidationMessage[];
     isFieldValid(keyPath: string | string[]): boolean;
     getPages(): IModelViewPage[];
-    getPage(alias: string): IModelViewPage;
+    getPage(aliasOrIndex?: string | number): IModelViewPage;
     getPageMessages(aliasOrIndex?: string | number): IValidationMessage[];
-    isPageValid(alias: string): boolean;
+    isPageValid(aliasOrIndex?: string | number): boolean;
     isVisitedValid(): boolean;
     currentPageIndex: number;
     currentPageNo: number;
