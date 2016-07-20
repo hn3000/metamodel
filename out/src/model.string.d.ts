@@ -16,13 +16,21 @@ export declare class ModelTypeConstraintPossibleValues<T> extends ModelTypeConst
     constructor(values: T[]);
     readonly allowedValues: T[];
     protected _id(): string;
-    checkAndAdjustValue(val: T, ctx: IModelParseContext): T;
+    checkAndAdjustValue(value: T, ctx: IModelParseContext): T;
     private _allowedValues;
+}
+export declare class ModelTypeConstraintLength extends ModelTypeConstraintOptional<string> {
+    constructor(minLen: number, maxLen: number, message?: string);
+    protected _id(): string;
+    checkAndAdjustValue(value: string, ctx: IModelParseContext): string;
+    private _minLength;
+    private _maxLength;
+    private _message;
 }
 export declare class ModelTypeConstraintRegex extends ModelTypeConstraintOptional<string> {
     constructor(pattern: string | RegExp, flags?: string, message?: string);
     protected _id(): string;
-    checkAndAdjustValue(val: string, ctx: IModelParseContext): string;
+    checkAndAdjustValue(value: string, ctx: IModelParseContext): string;
     private _pattern;
     private _message;
 }

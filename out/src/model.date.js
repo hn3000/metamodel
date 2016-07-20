@@ -32,27 +32,27 @@ var ModelTypeDate = (function (_super) {
         return null;
     };
     ModelTypeDate.prototype.parse = function (ctx) {
-        var val = ctx.currentValue();
+        var value = ctx.currentValue();
         var result = null;
         var error = null;
         try {
-            if (typeof val === 'number') {
+            if (typeof value === 'number') {
                 // we might not want to allow this in a UI
-                result = new Date(val);
+                result = new Date(value);
             }
-            else if (typeof val === 'string') {
-                result = new Date(val);
+            else if (typeof value === 'string') {
+                result = new Date(value);
             }
         }
         catch (xx) {
             error = xx;
         }
         if (null == result && ctx.currentRequired()) {
-            if (null == val) {
-                ctx.addError('can not convert to Date', 'required-empty', val, error);
+            if (null == value) {
+                ctx.addErrorEx('can not convert to Date', 'required-empty', { value: value, error: error });
             }
             else {
-                ctx.addError('can not convert to Date', 'value-type', val, error);
+                ctx.addErrorEx('can not convert to Date', 'value-type', { value: value, error: error });
             }
         }
         else {
@@ -107,6 +107,7 @@ var ModelTypeConstraintDateBase = (function (_super) {
     ModelTypeConstraintDateBase.prototype._op = function () { return ""; };
     ModelTypeConstraintDateBase.prototype._compare = function (a, b) { return false; };
     ModelTypeConstraintDateBase.prototype._val = function () { return null; };
+    ModelTypeConstraintDateBase.prototype._limit = function () { return null; };
     ModelTypeConstraintDateBase.prototype._code = function () { return 'value-invalid'; };
     ModelTypeConstraintDateBase.prototype.asDate = function (val) {
         if (val instanceof Date) {
@@ -120,7 +121,8 @@ var ModelTypeConstraintDateBase = (function (_super) {
         var check = this._compare(checkVal, comparisonVal);
         var result = val;
         if (!check) {
-            ctx.addMessage(!this.isWarningOnly, "expected " + val + " " + this._op() + " " + this._val() + ".", this._code(), comparisonVal);
+            var msg = "expected " + val + " " + this._op() + " " + this._val() + ".";
+            ctx.addMessageEx(!this.isWarningOnly, msg, this._code(), { value: val, limit: comparisonVal, op: this._op() });
             if (!this.isWarningOnly && ctx.allowConversion) {
             }
         }
@@ -141,6 +143,7 @@ var ModelTypeConstraintDateFixed = (function (_super) {
         }
     }
     ModelTypeConstraintDateFixed.prototype._val = function () { return this._value; };
+    ModelTypeConstraintDateFixed.prototype._limit = function () { return this._value; };
     return ModelTypeConstraintDateFixed;
 }(ModelTypeConstraintDateBase));
 exports.ModelTypeConstraintDateFixed = ModelTypeConstraintDateFixed;
@@ -171,7 +174,22 @@ var TimeSpan = (function () {
         var match = TimeSpan.REGEX.exec(timespan);
         this._amount = parseFloat(match[1]);
         this._unit = match[2];
+        switch (this._unit) {
+            case "y":
+            case "year":
+            case "years":
+                this._unitNormalized = 'year';
+                break;
+            case "m":
+            case "month":
+            case "months":
+                this._unitNormalized = 'month';
+                break;
+        }
     }
+    TimeSpan.prototype.toString = function () {
+        return this._amount + " " + this._unitNormalized + (this._amount != 1 ? 's' : '');
+    };
     Object.defineProperty(TimeSpan.prototype, "amount", {
         get: function () { return this._amount; },
         enumerable: true,
@@ -182,6 +200,16 @@ var TimeSpan = (function () {
         enumerable: true,
         configurable: true
     });
+    TimeSpan.prototype.moveBack = function (date) {
+        switch (this._unitNormalized) {
+            case "year":
+                date.setFullYear(date.getFullYear() - this._amount);
+                break;
+            case "month":
+                date.setMonth(date.getMonth() - this._amount);
+                break;
+        }
+    };
     TimeSpan.REGEX = /([0-9]+(?:\.[0.9]+)?)\s*([a-z]+)/;
     return TimeSpan;
 }());
@@ -194,20 +222,10 @@ var ModelTypeConstraintOlder = (function (_super) {
     }
     ModelTypeConstraintOlder.prototype._op = function () { return "<"; };
     ModelTypeConstraintOlder.prototype._compare = function (a, b) { return a < b; };
+    ModelTypeConstraintOlder.prototype._limit = function () { return this._timespan; };
     ModelTypeConstraintOlder.prototype._val = function () {
         var date = new Date();
-        switch (this._timespan.unit) {
-            case "y":
-            case "year":
-            case "years":
-                date.setFullYear(date.getFullYear() - this._timespan.amount);
-                break;
-            case "m":
-            case "month":
-            case "months":
-                date.setMonth(date.getMonth() - this._timespan.amount);
-                break;
-        }
+        this._timespan.moveBack(date);
         return date;
     };
     ModelTypeConstraintOlder.prototype._code = function () { return 'date-minage'; };

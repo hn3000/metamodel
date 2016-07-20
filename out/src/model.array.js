@@ -93,7 +93,7 @@ var ModelTypeArrayUniqueElementsConstraint = (function (_super) {
             ++index;
         }
         if (dups.length > 0) {
-            c.addMessage(!this.isWarningOnly, 'array has duplicates', 'array-unique', dups);
+            c.addMessageEx(!this.isWarningOnly, 'array has duplicates', 'array-unique', { duplicates: dups });
         }
         return v;
     };

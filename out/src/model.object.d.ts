@@ -25,7 +25,7 @@ export declare class ModelTypeConstraintEqualProperties extends ModelTypeConstra
     constructor(fieldsOrSelf: string[] | IEqualPropertiesConstraintOptions | ModelTypeConstraintEqualProperties);
     private _isConstraintEqualFields();
     protected _id(): string;
-    checkAndAdjustValue(val: any, ctx: IModelParseContext): Date;
+    checkAndAdjustValue(val: any, ctx: IModelParseContext): any;
     usedItems(): string[];
     private _fields;
 }

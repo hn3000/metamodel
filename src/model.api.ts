@@ -14,11 +14,15 @@ export interface IClientProps {
   propKeys():string[];
 }
 
+export interface IMessageProps { 
+  [key:string]:number|string|any; 
+}
+
 export interface IModelParseMessage {
   path:string;
   msg:string;
   code:string;
-  args?:any[];
+  props?:IMessageProps;
   isError:boolean;
 }
 
@@ -29,9 +33,12 @@ export interface IModelParseContext {
   pushItem(key:string|number, required?:boolean):void;
   popItem():void;
 
-  addWarning(msg:string, code:string, ...args:any[]):void;
-  addError(msg:string, code:string, ...args:any[]):void;
-  addMessage(isError:boolean, msg:string, code:string, ...args:any[]):void;
+  addWarning(msg:string, code:string):void;
+  addError(msg:string, code:string):void;
+  addMessage(isError:boolean, msg:string, code:string):void;
+  addWarningEx(msg:string, code:string, props: IMessageProps):void;
+  addErrorEx(msg:string, code:string, props: IMessageProps):void;
+  addMessageEx(isError:boolean, msg:string, code:string, props: IMessageProps):void;
 
   errors:IModelParseMessage[];
   warnings:IModelParseMessage[];

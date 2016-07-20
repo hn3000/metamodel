@@ -145,19 +145,23 @@ var ModelParseContext = (function () {
         }
     };
     ModelParseContext.prototype.addMessage = function (isError, msg, code) {
-        var args = [];
-        for (var _i = 3; _i < arguments.length; _i++) {
-            args[_i - 3] = arguments[_i];
-        }
-        var message = new (ModelParseMessage.bind.apply(ModelParseMessage, [void 0].concat([isError, this.currentKeyPath().join('.'), msg, code], args)))();
-        (isError ? this._errors : this._warnings).push(message);
+        this.addMessageEx(isError, msg, code, {});
     };
     ModelParseContext.prototype.addWarning = function (msg, code) {
-        var args = [];
-        for (var _i = 2; _i < arguments.length; _i++) {
-            args[_i - 2] = arguments[_i];
-        }
-        this.addMessage.apply(this, [false, msg, code].concat(args));
+        this.addMessage(false, msg, code);
+    };
+    ModelParseContext.prototype.addError = function (msg, code) {
+        this.addMessage(true, msg, code);
+    };
+    ModelParseContext.prototype.addMessageEx = function (isError, msg, code, props) {
+        var message = new ModelParseMessage(isError, this.currentKeyPath().join('.'), msg, code, props);
+        (isError ? this._errors : this._warnings).push(message);
+    };
+    ModelParseContext.prototype.addWarningEx = function (msg, code, props) {
+        this.addMessageEx(false, msg, code, props);
+    };
+    ModelParseContext.prototype.addErrorEx = function (msg, code, props) {
+        this.addMessageEx(true, msg, code, props);
     };
     Object.defineProperty(ModelParseContext.prototype, "warnings", {
         get: function () {
@@ -166,13 +170,6 @@ var ModelParseContext = (function () {
         enumerable: true,
         configurable: true
     });
-    ModelParseContext.prototype.addError = function (msg, code) {
-        var args = [];
-        for (var _i = 2; _i < arguments.length; _i++) {
-            args[_i - 2] = arguments[_i];
-        }
-        this.addMessage.apply(this, [true, msg, code].concat(args));
-    };
     Object.defineProperty(ModelParseContext.prototype, "errors", {
         get: function () {
             return this._errors;

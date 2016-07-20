@@ -1,4 +1,4 @@
-import { IModelParseMessage, IModelParseContext } from "./model.api";
+import { IMessageProps, IModelParseMessage, IModelParseContext } from "./model.api";
 export declare class ModelParseMessage implements IModelParseMessage {
     private _path;
     private _msg;
@@ -43,10 +43,13 @@ export declare class ModelParseContext implements IModelParseContext {
     currentKeyPath(): string[];
     pushItem(key: string, required?: boolean): void;
     popItem(): void;
-    addMessage(isError: boolean, msg: string, code: string, ...args: any[]): void;
-    addWarning(msg: string, code: string, ...args: any[]): void;
+    addMessage(isError: boolean, msg: string, code: string): void;
+    addWarning(msg: string, code: string): void;
+    addError(msg: string, code: string): void;
+    addMessageEx(isError: boolean, msg: string, code: string, props: IMessageProps): void;
+    addWarningEx(msg: string, code: string, props: IMessageProps): void;
+    addErrorEx(msg: string, code: string, props: IMessageProps): void;
     readonly warnings: IModelParseMessage[];
-    addError(msg: string, code: string, ...args: any[]): void;
     readonly errors: IModelParseMessage[];
     readonly allowConversion: boolean;
     private _valueTraversal;

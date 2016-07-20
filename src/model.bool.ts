@@ -30,9 +30,9 @@ export class ModelTypeBool extends ModelTypeItem<boolean> {
     }
     if (null == result && ctx.currentRequired()) {
       if (val == null) {
-        ctx.addError('required value is missing', 'required-empty', val);
+        ctx.addErrorEx('required value is missing', 'required-empty', { value: val });
       } else {
-        ctx.addError('can not convert to boolean', 'value-type', val);
+        ctx.addErrorEx('can not convert to boolean', 'value-type', { value: val });
       }
     } else {
       result = this._checkAndAdjustValue(result, ctx);

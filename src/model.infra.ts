@@ -1,5 +1,6 @@
 import {
   Predicate,
+  IMessageProps,
   IModelParseMessage,
   IModelParseContext,
   IModelTypeConstraint,
@@ -133,25 +134,33 @@ export class ModelParseContext implements IModelParseContext {
     }
   }
 
-  addMessage(isError:boolean, msg:string, code:string, ...args:any[]) {
+  addMessage(isError:boolean, msg:string, code:string) {
+    this.addMessageEx(isError, msg, code, {});
+  }
+  addWarning(msg:string, code:string) {
+    this.addMessage(false, msg, code);
+  }
+  addError(msg:string, code:string) {
+    this.addMessage(true, msg, code);
+  }
+  addMessageEx(isError:boolean, msg:string, code:string, props:IMessageProps) {
     var message = new ModelParseMessage(
       isError,
       this.currentKeyPath().join('.'),
-      msg, code, ...args
+      msg, code, props
     );
     (isError?this._errors:this._warnings).push(message);
   }
-
-  addWarning(msg:string, code:string, ...args:any[]) {
-    this.addMessage(false, msg, code, ...args);
+  addWarningEx(msg:string, code:string, props:IMessageProps) {
+    this.addMessageEx(false, msg, code, props);
   }
+  addErrorEx(msg:string, code:string, props:IMessageProps) {
+    this.addMessageEx(true, msg, code, props);
+  }
+
 
   get warnings():IModelParseMessage[] {
     return this._warnings;
-  }
-
-  addError(msg:string, code:string, ...args:any[]) {
-    this.addMessage(true, msg, code, ...args);
   }
 
   get errors():IModelParseMessage[] {

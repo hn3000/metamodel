@@ -15,17 +15,17 @@ var ModelTypeString = (function (_super) {
     ModelTypeString.prototype.upperBound = function () { return null; };
     ;
     ModelTypeString.prototype.parse = function (ctx) {
-        var val = ctx.currentValue();
+        var value = ctx.currentValue();
         var result = null;
-        if (typeof val === 'string') {
-            result = val;
+        if (typeof value === 'string') {
+            result = value;
         }
         if (null == result && ctx.currentRequired()) {
-            if (val == null) {
-                ctx.addError('required value is missing', 'required-empty', val);
+            if (value == null) {
+                ctx.addErrorEx('required value is missing', 'required-empty', { value: value });
             }
             else {
-                ctx.addError('value is wrong type', 'value-type', val);
+                ctx.addErrorEx('value is wrong type', 'value-type', { value: value });
             }
         }
         else {
@@ -60,15 +60,16 @@ var ModelTypeConstraintPossibleValues = (function (_super) {
         configurable: true
     });
     ModelTypeConstraintPossibleValues.prototype._id = function () { return "oneof[" + this._allowedValues.join(',') + "]"; };
-    ModelTypeConstraintPossibleValues.prototype.checkAndAdjustValue = function (val, ctx) {
-        var result = val;
-        if (-1 === this._allowedValues.indexOf(val)) {
+    ModelTypeConstraintPossibleValues.prototype.checkAndAdjustValue = function (value, ctx) {
+        var result = value;
+        var allowed = this._allowedValues;
+        if (-1 === allowed.indexOf(value)) {
             if (this.isWarningOnly) {
-                ctx.addWarning('not a recommended value', 'value-warning', val);
-                result = val;
+                ctx.addWarningEx('not a recommended value', 'value-warning', { value: value, allowed: allowed });
+                result = value;
             }
             else {
-                ctx.addError('not a valid value', 'value-invalid', val);
+                ctx.addErrorEx('not a valid value', 'value-invalid', { value: value, allowed: allowed });
                 result = null;
             }
         }
@@ -77,6 +78,61 @@ var ModelTypeConstraintPossibleValues = (function (_super) {
     return ModelTypeConstraintPossibleValues;
 }(model_base_1.ModelTypeConstraintOptional));
 exports.ModelTypeConstraintPossibleValues = ModelTypeConstraintPossibleValues;
+var ModelTypeConstraintLength = (function (_super) {
+    __extends(ModelTypeConstraintLength, _super);
+    function ModelTypeConstraintLength(minLen, maxLen, message) {
+        _super.call(this);
+        this._minLength = minLen;
+        this._maxLength = maxLen;
+        if (null != message) {
+            this._message = message;
+        }
+        else {
+            var msg;
+            if (minLen == null || minLen == 0) {
+                msg = "length must be at most " + maxLen + ":";
+            }
+            else if (maxLen == null) {
+                msg = "length must be at least " + (minLen || 0) + ":";
+            }
+            else {
+                msg = "length must be between " + (minLen || 0) + " and " + maxLen + ":";
+            }
+            this._message = msg;
+        }
+    }
+    ModelTypeConstraintLength.prototype._id = function () {
+        var from = this._minLength != null ? this._minLength + " <= " : '';
+        var to = this._maxLength != null ? "<= " + this._maxLength : '';
+        return from + "length" + to;
+    };
+    ModelTypeConstraintLength.prototype.checkAndAdjustValue = function (value, ctx) {
+        var result = value;
+        if (!ctx.currentRequired() && (null == value || '' == value)) {
+            return value;
+        }
+        if (null != value) {
+            var length_1 = value.length;
+            var minLength = this._minLength;
+            var maxLength = this._maxLength;
+            if (null != minLength && length_1 < minLength) {
+                ctx.addMessageEx(!this.isWarningOnly, this._message, 'value-short', { value: value, minLength: minLength, maxLength: maxLength });
+                if (!this.isWarningOnly && ctx.allowConversion) {
+                    result = null;
+                }
+            }
+            if (null != this._maxLength && length_1 > this._maxLength) {
+                ctx.addMessageEx(!this.isWarningOnly, this._message, 'value-long', { value: value, minLength: minLength, maxLength: maxLength });
+                if (!this.isWarningOnly && ctx.allowConversion) {
+                    result = null;
+                }
+            }
+        }
+        return result;
+    };
+    return ModelTypeConstraintLength;
+}(model_base_1.ModelTypeConstraintOptional));
+exports.ModelTypeConstraintLength = ModelTypeConstraintLength;
 var ModelTypeConstraintRegex = (function (_super) {
     __extends(ModelTypeConstraintRegex, _super);
     function ModelTypeConstraintRegex(pattern, flags, message) {
@@ -91,18 +147,19 @@ var ModelTypeConstraintRegex = (function (_super) {
         }
     }
     ModelTypeConstraintRegex.prototype._id = function () { return "pattern[" + this._pattern + "]"; };
-    ModelTypeConstraintRegex.prototype.checkAndAdjustValue = function (val, ctx) {
-        var result = val;
-        if (!ctx.currentRequired() && (null == val || '' == val)) {
-            return val;
+    ModelTypeConstraintRegex.prototype.checkAndAdjustValue = function (value, ctx) {
+        var result = value;
+        if (!ctx.currentRequired() && (null == value || '' == value)) {
+            return value;
         }
-        if (!this._pattern.exec(val)) {
+        var pattern = this._pattern;
+        if (!pattern.exec(value)) {
             if (this.isWarningOnly) {
-                ctx.addWarning(this._message, 'value-warning', val, this._pattern.toString());
-                result = val;
+                ctx.addWarningEx(this._message, 'value-warning', { value: value, pattern: pattern });
+                result = value;
             }
             else {
-                ctx.addError(this._message, 'value-invalid', val, this._pattern.toString());
+                ctx.addErrorEx(this._message, 'value-invalid', { value: value, pattern: pattern });
                 result = null;
             }
         }

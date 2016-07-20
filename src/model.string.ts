@@ -25,16 +25,16 @@ export class ModelTypeString extends ModelTypeItem<string> {
   upperBound(): IModelTypeConstraint<string> { return null; };
 
   parse(ctx:IModelParseContext):string {
-    let val = ctx.currentValue();
+    let value = ctx.currentValue();
     let result:string = null;
-    if (typeof val === 'string') {
-      result = val;
+    if (typeof value === 'string') {
+      result = value;
     }
     if (null == result && ctx.currentRequired()) {
-      if (val == null) {
-        ctx.addError('required value is missing', 'required-empty', val);
+      if (value == null) {
+        ctx.addErrorEx('required value is missing', 'required-empty', { value });
       } else {
-        ctx.addError('value is wrong type', 'value-type', val);
+        ctx.addErrorEx('value is wrong type', 'value-type', { value });
       }
     } else {
       result = this._checkAndAdjustValue(result, ctx);
@@ -68,14 +68,15 @@ export class ModelTypeConstraintPossibleValues<T> extends ModelTypeConstraintOpt
 
   protected _id():string { return `oneof[${this._allowedValues.join(',')}]`; }
 
-  checkAndAdjustValue(val:T, ctx:IModelParseContext):T {
-    var result = val;
-    if (-1 === this._allowedValues.indexOf(val)) {
+  checkAndAdjustValue(value:T, ctx:IModelParseContext):T {
+    var result = value;
+    let allowed = this._allowedValues;
+    if (-1 === allowed.indexOf(value)) {
       if (this.isWarningOnly) {
-        ctx.addWarning('not a recommended value', 'value-warning', val);
-        result = val;
+        ctx.addWarningEx('not a recommended value', 'value-warning', { value, allowed });
+        result = value;
       } else {
-        ctx.addError('not a valid value', 'value-invalid', val);
+        ctx.addErrorEx('not a valid value', 'value-invalid', { value, allowed });
         result = null;
       }
     }
@@ -85,6 +86,69 @@ export class ModelTypeConstraintPossibleValues<T> extends ModelTypeConstraintOpt
 
   private _allowedValues:T[];
 }
+
+
+export class ModelTypeConstraintLength extends ModelTypeConstraintOptional<string> {
+  constructor(minLen:number, maxLen:number, message?:string) {
+    super();
+    this._minLength = minLen;
+    this._maxLength = maxLen;
+
+    if (null != message) {
+      this._message = message;
+    } else {
+      var msg:string;
+      if (minLen == null || minLen == 0) {
+        msg = `length must be at most ${maxLen}:`;
+      } else if (maxLen == null) {
+        msg = `length must be at least ${minLen||0}:`;
+      } else {
+        msg = `length must be between ${minLen||0} and ${maxLen}:`;
+      }
+      this._message = msg;
+    }
+  }
+
+
+  protected _id():string {
+    let from = this._minLength != null ? `${this._minLength} <= `:''; 
+    let to   = this._maxLength != null ? `<= ${this._maxLength}`:''; 
+    return `${from}length${to}`; 
+  }
+
+  checkAndAdjustValue(value:string, ctx:IModelParseContext):string {
+    var result = value;
+
+    if (!ctx.currentRequired() && (null == value || '' == value)) {
+      return value;
+    }
+    if (null != value) {
+      let length = value.length;
+      let minLength = this._minLength;
+      let maxLength = this._maxLength;
+
+
+      if (null != minLength && length < minLength) {
+        ctx.addMessageEx(!this.isWarningOnly, this._message, 'value-short', {value, minLength, maxLength});
+        if (!this.isWarningOnly && ctx.allowConversion) {
+          result = null;
+        }
+      }
+      if (null != this._maxLength && length > this._maxLength) {
+        ctx.addMessageEx(!this.isWarningOnly, this._message, 'value-long', {value, minLength, maxLength});
+        if (!this.isWarningOnly && ctx.allowConversion) {
+          result = null;
+        }
+      }
+    }
+    return result;
+  }
+
+  private _minLength:number;
+  private _maxLength:number;
+  private _message:string;
+}
+
 
 export class ModelTypeConstraintRegex extends ModelTypeConstraintOptional<string> {
   constructor(pattern:string|RegExp, flags?:string, message?:string) {
@@ -101,19 +165,19 @@ export class ModelTypeConstraintRegex extends ModelTypeConstraintOptional<string
 
   protected _id():string { return `pattern[${this._pattern}]`; }
 
-  checkAndAdjustValue(val:string, ctx:IModelParseContext):string {
-    var result = val;
+  checkAndAdjustValue(value:string, ctx:IModelParseContext):string {
+    var result = value;
 
-    if (!ctx.currentRequired() && (null == val || '' == val)) {
-      return val;
+    if (!ctx.currentRequired() && (null == value || '' == value)) {
+      return value;
     }
-
-    if (! this._pattern.exec(val)) {
+    let pattern = this._pattern;
+    if (! pattern.exec(value)) {
       if (this.isWarningOnly) {
-        ctx.addWarning(this._message, 'value-warning', val, this._pattern.toString());
-        result = val;
+        ctx.addWarningEx(this._message, 'value-warning', { value, pattern } );
+        result = value;
       } else {
-        ctx.addError(this._message, 'value-invalid', val, this._pattern.toString());
+        ctx.addErrorEx(this._message, 'value-invalid', { value, pattern });
         result = null;
       }
     }

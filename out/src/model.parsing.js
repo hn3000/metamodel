@@ -134,18 +134,7 @@ var ModelSchemaParser = (function () {
         var pattern = schemaObject['pattern'];
         var constraints = this._parseConstraints(schemaObject, [constraintFactoriesDefault.strings, constraintFactoriesDefault.universal]);
         if (minLen != null || maxLen != null) {
-            var msg;
-            if (minLen == null || minLen == 0) {
-                msg = "length must be at most " + maxLen + ":";
-            }
-            else if (maxLen == null) {
-                msg = "length must be at least " + (minLen || 0) + ":";
-            }
-            else {
-                msg = "length must be between " + (minLen || 0) + " and " + maxLen + ":";
-            }
-            var expr = "^.{" + (minLen || 0) + "," + (maxLen || '') + "}$";
-            constraints = constraints.add(new model_string_1.ModelTypeConstraintRegex(expr, '', msg));
+            constraints = constraints.add(new model_string_1.ModelTypeConstraintLength(minLen, maxLen));
         }
         if (pattern != null) {
             constraints = constraints.add(new model_string_1.ModelTypeConstraintRegex(pattern, ''));

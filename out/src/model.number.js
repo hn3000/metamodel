@@ -32,20 +32,20 @@ var ModelTypeNumber = (function (_super) {
         return null;
     };
     ModelTypeNumber.prototype.parse = function (ctx) {
-        var val = ctx.currentValue();
+        var value = ctx.currentValue();
         var result = null;
-        if (typeof val === 'number') {
-            result = val;
+        if (typeof value === 'number') {
+            result = value;
         }
-        else if (typeof val === 'string') {
-            result = parseFloat(val);
+        else if (typeof value === 'string') {
+            result = parseFloat(value);
         }
         if (null == result && ctx.currentRequired()) {
-            if (null == val) {
+            if (null == value) {
                 ctx.addError('required value is missing', 'required-empty');
             }
             else {
-                ctx.addError('can not convert to float', 'value-invalid', val);
+                ctx.addErrorEx('can not convert to float', 'value-invalid', { value: value });
             }
         }
         else {
@@ -83,12 +83,12 @@ var ModelTypeConstraintInteger = (function () {
         enumerable: true,
         configurable: true
     });
-    ModelTypeConstraintInteger.prototype.checkAndAdjustValue = function (val, ctx) {
-        var result = Math.floor(val);
-        if (val !== result) {
-            ctx.addWarning('expected int value, ignored fractional part', 'value-adjusted', val, result);
+    ModelTypeConstraintInteger.prototype.checkAndAdjustValue = function (value, ctx) {
+        var adjusted = Math.floor(value);
+        if (value !== adjusted) {
+            ctx.addWarningEx('expected int value, ignored fractional part', 'value-adjusted', { value: value, adjusted: adjusted });
         }
-        return result;
+        return adjusted;
     };
     return ModelTypeConstraintInteger;
 }());
@@ -105,12 +105,18 @@ var ModelTypeConstraintMultipleOf = (function (_super) {
         }
     }
     ModelTypeConstraintMultipleOf.prototype._id = function () { return "mult(" + this._modulus + ")"; };
-    ModelTypeConstraintMultipleOf.prototype.checkAndAdjustValue = function (val, ctx) {
-        var result = Math.floor(val / this._modulus) * this._modulus;
-        if (result !== val) {
-            ctx.addWarning("expected multiple of " + this._modulus + ", ignoring remainder", 'value-adjusted', val, result);
+    ModelTypeConstraintMultipleOf.prototype.checkAndAdjustValue = function (value, ctx) {
+        var adjusted = Math.floor(value / this._modulus) * this._modulus;
+        if (adjusted !== value) {
+            var warn = this.isWarningOnly && ctx.allowConversion;
+            var adjust = ctx.allowConversion;
+            var msg = "expected multiple of " + this._modulus + (adjust ? ', ignoring remainder' : '');
+            ctx.addMessageEx(warn, msg, 'value-adjusted', { value: value, adjusted: adjusted });
+            if (adjust) {
+                return adjusted;
+            }
         }
-        return result;
+        return value;
     };
     Object.defineProperty(ModelTypeConstraintMultipleOf.prototype, "modulus", {
         get: function () {
@@ -151,13 +157,15 @@ var ModelTypeConstraintComparison = (function (_super) {
     ModelTypeConstraintComparison.prototype._op = function () { return ""; };
     ModelTypeConstraintComparison.prototype._compare = function (a, b) { return false; };
     ModelTypeConstraintComparison.prototype._code = function () { return 'value-invalid'; };
-    ModelTypeConstraintComparison.prototype.checkAndAdjustValue = function (val, ctx) {
-        var check = this._compare(val, this._val);
-        var result = val;
+    ModelTypeConstraintComparison.prototype.checkAndAdjustValue = function (value, ctx) {
+        var limit = this._val;
+        var check = this._compare(value, limit);
+        var result = value;
         if (!check) {
             var warning = this.isWarningOnly;
             var error = !warning && !ctx.allowConversion;
-            ctx.addMessage(error, "expected " + val + " " + this._op() + " " + this._val + ".", this._code());
+            var op = this._op();
+            ctx.addMessageEx(error, "expected " + value + " " + this._op() + " " + this._val + ".", this._code(), { value: value, limit: limit, op: op });
             if (!this.isWarningOnly && ctx.allowConversion) {
                 result = this._val;
             }

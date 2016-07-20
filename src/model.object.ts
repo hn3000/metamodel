@@ -165,15 +165,24 @@ export class ModelTypeConstraintEqualProperties extends ModelTypeConstraintOptio
     return `equalFields(${this._fields.join(',')})`;
   }
 
-  checkAndAdjustValue(val:any, ctx:IModelParseContext):Date {
+  checkAndAdjustValue(val:any, ctx:IModelParseContext):any {
     let fields = this._fields;
-    var check = true;
-    fields.reduce((a,b) => { check = check && val[a] == val[b]; return b; });
+    let values = fields.reduce((acc,k) => { 
+      if (-1 == acc.indexOf(val[k])) {
+        acc.push(val[k]); 
+      }
+      return acc; 
+    }, []);
+
     let result = val;
-    if (!check) {
+    if (values.length !== 1) {
       for (var f of fields) {
         ctx.pushItem(f, !this.warnOnly());
-        ctx.addError(`expected fields to be equal: ${fields.join(',')}.`, 'properties-different');
+        ctx.addErrorEx(
+          `expected fields to be equal: ${fields.join(',')}.`, 
+          'properties-different', 
+          { value: val, values: values, fields: fields.join(',') }
+        );
         ctx.popItem();
       }
     }
@@ -290,7 +299,7 @@ export class ModelTypeConstraintConditionalValue extends ModelTypeConstraintOpti
         let valid = s.valueCheck(thisValue);
         if (!valid) {
           if (s.possibleValues) {
-            ctx.addMessage(isError, `illegal value.`, 'value-illegal', ctx.currentValue(), s.possibleValues);
+            ctx.addMessageEx(isError, `illegal value.`, 'value-illegal', { value: ctx.currentValue(), allowed: s.possibleValues });
           } else {
             ctx.addMessage(isError, `required field not filled.`, 'required-empty');
           }
@@ -324,10 +333,11 @@ export class ModelTypePropertyConstraint extends ModelTypeConstraintOptional<any
 
   checkAndAdjustValue(val:any, ctx:IModelParseContext):any {
     ctx.pushItem(this._property);
+    let value = ctx.currentValue();
     try {
-      this._constraint.checkAndAdjustValue(ctx.currentValue(), ctx);
-    } catch (err) {
-      ctx.addMessage(!this.isWarningOnly, 'value had unexpected type', 'value-type', err);
+      this._constraint.checkAndAdjustValue(value, ctx);
+    } catch (error) {
+      ctx.addMessageEx(!this.isWarningOnly, 'value had unexpected type', 'value-type', { value, error });
     }
     ctx.popItem();
     return val;

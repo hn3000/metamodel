@@ -14,12 +14,12 @@ export declare class ModelTypeNumber extends ModelTypeItem<number> {
 }
 export declare class ModelTypeConstraintInteger implements IModelTypeConstraint<number> {
     readonly id: string;
-    checkAndAdjustValue(val: number, ctx: IModelParseContext): number;
+    checkAndAdjustValue(value: number, ctx: IModelParseContext): number;
 }
 export declare class ModelTypeConstraintMultipleOf extends ModelTypeConstraintOptional<number> {
     constructor(modulus: number | ModelTypeConstraintMultipleOf);
     _id(): string;
-    checkAndAdjustValue(val: number, ctx: IModelParseContext): number;
+    checkAndAdjustValue(value: number, ctx: IModelParseContext): number;
     readonly modulus: number;
     private _modulus;
 }
@@ -31,7 +31,7 @@ export declare abstract class ModelTypeConstraintComparison extends ModelTypeCon
     protected _op(): string;
     protected _compare(a: number, b: number): boolean;
     protected _code(): string;
-    checkAndAdjustValue(val: number, ctx: IModelParseContext): number;
+    checkAndAdjustValue(value: number, ctx: IModelParseContext): number;
     private _val;
 }
 export declare class ModelTypeConstraintLess extends ModelTypeConstraintComparison {

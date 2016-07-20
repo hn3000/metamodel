@@ -42,24 +42,24 @@ export class ModelTypeDate extends ModelTypeItem<Date> {
       return null;
   }
   parse(ctx:IModelParseContext):Date {
-    let val = ctx.currentValue();
+    let value = ctx.currentValue();
     let result:Date = null;
     var error:any = null;
     try {
-      if (typeof val === 'number') {
+      if (typeof value === 'number') {
         // we might not want to allow this in a UI
-        result = new Date(val as number);
-      } else if (typeof val === 'string') {
-        result = new Date(val as string);
+        result = new Date(value as number);
+      } else if (typeof value === 'string') {
+        result = new Date(value as string);
       }
     } catch (xx) {
       error = xx;
     }
     if (null == result && ctx.currentRequired()) {
-      if (null == val) {
-        ctx.addError('can not convert to Date', 'required-empty', val, error);
+      if (null == value) {
+        ctx.addErrorEx('can not convert to Date', 'required-empty', { value, error});
       } else {
-        ctx.addError('can not convert to Date', 'value-type', val, error);
+        ctx.addErrorEx('can not convert to Date', 'value-type', { value, error } );
       }
     } else {
       result = this._checkAndAdjustValue(result, ctx);
@@ -114,6 +114,7 @@ export abstract class ModelTypeConstraintDateBase<D> extends ModelTypeConstraint
   protected _op():string { return ""; }
   protected _compare(a:Date, b:Date):boolean { return false; }
   protected _val():Date { return null; }
+  protected _limit():any { return null; }
   protected _code():string { return 'value-invalid' }
 
   asDate(val:Date|string) {
@@ -129,7 +130,8 @@ export abstract class ModelTypeConstraintDateBase<D> extends ModelTypeConstraint
     let check = this._compare(checkVal, comparisonVal);
     let result = val;
     if (!check) {
-      ctx.addMessage(!this.isWarningOnly, `expected ${val} ${this._op()} ${this._val()}.`, this._code(), comparisonVal);
+      let msg = `expected ${val} ${this._op()} ${this._val()}.`;
+      ctx.addMessageEx(!this.isWarningOnly, msg, this._code(), { value: val, limit: comparisonVal, op: this._op() });
       if (!this.isWarningOnly && ctx.allowConversion) {
         
         // does not make sense without improved date-format handling
@@ -151,6 +153,7 @@ export abstract class ModelTypeConstraintDateFixed<D> extends ModelTypeConstrain
     }
   }
   _val() { return this._value; }
+  _limit() { return this._value; }
   private _value: Date;
 } 
 
@@ -173,11 +176,42 @@ export class TimeSpan {
     let match = TimeSpan.REGEX.exec(timespan);
     this._amount = parseFloat(match[1]);
     this._unit = match[2];
+    switch (this._unit) {
+      case "y":
+      case "year":
+      case "years":
+        this._unitNormalized = 'year';
+        break;
+      case "m":
+      case "month":
+      case "months":
+        this._unitNormalized = 'month';
+        break;
+      // TODO: other durations?
+    }
   }
+
+  toString():string { 
+    return `${this._amount} ${this._unitNormalized}${this._amount != 1 ? 's':''}`; 
+  }
+
   get amount() { return this._amount; }
   get unit()   { return this._unit; }
 
+  moveBack(date:Date) {
+    switch (this._unitNormalized) {
+      case "year":
+        date.setFullYear(date.getFullYear() - this._amount);
+        break;
+      case "month":
+        date.setMonth(date.getMonth() - this._amount);
+        break;
+      // TODO: other durations?
+    }
+  }
+
   _unit:string;
+  _unitNormalized:string;
   _amount:number;
   private static REGEX:RegExp = /([0-9]+(?:\.[0.9]+)?)\s*([a-z]+)/;
 }
@@ -189,21 +223,10 @@ export class ModelTypeConstraintOlder<D> extends ModelTypeConstraintDateBase<D> 
   }
   protected _op() { return "<"; }
   protected _compare(a:Date, b:Date):boolean { return a < b; }
+  protected _limit() { return this._timespan; }
   protected _val() { 
     var date:Date = new Date();
-    switch (this._timespan.unit) {
-      case "y":
-      case "year":
-      case "years":
-        date.setFullYear(date.getFullYear() - this._timespan.amount);
-        break;
-      case "m":
-      case "month":
-      case "months":
-        date.setMonth(date.getMonth() - this._timespan.amount);
-        break;
-      // TODO: other durations?
-    }
+    this._timespan.moveBack(date);
     return date;
   }
   protected _code() { return 'date-minage'; }

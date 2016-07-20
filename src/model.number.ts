@@ -42,18 +42,18 @@ export class ModelTypeNumber extends ModelTypeItem<number> {
       return null;
   }
   parse(ctx:IModelParseContext):number {
-    let val = ctx.currentValue();
+    let value = ctx.currentValue();
     let result:number = null;
-    if (typeof val === 'number') {
-      result = val;
-    } else if (typeof val === 'string') {
-      result = parseFloat(val);
+    if (typeof value === 'number') {
+      result = value;
+    } else if (typeof value === 'string') {
+      result = parseFloat(value);
     }
     if (null == result && ctx.currentRequired()) {
-      if (null == val) {
+      if (null == value) {
         ctx.addError('required value is missing', 'required-empty');
       } else {
-        ctx.addError('can not convert to float', 'value-invalid', val);
+        ctx.addErrorEx('can not convert to float', 'value-invalid', { value });
       }
     } else {
       result = this._checkAndAdjustValue(result, ctx);
@@ -87,12 +87,12 @@ export class ModelTypeNumber extends ModelTypeItem<number> {
 
 export class ModelTypeConstraintInteger implements IModelTypeConstraint<number> {
   get id():string { return 'int'; }
-  checkAndAdjustValue(val:number, ctx:IModelParseContext) {
-    let result = Math.floor(val);
-    if (val !== result) {
-      ctx.addWarning('expected int value, ignored fractional part', 'value-adjusted', val, result);
+  checkAndAdjustValue(value:number, ctx:IModelParseContext) {
+    let adjusted = Math.floor(value);
+    if (value !== adjusted) {
+      ctx.addWarningEx('expected int value, ignored fractional part', 'value-adjusted', { value, adjusted });
     }
-    return result;
+    return adjusted;
   }
 }
 
@@ -106,12 +106,18 @@ export class ModelTypeConstraintMultipleOf extends ModelTypeConstraintOptional<n
     }
   }
   _id():string { return `mult(${this._modulus})`; }
-  checkAndAdjustValue(val:number, ctx:IModelParseContext) {
-    let result = Math.floor(val / this._modulus) * this._modulus;
-    if (result !== val) {
-      ctx.addWarning(`expected multiple of ${this._modulus}, ignoring remainder`, 'value-adjusted', val, result);
+  checkAndAdjustValue(value:number, ctx:IModelParseContext) {
+    let adjusted = Math.floor(value / this._modulus) * this._modulus;
+    if (adjusted !== value) {
+      let warn = this.isWarningOnly && ctx.allowConversion;
+      let adjust = ctx.allowConversion;
+      let msg = `expected multiple of ${this._modulus}${adjust?', ignoring remainder':''}`
+      ctx.addMessageEx(warn, msg, 'value-adjusted', { value, adjusted });
+      if (adjust) {
+        return adjusted;
+      }
     }
-    return result;
+    return value;
   }
   
   get modulus():number {
@@ -149,13 +155,15 @@ export abstract class ModelTypeConstraintComparison extends ModelTypeConstraintO
   protected _compare(a:number, b:number):boolean { return false; }
   protected _code():string { return 'value-invalid' }
 
-  checkAndAdjustValue(val:number, ctx:IModelParseContext):number {
-    let check = this._compare(val, this._val);
-    let result = val;
+  checkAndAdjustValue(value:number, ctx:IModelParseContext):number {
+    let limit = this._val;
+    let check = this._compare(value, limit);
+    let result = value;
     if (!check) {
       let warning = this.isWarningOnly;
       let error = !warning && !ctx.allowConversion;
-      ctx.addMessage(error, `expected ${val} ${this._op()} ${this._val}.`, this._code());
+      let op = this._op();
+      ctx.addMessageEx(error, `expected ${value} ${this._op()} ${this._val}.`, this._code(), { value, limit, op });
       if (!this.isWarningOnly && ctx.allowConversion) {
         result = this._val;
       }
