@@ -40,6 +40,8 @@ export interface IModelParseContext {
   addErrorEx(msg:string, code:string, props: IMessageProps):void;
   addMessageEx(isError:boolean, msg:string, code:string, props: IMessageProps):void;
 
+  hasMessagesForCurrentValue():boolean;
+
   errors:IModelParseMessage[];
   warnings:IModelParseMessage[];
 

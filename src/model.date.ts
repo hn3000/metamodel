@@ -125,18 +125,25 @@ export abstract class ModelTypeConstraintDateBase<D> extends ModelTypeConstraint
   }
 
   checkAndAdjustValue(val:D, ctx:IModelParseContext):D {
-    let comparisonVal = this._val();
-    let checkVal = this.asDate(val as any);
-    let check = this._compare(checkVal, comparisonVal);
     let result = val;
-    if (!check) {
-      let msg = `expected ${val} ${this._op()} ${this._val()}.`;
-      ctx.addMessageEx(!this.isWarningOnly, msg, this._code(), { value: val, limit: comparisonVal, op: this._op() });
-      if (!this.isWarningOnly && ctx.allowConversion) {
-        
-        // does not make sense without improved date-format handling
-        //result = comparisonVal as any;
+    let value = val as any;
 
+    if (value != null && value !== '' && !ctx.hasMessagesForCurrentValue()) {
+      // only check if it seems to be a valid date
+      let limit = this._val();
+
+      let checkVal = this.asDate(value);
+      let check = this._compare(checkVal, limit);
+
+      if (!check) {
+        let msg = `expected ${val} ${this._op()} ${this._val()}.`;
+        ctx.addMessageEx(!this.isWarningOnly, msg, this._code(), { value, limit, op: this._op(), date: checkVal });
+        if (!this.isWarningOnly && ctx.allowConversion) {
+          
+          // does not make sense without improved date-format handling
+          //result = comparisonVal as any;
+
+        }
       }
     }
     return result;

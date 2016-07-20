@@ -134,6 +134,12 @@ export class ModelParseContext implements IModelParseContext {
     }
   }
 
+  hasMessagesForCurrentValue():boolean {
+    let keyPath = this.currentKeyPath().join('.');
+    return this._errors.some(x => x.path == keyPath) ||
+           this._warnings.some(x => x.path == keyPath);
+  }
+
   addMessage(isError:boolean, msg:string, code:string) {
     this.addMessageEx(isError, msg, code, {});
   }
