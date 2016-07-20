@@ -32,6 +32,7 @@ export interface IModelParseContext {
     addWarningEx(msg: string, code: string, props: IMessageProps): void;
     addErrorEx(msg: string, code: string, props: IMessageProps): void;
     addMessageEx(isError: boolean, msg: string, code: string, props: IMessageProps): void;
+    hasMessagesForCurrentValue(): boolean;
     errors: IModelParseMessage[];
     warnings: IModelParseMessage[];
     allowConversion: boolean;

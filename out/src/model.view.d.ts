@@ -42,6 +42,7 @@ export interface IModelView<T> {
     getPageMessages(aliasOrIndex?: string | number): IValidationMessage[];
     isPageValid(aliasOrIndex?: string | number): boolean;
     isVisitedValid(): boolean;
+    isValid(): boolean;
     currentPageIndex: number;
     currentPageNo: number;
     changePage(step: number): IModelView<T>;
@@ -126,6 +127,7 @@ export declare class ModelView<T> implements IModelView<T> {
     getPageMessages(aliasOrIndex?: string | number): IValidationMessage[];
     isPageValid(aliasOrIndex?: string | number): boolean;
     isVisitedValid(): boolean;
+    isValid(): boolean;
     areFieldsValid(fields: string[]): boolean;
     readonly currentPageIndex: number;
     readonly currentPageNo: number;

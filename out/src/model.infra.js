@@ -144,6 +144,11 @@ var ModelParseContext = (function () {
             this._keyPath.pop();
         }
     };
+    ModelParseContext.prototype.hasMessagesForCurrentValue = function () {
+        var keyPath = this.currentKeyPath().join('.');
+        return this._errors.some(function (x) { return x.path == keyPath; }) ||
+            this._warnings.some(function (x) { return x.path == keyPath; });
+    };
     ModelParseContext.prototype.addMessage = function (isError, msg, code) {
         this.addMessageEx(isError, msg, code, {});
     };

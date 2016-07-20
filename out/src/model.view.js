@@ -372,6 +372,9 @@ var ModelView = (function () {
     ModelView.prototype.isVisitedValid = function () {
         return this.areFieldsValid(Object.keys(this._visitedFields));
     };
+    ModelView.prototype.isValid = function () {
+        return 0 === this._messages.length;
+    };
     ModelView.prototype.areFieldsValid = function (fields) {
         var _this = this;
         return fields.every(function (x) { return _this.isFieldValid(x); });

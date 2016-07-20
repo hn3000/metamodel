@@ -116,14 +116,18 @@ var ModelTypeConstraintDateBase = (function (_super) {
         return new Date(val);
     };
     ModelTypeConstraintDateBase.prototype.checkAndAdjustValue = function (val, ctx) {
-        var comparisonVal = this._val();
-        var checkVal = this.asDate(val);
-        var check = this._compare(checkVal, comparisonVal);
         var result = val;
-        if (!check) {
-            var msg = "expected " + val + " " + this._op() + " " + this._val() + ".";
-            ctx.addMessageEx(!this.isWarningOnly, msg, this._code(), { value: val, limit: comparisonVal, op: this._op() });
-            if (!this.isWarningOnly && ctx.allowConversion) {
+        var value = val;
+        if (value != null && value !== '' && !ctx.hasMessagesForCurrentValue()) {
+            // only check if it seems to be a valid date
+            var limit = this._val();
+            var checkVal = this.asDate(value);
+            var check = this._compare(checkVal, limit);
+            if (!check) {
+                var msg = "expected " + val + " " + this._op() + " " + this._val() + ".";
+                ctx.addMessageEx(!this.isWarningOnly, msg, this._code(), { value: value, limit: limit, op: this._op(), date: checkVal });
+                if (!this.isWarningOnly && ctx.allowConversion) {
+                }
             }
         }
         return result;
