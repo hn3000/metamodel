@@ -58,6 +58,7 @@ export interface IModelView<T> {
   getPageMessages(aliasOrIndex?:string|number):IValidationMessage[];
   isPageValid(aliasOrIndex?:string|number):boolean;
   isVisitedValid():boolean;
+  isValid(): boolean;
 
   currentPageIndex:number; // 0 based
   currentPageNo:number;    // 1 based
@@ -464,6 +465,9 @@ export class ModelView<T> implements IModelView<T> {
 
   isVisitedValid() {
     return this.areFieldsValid(Object.keys(this._visitedFields));
+  }
+  isValid() {
+    return 0 === this._messages.length;
   }
 
   areFieldsValid(fields:string[]) {
