@@ -11,21 +11,21 @@ export class ModelParseMessage implements IModelParseMessage {
   private _path:string;
   private _msg:string;
   private _code:string;
-  private _args:any[];
+  private _props:any;
   private _isError:boolean;
 
-  constructor(isError:boolean, path: string, msg:string, code:string, ...args:any[]) {
+  constructor(isError:boolean, path: string, msg:string, code:string, props:IMessageProps) {
     this._path = path;
     this._msg = msg;
     this._code = code;
-    this._args = args;
+    this._props = props;
     this._isError = isError;
   }
 
   get path():string { return this._path; }
   get msg():string { return this._msg; }
   get code():string { return this._code; }
-  get args():any[] { return this._args; }
+  get props():any[] { return this._props; }
   get isError():boolean { return this._isError; }
 }
 

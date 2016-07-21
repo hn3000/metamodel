@@ -3,13 +3,13 @@ export declare class ModelParseMessage implements IModelParseMessage {
     private _path;
     private _msg;
     private _code;
-    private _args;
+    private _props;
     private _isError;
-    constructor(isError: boolean, path: string, msg: string, code: string, ...args: any[]);
+    constructor(isError: boolean, path: string, msg: string, code: string, props: IMessageProps);
     readonly path: string;
     readonly msg: string;
     readonly code: string;
-    readonly args: any[];
+    readonly props: any[];
     readonly isError: boolean;
 }
 export declare class ObjectTraversal {

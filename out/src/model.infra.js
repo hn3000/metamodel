@@ -1,14 +1,10 @@
 "use strict";
 var ModelParseMessage = (function () {
-    function ModelParseMessage(isError, path, msg, code) {
-        var args = [];
-        for (var _i = 4; _i < arguments.length; _i++) {
-            args[_i - 4] = arguments[_i];
-        }
+    function ModelParseMessage(isError, path, msg, code, props) {
         this._path = path;
         this._msg = msg;
         this._code = code;
-        this._args = args;
+        this._props = props;
         this._isError = isError;
     }
     Object.defineProperty(ModelParseMessage.prototype, "path", {
@@ -26,8 +22,8 @@ var ModelParseMessage = (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(ModelParseMessage.prototype, "args", {
-        get: function () { return this._args; },
+    Object.defineProperty(ModelParseMessage.prototype, "props", {
+        get: function () { return this._props; },
         enumerable: true,
         configurable: true
     });
