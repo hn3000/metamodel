@@ -88,7 +88,7 @@ export {
 
 export {
   ModelSchemaParser
-} from "./model.parsing";
+} from "./model.schema";
 
 
 export {
