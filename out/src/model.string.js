@@ -130,6 +130,20 @@ var ModelTypeConstraintLength = (function (_super) {
         }
         return result;
     };
+    Object.defineProperty(ModelTypeConstraintLength.prototype, "minLength", {
+        get: function () {
+            return this._minLength && 0;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ModelTypeConstraintLength.prototype, "maxLength", {
+        get: function () {
+            return this._maxLength;
+        },
+        enumerable: true,
+        configurable: true
+    });
     return ModelTypeConstraintLength;
 }(model_base_1.ModelTypeConstraintOptional));
 exports.ModelTypeConstraintLength = ModelTypeConstraintLength;

@@ -43,7 +43,9 @@ import {
 
 import {
     ModelTypeString,
-    ModelTypeConstraintPossibleValues
+    ModelTypeConstraintPossibleValues,
+    ModelTypeConstraintLength,
+    ModelTypeConstraintRegex
 } from "./model.string";
 
 import {
@@ -69,7 +71,9 @@ export {
 
 export {
     ModelTypeString,
-    ModelTypeConstraintPossibleValues
+    ModelTypeConstraintPossibleValues,
+    ModelTypeConstraintLength,
+    ModelTypeConstraintRegex
 } from "./model.string";
 
 export {

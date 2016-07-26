@@ -6,7 +6,7 @@ import { ModelTypeConstraintPossibleValues } from "./model.string";
 export { ModelParseContext, ObjectTraversal } from "./model.infra";
 export { ModelTypeRegistry } from "./model.registry";
 export { ModelTypeNumber, ModelTypeConstraintLess, ModelTypeConstraintLessEqual, ModelTypeConstraintMore, ModelTypeConstraintMoreEqual } from "./model.number";
-export { ModelTypeString, ModelTypeConstraintPossibleValues } from "./model.string";
+export { ModelTypeString, ModelTypeConstraintPossibleValues, ModelTypeConstraintLength, ModelTypeConstraintRegex } from "./model.string";
 export { ModelTypeBool } from "./model.bool";
 export { ModelTypeArray } from "./model.array";
 export { ModelTypeObject, ModelTypeConstraintConditionalValue, ModelTypeConstraintEqualProperties } from "./model.object";

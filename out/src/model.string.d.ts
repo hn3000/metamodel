@@ -23,6 +23,8 @@ export declare class ModelTypeConstraintLength extends ModelTypeConstraintOption
     constructor(minLen: number, maxLen: number, message?: string);
     protected _id(): string;
     checkAndAdjustValue(value: string, ctx: IModelParseContext): string;
+    readonly minLength: number;
+    readonly maxLength: number;
     private _minLength;
     private _maxLength;
     private _message;
