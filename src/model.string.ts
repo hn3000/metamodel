@@ -145,7 +145,7 @@ export class ModelTypeConstraintLength extends ModelTypeConstraintOptional<strin
   }
 
   get minLength():number {
-    return this._minLength && 0;
+    return this._minLength || 0;
   }
 
   get maxLength():number {

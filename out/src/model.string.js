@@ -132,7 +132,7 @@ var ModelTypeConstraintLength = (function (_super) {
     };
     Object.defineProperty(ModelTypeConstraintLength.prototype, "minLength", {
         get: function () {
-            return this._minLength && 0;
+            return this._minLength || 0;
         },
         enumerable: true,
         configurable: true
