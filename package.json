@@ -6,8 +6,10 @@
     "tsc": "tsc",
     "tsc:w": "tsc -w",
     "pretest": "tsc",
+    "precover": "tsc",
     "postinstall": "typings install",
-    "test": "node out/test/allTests.js"
+    "test": "node out/test/allTests.js",
+    "cover": "istanbul cover out/test/allTests.js"
   },
   "main": "out/src/model.js",
   "typings": "out/src/model.d.ts",
