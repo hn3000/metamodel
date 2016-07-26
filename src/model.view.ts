@@ -242,7 +242,7 @@ export class ModelView<T> implements IModelView<T> {
     if (modelTypeOrSelf instanceof ModelView) {
       let that = <ModelView<T>>modelTypeOrSelf;
       this._viewMeta = that._viewMeta;
-      this._model = modelData || {};
+      this._model = modelData || that._model;
       this._visitedFields = shallowCopy(that._visitedFields);
       this._readonlyFields = shallowCopy(that._readonlyFields);
       this._currentPage = that._currentPage;

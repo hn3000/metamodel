@@ -167,7 +167,7 @@ var ModelView = (function () {
         if (modelTypeOrSelf instanceof ModelView) {
             var that = modelTypeOrSelf;
             this._viewMeta = that._viewMeta;
-            this._model = modelData || {};
+            this._model = modelData || that._model;
             this._visitedFields = shallowCopy(that._visitedFields);
             this._readonlyFields = shallowCopy(that._readonlyFields);
             this._currentPage = that._currentPage;
