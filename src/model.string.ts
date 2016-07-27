@@ -71,15 +71,19 @@ export class ModelTypeConstraintPossibleValues<T> extends ModelTypeConstraintOpt
   checkAndAdjustValue(value:T, ctx:IModelParseContext):T {
     var result = value;
     let allowed = this._allowedValues;
-    if (-1 === allowed.indexOf(value)) {
-      if (this.isWarningOnly) {
-        ctx.addWarningEx('not a recommended value', 'value-warning', { value, allowed });
-        result = value;
-      } else {
-        ctx.addErrorEx('not a valid value', 'value-invalid', { value, allowed });
-        result = null;
+
+    if (null != value) {
+      if (-1 === allowed.indexOf(value)) {
+        if (this.isWarningOnly) {
+          ctx.addWarningEx('not a recommended value', 'value-warning', { value, allowed });
+          result = value;
+        } else {
+          ctx.addErrorEx('not a valid value', 'value-invalid', { value, allowed });
+          result = null;
+        }
       }
     }
+
     return result;
   }
 
