@@ -88,11 +88,14 @@ export class ModelTypeNumber extends ModelTypeItem<number> {
 export class ModelTypeConstraintInteger implements IModelTypeConstraint<number> {
   get id():string { return 'int'; }
   checkAndAdjustValue(value:number, ctx:IModelParseContext) {
-    let adjusted = Math.floor(value);
-    if (value !== adjusted) {
-      ctx.addWarningEx('expected int value, ignored fractional part', 'value-adjusted', { value, adjusted });
+    if (null != value) {
+      let adjusted = Math.floor(value);
+      if (value !== adjusted) {
+        ctx.addWarningEx('expected int value, ignored fractional part', 'value-adjusted', { value, adjusted });
+      }
+      return adjusted;
     }
-    return adjusted;
+    return value;
   }
 }
 

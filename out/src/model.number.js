@@ -84,11 +84,14 @@ var ModelTypeConstraintInteger = (function () {
         configurable: true
     });
     ModelTypeConstraintInteger.prototype.checkAndAdjustValue = function (value, ctx) {
-        var adjusted = Math.floor(value);
-        if (value !== adjusted) {
-            ctx.addWarningEx('expected int value, ignored fractional part', 'value-adjusted', { value: value, adjusted: adjusted });
+        if (null != value) {
+            var adjusted = Math.floor(value);
+            if (value !== adjusted) {
+                ctx.addWarningEx('expected int value, ignored fractional part', 'value-adjusted', { value: value, adjusted: adjusted });
+            }
+            return adjusted;
         }
-        return adjusted;
+        return value;
     };
     return ModelTypeConstraintInteger;
 }());
