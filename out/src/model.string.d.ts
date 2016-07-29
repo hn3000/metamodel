@@ -36,3 +36,10 @@ export declare class ModelTypeConstraintRegex extends ModelTypeConstraintOptiona
     private _pattern;
     private _message;
 }
+export declare class ModelTypeConstraintInvalidRegex extends ModelTypeConstraintOptional<string> {
+    constructor(pattern: string | RegExp, flags?: string, message?: string);
+    protected _id(): string;
+    checkAndAdjustValue(value: string, ctx: IModelParseContext): string;
+    private _pattern;
+    private _message;
+}

@@ -36,7 +36,8 @@ import {
     ModelTypeString,
     ModelTypeConstraintPossibleValues,
     ModelTypeConstraintLength,
-    ModelTypeConstraintRegex
+    ModelTypeConstraintRegex,
+    ModelTypeConstraintInvalidRegex
 } from "./model.string"
 
 import {
@@ -149,6 +150,8 @@ var constraintFactoriesDefault:IConstraintFactories = {
   }
 };
 
+const SimpleReRE = /^\^\[(.+)\][+*]\$$/;
+
 export class ModelSchemaParser implements IModelTypeRegistry {
   constructor(constraintFactory?:IModelTypeConstraintFactory) {
     this._constraintFactory = constraintFactory || {};
@@ -229,7 +232,18 @@ export class ModelSchemaParser implements IModelTypeRegistry {
       constraints = constraints.add(new ModelTypeConstraintLength(minLen, maxLen));
     }
     if (pattern != null) {
-      constraints = constraints.add(new ModelTypeConstraintRegex(pattern, ''));
+      let simpleReMatch = SimpleReRE.exec(pattern);
+      if (simpleReMatch) {
+        let chars = simpleReMatch[1];
+        if (chars.charAt(0) == '^') {
+          chars = chars.substring(1);
+        } else {
+          chars = '^'+chars;
+        }
+        constraints = constraints.add(new ModelTypeConstraintInvalidRegex(`([${chars}])`));
+      } else {
+        constraints = constraints.add(new ModelTypeConstraintRegex(pattern, ''));
+      }
     }
 
     let enumConstraint = this.parseSchemaConstraintEnum<string>(schemaObject);

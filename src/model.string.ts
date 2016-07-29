@@ -200,3 +200,52 @@ export class ModelTypeConstraintRegex extends ModelTypeConstraintOptional<string
   private _message:string;
 }
 
+export class ModelTypeConstraintInvalidRegex extends ModelTypeConstraintOptional<string> {
+  constructor(pattern:string|RegExp, flags?:string, message?:string) {
+    super();
+    
+    var patternSource = (<RegExp>pattern).source || pattern.toString();
+    this._pattern = new RegExp(patternSource, flags||'g');
+    if (null != message) {
+      this._message = message;
+    } else {
+      this._message = `value should not match ${this._pattern.toString()}:`;
+    }
+  }
+
+  protected _id():string { return `pattern[${this._pattern}]`; }
+
+  checkAndAdjustValue(value:string, ctx:IModelParseContext):string {
+    var result = value;
+
+    if (!ctx.currentRequired() && (null == value || '' == value)) {
+      return value;
+    }
+    let pattern = this._pattern;
+    let matches:string[] = [];
+    let match:RegExpExecArray = null;
+    do {
+      match = pattern.exec(value);
+      if (match) {
+        matches.push(match[1] || match[0]);
+      }
+    } while (match && this._pattern.global);
+
+    if (matches.length > 0) {
+      matches.sort();
+      let invalid = matches.join('');
+
+      if (this.isWarningOnly) {
+        ctx.addWarningEx(this._message, 'value-warning-text', { value, pattern, invalid } );
+        result = value;
+      } else {
+        ctx.addErrorEx(this._message, 'value-invalid-text', { value, pattern, invalid });
+        result = null;
+      }
+    }
+    return result;
+  }
+
+  private _pattern:RegExp;
+  private _message:string;
+}

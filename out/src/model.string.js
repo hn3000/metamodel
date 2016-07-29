@@ -184,4 +184,49 @@ var ModelTypeConstraintRegex = (function (_super) {
     return ModelTypeConstraintRegex;
 }(model_base_1.ModelTypeConstraintOptional));
 exports.ModelTypeConstraintRegex = ModelTypeConstraintRegex;
+var ModelTypeConstraintInvalidRegex = (function (_super) {
+    __extends(ModelTypeConstraintInvalidRegex, _super);
+    function ModelTypeConstraintInvalidRegex(pattern, flags, message) {
+        _super.call(this);
+        var patternSource = pattern.source || pattern.toString();
+        this._pattern = new RegExp(patternSource, flags || 'g');
+        if (null != message) {
+            this._message = message;
+        }
+        else {
+            this._message = "value should not match " + this._pattern.toString() + ":";
+        }
+    }
+    ModelTypeConstraintInvalidRegex.prototype._id = function () { return "pattern[" + this._pattern + "]"; };
+    ModelTypeConstraintInvalidRegex.prototype.checkAndAdjustValue = function (value, ctx) {
+        var result = value;
+        if (!ctx.currentRequired() && (null == value || '' == value)) {
+            return value;
+        }
+        var pattern = this._pattern;
+        var matches = [];
+        var match = null;
+        do {
+            match = pattern.exec(value);
+            if (match) {
+                matches.push(match[1] || match[0]);
+            }
+        } while (match && this._pattern.global);
+        if (matches.length > 0) {
+            matches.sort();
+            var invalid = matches.join('');
+            if (this.isWarningOnly) {
+                ctx.addWarningEx(this._message, 'value-warning-text', { value: value, pattern: pattern, invalid: invalid });
+                result = value;
+            }
+            else {
+                ctx.addErrorEx(this._message, 'value-invalid-text', { value: value, pattern: pattern, invalid: invalid });
+                result = null;
+            }
+        }
+        return result;
+    };
+    return ModelTypeConstraintInvalidRegex;
+}(model_base_1.ModelTypeConstraintOptional));
+exports.ModelTypeConstraintInvalidRegex = ModelTypeConstraintInvalidRegex;
 //# sourceMappingURL=model.string.js.map

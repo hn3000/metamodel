@@ -68,6 +68,7 @@ var constraintFactoriesDefault = {
         possibleValues: function (o) { return new model_string_1.ModelTypeConstraintPossibleValues(o); },
     }
 };
+var SimpleReRE = /^\^\[(.+)\][+*]\$$/;
 var ModelSchemaParser = (function () {
     function ModelSchemaParser(constraintFactory) {
         this._constraintFactory = constraintFactory || {};
@@ -137,7 +138,20 @@ var ModelSchemaParser = (function () {
             constraints = constraints.add(new model_string_1.ModelTypeConstraintLength(minLen, maxLen));
         }
         if (pattern != null) {
-            constraints = constraints.add(new model_string_1.ModelTypeConstraintRegex(pattern, ''));
+            var simpleReMatch = SimpleReRE.exec(pattern);
+            if (simpleReMatch) {
+                var chars = simpleReMatch[1];
+                if (chars.charAt(0) == '^') {
+                    chars = chars.substring(1);
+                }
+                else {
+                    chars = '^' + chars;
+                }
+                constraints = constraints.add(new model_string_1.ModelTypeConstraintInvalidRegex("([" + chars + "])"));
+            }
+            else {
+                constraints = constraints.add(new model_string_1.ModelTypeConstraintRegex(pattern, ''));
+            }
         }
         var enumConstraint = this.parseSchemaConstraintEnum(schemaObject);
         if (null != enumConstraint) {
