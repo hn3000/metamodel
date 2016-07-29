@@ -164,18 +164,25 @@ var ModelTypeConstraintEqualProperties = (function (_super) {
     return ModelTypeConstraintEqualProperties;
 }(model_base_1.ModelTypeConstraintOptional));
 exports.ModelTypeConstraintEqualProperties = ModelTypeConstraintEqualProperties;
-function createPredicate(condition) {
-    var property = condition.property, value = condition.value, op = condition.op, invert = condition.invert;
+function createPredicateEquals(property, value, invert) {
     if (Array.isArray(value)) {
         var valueArray_1 = value.slice();
         return function (x) {
             var p = x[property];
-            return (-1 != valueArray_1.indexOf(p)) == !invert;
+            return (p !== undefined) && (-1 != valueArray_1.indexOf(p)) == !invert;
         };
     }
     return function (x) {
-        return (value === x[property]) == !invert;
+        var p = x[property];
+        return (p !== undefined) && (value === p) == !invert;
     };
+}
+function createPredicate(condition) {
+    var property = condition.property, value = condition.value, op = condition.op, invert = condition.invert;
+    switch (op) {
+        case '=': return createPredicateEquals(property, value, invert);
+    }
+    return function () { return false; };
 }
 function createValuePredicate(possibleValues) {
     if (null == possibleValues || 0 === possibleValues.length) {

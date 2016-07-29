@@ -201,20 +201,28 @@ export interface IConditionOptions {
   invert?: boolean;
 }
 
-function createPredicate(condition: IConditionOptions) {
-  let { property, value, op, invert } = condition;
-
+function createPredicateEquals(property:string, value:any, invert:boolean) {
   if (Array.isArray(value)) {
     let valueArray = value.slice() as any[];
 
     return (x:any) => {
       let p = x[property];
-      return (-1 != valueArray.indexOf(p)) == !invert;
+      return (p !== undefined) && (-1 != valueArray.indexOf(p)) == !invert;
     }
   }
   return function(x:any): boolean {
-    return (value === x[property]) == !invert;
+    let p = x[property];
+    return (p !== undefined) && (value === p) == !invert;
   }
+}
+
+function createPredicate(condition: IConditionOptions) {
+  let { property, value, op, invert } = condition;
+
+  switch (op) {
+    case '=': return createPredicateEquals(property, value, invert);
+  }
+  return () => false;
 }
 
 function createValuePredicate(possibleValues:string[]|number[]): (x:string|number) => boolean {
