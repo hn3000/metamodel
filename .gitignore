@@ -5,3 +5,4 @@ jspm_packages
 typings
 npm-debug.log
 out/test
+coverage
