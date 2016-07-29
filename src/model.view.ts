@@ -63,6 +63,7 @@ export interface IModelView<T> {
   currentPageIndex:number; // 0 based
   currentPageNo:number;    // 1 based
   changePage(step:number):IModelView<T>;
+  gotoPage(index:number, validationScope?:ValidationScope):IModelView<T>;
 
   withValidationMessages(messages:IValidationMessage[]):IModelView<T>;
 
@@ -383,6 +384,10 @@ export class ModelView<T> implements IModelView<T> {
       path = keyPath.split('.');
       keyString = keyPath;
     }
+
+    if (newValue === this.getFieldValue(path)) {
+      return this;
+    }
     
     var newModel = this._viewMeta._updatedModel(this._inputModel, path, newValue) as T; 
     let result = new ModelView<T>(this, newModel);
@@ -487,10 +492,13 @@ export class ModelView<T> implements IModelView<T> {
     if (nextPage < 0 || nextPage > this._viewMeta.getPages().length) {
       return this;
     }
+    return this.gotoPage(nextPage, ValidationScope.VISITED);
+  }
 
+  gotoPage(index:number, validationScope:ValidationScope=ValidationScope.VISITED):IModelView<T> {
     let result = new ModelView(this, this._inputModel);
-    result._currentPage = nextPage;
-    result._validationScope = ValidationScope.VISITED;
+    result._currentPage = index;
+    result._validationScope = validationScope;
     return result;
   }
 

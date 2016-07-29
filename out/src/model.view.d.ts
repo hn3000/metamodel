@@ -46,6 +46,7 @@ export interface IModelView<T> {
     currentPageIndex: number;
     currentPageNo: number;
     changePage(step: number): IModelView<T>;
+    gotoPage(index: number, validationScope?: ValidationScope): IModelView<T>;
     withValidationMessages(messages: IValidationMessage[]): IModelView<T>;
     validationScope(): ValidationScope;
     validateDefault(): Promise<IModelView<T>>;
@@ -132,6 +133,7 @@ export declare class ModelView<T> implements IModelView<T> {
     readonly currentPageIndex: number;
     readonly currentPageNo: number;
     changePage(step: number): IModelView<T>;
+    gotoPage(index: number, validationScope?: ValidationScope): IModelView<T>;
     private _viewMeta;
     private _inputModel;
     private _model;

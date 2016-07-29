@@ -297,6 +297,9 @@ var ModelView = (function () {
             path = keyPath.split('.');
             keyString = keyPath;
         }
+        if (newValue === this.getFieldValue(path)) {
+            return this;
+        }
         var newModel = this._viewMeta._updatedModel(this._inputModel, path, newValue);
         var result = new ModelView(this, newModel);
         result._visitedFields[keyString] = true;
@@ -398,9 +401,13 @@ var ModelView = (function () {
         if (nextPage < 0 || nextPage > this._viewMeta.getPages().length) {
             return this;
         }
+        return this.gotoPage(nextPage, ValidationScope.VISITED);
+    };
+    ModelView.prototype.gotoPage = function (index, validationScope) {
+        if (validationScope === void 0) { validationScope = ValidationScope.VISITED; }
         var result = new ModelView(this, this._inputModel);
-        result._currentPage = nextPage;
-        result._validationScope = ValidationScope.VISITED;
+        result._currentPage = index;
+        result._validationScope = validationScope;
         return result;
     };
     return ModelView;
