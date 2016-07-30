@@ -114,7 +114,9 @@ var ModelSchemaParser = (function () {
                 result = this.parseSchemaObjectTypeString(schemaObject);
                 break;
             default:
-                console.log("don't know how to handle type " + schemaType + " in", schemaObject);
+                result;
+                this.parseSchemaObjectUntyped(schemaObject);
+                //console.log(`don't know how to handle type ${schemaType} in`, schemaObject);
                 break;
         }
         if (result != null) {
@@ -195,7 +197,12 @@ var ModelSchemaParser = (function () {
         return new model_number_1.ModelTypeNumber(new model_base_1.ModelConstraints(constraints));
     };
     ModelSchemaParser.prototype.parseSchemaObjectTypeBool = function (schemaObject) {
-        return new model_bool_1.ModelTypeBool();
+        var constraints = null;
+        var enumConstraint = this.parseSchemaConstraintEnum(schemaObject);
+        if (null != enumConstraint) {
+            constraints = new model_base_1.ModelConstraints([enumConstraint]);
+        }
+        return new model_bool_1.ModelTypeBool(constraints);
     };
     ModelSchemaParser.prototype.parseSchemaObjectTypeObject = function (schemaObject, name) {
         var id = name || schemaObject.id || anonymousId();
@@ -237,6 +244,13 @@ var ModelSchemaParser = (function () {
         }
         var type = new model_array_1.ModelTypeArray(elementType);
         return type;
+    };
+    ModelSchemaParser.prototype.parseSchemaObjectUntyped = function (schemaObject, name) {
+        if (schemaObject.properties) {
+            return this.parseSchemaObjectTypeObject(schemaObject, name);
+        }
+        console.log("no implementation for schema type " + schemaObject.type + " in " + JSON.stringify(schemaObject));
+        return new model_object_1.ModelTypeObject(name);
     };
     ModelSchemaParser.prototype._parseConstraints = function (schemaObject, factories) {
         var constraints = schemaObject.constraints;

@@ -26,6 +26,7 @@ export declare class ModelSchemaParser implements IModelTypeRegistry {
     parseSchemaObjectTypeBool(schemaObject: any): ModelTypeBool;
     parseSchemaObjectTypeObject(schemaObject: any, name?: string): IModelTypeCompositeBuilder<any>;
     parseSchemaObjectTypeArray(schemaObject: any, name?: string): ModelTypeArray<any>;
+    parseSchemaObjectUntyped(schemaObject: any, name?: string): IModelTypeCompositeBuilder<any>;
     _parseConstraints(schemaObject: any, factories: IConstraintFactory<any>[]): ModelConstraints<any>;
     type(name: string): IModelType<any>;
     itemType(name: string): IModelTypeItem<any>;

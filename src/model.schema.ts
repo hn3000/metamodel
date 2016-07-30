@@ -203,7 +203,8 @@ export class ModelSchemaParser implements IModelTypeRegistry {
         result = this.parseSchemaObjectTypeString(schemaObject);
         break;
       default:
-        console.log(`don't know how to handle type ${schemaType} in`, schemaObject);
+        result this.parseSchemaObjectUntyped(schemaObject);
+        //console.log(`don't know how to handle type ${schemaType} in`, schemaObject);
         break;
     }
     
@@ -288,7 +289,13 @@ export class ModelSchemaParser implements IModelTypeRegistry {
   }
   
   parseSchemaObjectTypeBool(schemaObject:any) {
-    return new ModelTypeBool();
+    let constraints:ModelConstraints<boolean> = null;
+    let enumConstraint = this.parseSchemaConstraintEnum<boolean>(schemaObject);
+    if (null != enumConstraint) {
+      constraints = new ModelConstraints([enumConstraint]);
+    }
+    
+    return new ModelTypeBool(constraints);
   }
   
   parseSchemaObjectTypeObject(schemaObject:any, name?:string) {
@@ -334,6 +341,14 @@ export class ModelSchemaParser implements IModelTypeRegistry {
     var type = new ModelTypeArray(elementType);
     
     return type;
+  }
+
+  parseSchemaObjectUntyped(schemaObject:any, name?:string) {
+    if (schemaObject.properties) {
+      return this.parseSchemaObjectTypeObject(schemaObject, name);
+    }
+    console.log(`no implementation for schema type ${schemaObject.type} in ${JSON.stringify(schemaObject)}`);
+    return new ModelTypeObject(name);
   }
 
   _parseConstraints(
