@@ -42,7 +42,7 @@ var ModelViewField = (function () {
         configurable: true
     });
     ModelViewField.prototype.validate = function (val) {
-        var ctx = new model_infra_1.ModelParseContext(val);
+        var ctx = new model_infra_1.ModelParseContext(val, this._type);
         this._type.validate(ctx);
         return ctx.errors.concat(ctx.warnings);
     };
@@ -125,12 +125,12 @@ var ModelViewMeta = (function () {
         var result = {};
         var name = keyPath[0];
         var value;
-        var entryType = type && type.subModel(name);
+        var entryType = type && type.itemType(name);
         if (keyPath.length == 1) {
             value = newValue;
             if (null != entryType) {
-                var parseCtx = new model_infra_1.ModelParseContext(newValue);
-                var modelValue = (null != entryType) ? entryType.parse(parseCtx) : newValue;
+                var parseCtx = new model_infra_1.ModelParseContext(newValue, entryType);
+                var modelValue = entryType.parse(parseCtx);
                 if (0 == parseCtx.errors.length) {
                     value = modelValue;
                 }
@@ -253,7 +253,7 @@ var ModelView = (function () {
         var _this = this;
         if (!this._validations[kind]) {
             this._validations[kind] = es6_promise_1.Promise.resolve(null).then(function () {
-                var ctx = new model_infra_1.ModelParseContext(_this._inputModel);
+                var ctx = new model_infra_1.ModelParseContext(_this._inputModel, modelSlice);
                 modelSlice.validate(ctx);
                 var messages = ctx.errors.concat(ctx.warnings);
                 var result = _this.withValidationMessages(messages);

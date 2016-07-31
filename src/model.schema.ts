@@ -203,7 +203,7 @@ export class ModelSchemaParser implements IModelTypeRegistry {
         result = this.parseSchemaObjectTypeString(schemaObject);
         break;
       default:
-        result this.parseSchemaObjectUntyped(schemaObject);
+        result = this.parseSchemaObjectUntyped(schemaObject);
         //console.log(`don't know how to handle type ${schemaType} in`, schemaObject);
         break;
     }

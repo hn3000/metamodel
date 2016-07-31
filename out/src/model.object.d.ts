@@ -8,7 +8,7 @@ export declare class ModelTypeObject<T> extends ModelTypeConstrainable<T> implem
     protected _clone(constraints: ModelConstraints<T>): this;
     asItemType(): IModelTypeItem<T>;
     addItem(key: string, type: IModelType<any>, required?: boolean): IModelTypeCompositeBuilder<T>;
-    subModel(name: string | number): IModelType<any>;
+    itemType(name: string | number): IModelType<any>;
     slice(names: string[] | number[]): IModelTypeComposite<T>;
     extend<X>(type: IModelTypeComposite<X>): IModelTypeCompositeBuilder<T>;
     readonly items: IModelTypeEntry[];

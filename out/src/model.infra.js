@@ -1,9 +1,10 @@
 "use strict";
 var ModelParseMessage = (function () {
-    function ModelParseMessage(isError, path, msg, code, props) {
+    function ModelParseMessage(isError, path, msg, code, props, qualifiers) {
         this._path = path;
         this._msg = msg;
         this._code = code;
+        this._qualifiers = qualifiers || [];
         this._props = props;
         this._isError = isError;
     }
@@ -19,6 +20,11 @@ var ModelParseMessage = (function () {
     });
     Object.defineProperty(ModelParseMessage.prototype, "code", {
         get: function () { return this._code; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ModelParseMessage.prototype, "qualifiers", {
+        get: function () { return this._qualifiers; },
         enumerable: true,
         configurable: true
     });
@@ -108,12 +114,14 @@ var ParallelTraversal = (function () {
 }());
 exports.ParallelTraversal = ParallelTraversal;
 var ModelParseContext = (function () {
-    function ModelParseContext(value, required, allowConversion) {
+    function ModelParseContext(value, type, required, allowConversion) {
         if (allowConversion === void 0) { allowConversion = true; }
         this._valueTraversal = new ObjectTraversal(value);
+        this._currentType = type;
         this._currentRequired = !!required;
         this._allowConversion = allowConversion;
         this._keyPath = [];
+        this._typeStack = [];
         this._requiredStack = [];
         this._warnings = [];
         this._errors = [];
@@ -121,21 +129,37 @@ var ModelParseContext = (function () {
     ModelParseContext.prototype.currentValue = function () {
         return this._valueTraversal.top;
     };
+    ModelParseContext.prototype.currentType = function () {
+        return this._currentType;
+    };
     ModelParseContext.prototype.currentRequired = function () {
         return this._currentRequired;
     };
     ModelParseContext.prototype.currentKeyPath = function () {
         return this._keyPath;
     };
-    ModelParseContext.prototype.pushItem = function (key, required) {
+    ModelParseContext.prototype.pushItem = function (key, required, type) {
         this._valueTraversal.descend(key);
+        this._typeStack.push(this._currentType);
         this._requiredStack.push(this._currentRequired);
+        var nextType = type;
+        if (!nextType) {
+            var currentType = this._currentType;
+            if (currentType.itemType) {
+                nextType = currentType.itemType(key);
+            }
+            if (!nextType) {
+                nextType = type;
+            }
+        }
+        this._currentType = nextType;
         this._currentRequired = !!required;
         this._keyPath.push(key);
     };
     ModelParseContext.prototype.popItem = function () {
         if (0 < this._requiredStack.length) {
             this._valueTraversal.ascend();
+            this._currentType = this._typeStack.pop();
             this._currentRequired = this._requiredStack.pop();
             this._keyPath.pop();
         }
@@ -155,7 +179,7 @@ var ModelParseContext = (function () {
         this.addMessage(true, msg, code);
     };
     ModelParseContext.prototype.addMessageEx = function (isError, msg, code, props) {
-        var message = new ModelParseMessage(isError, this.currentKeyPath().join('.'), msg, code, props);
+        var message = new ModelParseMessage(isError, this.currentKeyPath().join('.'), msg, code, props, this.currentType() ? this.currentType().qualifiers || [] : []);
         (isError ? this._errors : this._warnings).push(message);
     };
     ModelParseContext.prototype.addWarningEx = function (msg, code, props) {

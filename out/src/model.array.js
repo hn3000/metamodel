@@ -16,7 +16,7 @@ var ModelTypeArray = (function (_super) {
         var source = ctx.currentValue();
         // TODO: determine minimum length and maximum length from constraints?
         for (var i = 0, n = source.length; i < n; ++i) {
-            ctx.pushItem(i, false);
+            ctx.pushItem(i, false, this._elementType);
             result[i] = this._elementType.parse(ctx);
             ctx.popItem();
         }

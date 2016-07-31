@@ -18,7 +18,9 @@ export declare class ModelConstraints<T> implements IModelTypeConstraint<T> {
 }
 export declare abstract class ModelTypeConstrainable<T> extends ClientProps implements IModelTypeConstrainable<T> {
     constructor(name: string, constraints?: ModelConstraints<T>);
+    propSet(key: string, value: any): void;
     readonly name: string;
+    readonly qualifiers: string[];
     readonly kind: string;
     asItemType(): IModelTypeItem<T>;
     withConstraints(...c: IModelTypeConstraint<T>[]): this;
@@ -29,10 +31,12 @@ export declare abstract class ModelTypeConstrainable<T> extends ClientProps impl
     abstract create(): T;
     protected abstract _kind(): string;
     protected _setName(name: string): void;
+    protected _setQualifier(scope: string, value: string): void;
     protected _clone(constraints: ModelConstraints<T>): this;
     protected _checkAndAdjustValue(val: T, ctx: IModelParseContext): T;
     protected _getConstraints(): ModelConstraints<T>;
     private _name;
+    private _qualifiers;
     private _constraints;
 }
 export declare abstract class ModelTypeItem<T> extends ModelTypeConstrainable<T> implements IModelTypeItem<T> {

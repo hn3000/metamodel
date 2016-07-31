@@ -79,7 +79,7 @@ export class ModelTypeDate extends ModelTypeItem<Date> {
   fromString(val:string):Date {
     try {
       let result = new Date(val);
-      let ctx = new ModelParseContext(result);
+      let ctx = new ModelParseContext(result, this);
 
       result = this._checkAndAdjustValue(result, ctx);
       return result;

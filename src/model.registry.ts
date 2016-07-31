@@ -27,11 +27,23 @@ export class ModelTypeRegistry {
     return result;
   }
 
+  removeType(name:string) {
+    if (this._types.hasOwnProperty(name)) {
+      delete this._types[name];
+      delete this._itemTypes[name];
+    }
+  }
   addType(type:IModelType<any>):IModelType<any> {
-    this._types[type.name] = type;
+    let name = type.name;
+    let oldType = this._types[name];
+    if (oldType && oldType != type) {
+      console.warn(`redefining type ${name}`, type);
+    }
+
+    this._types[name] = type;
     let itemType = this.asItemType(type);
     if (itemType) {
-      this._itemTypes[itemType.name] = itemType;
+      this._itemTypes[name] = itemType;
     }
     return type;
   }
@@ -60,8 +72,8 @@ export class ModelTypeRegistry {
     return Object.keys(this._types);
   }
 
-  createParseContext(obj:any) {
-    return new ModelParseContext(obj);
+  createParseContext(obj:any, type:IModelType<any>) {
+    return new ModelParseContext(obj, type);
   }
 
   private _types:{ [name:string]: IModelType<any>; } = {};

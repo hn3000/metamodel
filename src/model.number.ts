@@ -72,7 +72,7 @@ export class ModelTypeNumber extends ModelTypeItem<number> {
 
   fromString(val:string):number {
     let result = parseFloat(val);
-    let ctx = new ModelParseContext(result);
+    let ctx = new ModelParseContext(result, this);
 
     result = this._checkAndAdjustValue(result, ctx);
     return result;

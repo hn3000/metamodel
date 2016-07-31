@@ -63,7 +63,7 @@ export class ModelTypeObject<T>
     return this;
   }
 
-  subModel(name:string|number) {
+  itemType(name:string|number) {
     if (typeof name === 'string' || typeof name === 'number') {
       let entry = this._entriesByName[name]; 
       return entry && entry.type;
@@ -105,7 +105,7 @@ export class ModelTypeObject<T>
   parse(ctx:IModelParseContext):T {
     let result = this.create();
     for (let e of this._entries) {
-      ctx.pushItem(e.key, e.required);
+      ctx.pushItem(e.key, e.required, e.type);
       (<any>result)[e.key] = e.type.parse(ctx);
       ctx.popItem();
     }
@@ -113,7 +113,7 @@ export class ModelTypeObject<T>
   }
   validate(ctx:IModelParseContext):void {
     for (let e of this._entries) {
-      ctx.pushItem(e.key, e.required);
+      ctx.pushItem(e.key, e.required, e.type);
       e.type.validate(ctx);
       ctx.popItem();
     }
@@ -177,7 +177,7 @@ export class ModelTypeConstraintEqualProperties extends ModelTypeConstraintOptio
     let result = val;
     if (values.length !== 1) {
       for (var f of fields) {
-        ctx.pushItem(f, !this.warnOnly());
+        ctx.pushItem(f, !this.warnOnly(), null);
         ctx.addErrorEx(
           `expected fields to be equal: ${fields.join(',')}.`, 
           'properties-different', 
@@ -220,6 +220,8 @@ function createPredicate(condition: IConditionOptions) {
   let { property, value, op, invert } = condition;
 
   switch (op) {
+    case undefined:
+    case null:
     case '=': return createPredicateEquals(property, value, invert);
   }
   return () => false;
@@ -302,7 +304,7 @@ export class ModelTypeConstraintConditionalValue extends ModelTypeConstraintOpti
     if (s.predicate(val)) {
       let isError = !this.isWarningOnly;
       for (var f of s.properties) {
-        ctx.pushItem(f, isError);
+        ctx.pushItem(f, isError, null);
         let thisValue = ctx.currentValue();
         let valid = s.valueCheck(thisValue);
         if (!valid) {
@@ -340,7 +342,7 @@ export class ModelTypePropertyConstraint extends ModelTypeConstraintOptional<any
   }
 
   checkAndAdjustValue(val:any, ctx:IModelParseContext):any {
-    ctx.pushItem(this._property);
+    ctx.pushItem(this._property, false, null);
     let value = ctx.currentValue();
     try {
       this._constraint.checkAndAdjustValue(value, ctx);

@@ -76,22 +76,35 @@ export abstract class ModelTypeConstrainable<T>
 {
   constructor(name:string, constraints:ModelConstraints<T> = null) {
     super();
+    this._name = name;
     this._constraints = constraints || new ModelConstraints<T>([]);
     let cid = this._constraints.id;
-    if ('' !== cid) {
-      this._name = `${name}/${cid}`;
-    } else {
-      this._name = name;
+    this._qualifiers = [
+      `type-${this._name}`,
+      //`kind-${this.kind}`,
+      `constraints-${cid}`
+    ];
+  }
+
+  propSet(key:string, value:any) {
+    super.propSet(key, value);
+    if (key === 'schema') {
+      this._setQualifier('format', value && value.format);
+      this._setQualifier('schemaid', value && value.id);
     }
   }
 
   get name():string { return this._name; }
+  get qualifiers():string[] { return this._qualifiers; }
   get kind():string { return this._kind(); }
 
   asItemType() : IModelTypeItem<T> { return null; }
 
   withConstraints(...c:IModelTypeConstraint<T>[]):this {
     let result = this._clone(this._constraints.add(...c));
+    if (this.kind != 'object') {
+      result._setName(this.name + '/' + result._constraints.id);
+    }
     return result;
   }
   findConstraints(p:(x:IModelTypeConstraint<T>)=>boolean):IModelTypeConstraint<T>[] {
@@ -109,6 +122,13 @@ export abstract class ModelTypeConstrainable<T>
   protected _setName(name:string) {
     this._name = name;
   }
+  protected _setQualifier(scope:string, value: string) {
+    let prefix = scope + '-';
+    this._qualifiers.filter((x) => -1 === x.indexOf(prefix));
+    if (null != value) {
+      this._qualifiers.push(`${scope}-${value}`);
+    }
+  }
   protected _clone(constraints:ModelConstraints<T>):this {
       return new (<any>this.constructor)(constraints);
   }
@@ -121,6 +141,7 @@ export abstract class ModelTypeConstrainable<T>
 
 
   private _name:string;
+  private _qualifiers:string[];
   private _constraints:ModelConstraints<T>;
 }
 

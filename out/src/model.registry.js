@@ -14,11 +14,22 @@ var ModelTypeRegistry = (function () {
         }
         return result;
     };
+    ModelTypeRegistry.prototype.removeType = function (name) {
+        if (this._types.hasOwnProperty(name)) {
+            delete this._types[name];
+            delete this._itemTypes[name];
+        }
+    };
     ModelTypeRegistry.prototype.addType = function (type) {
-        this._types[type.name] = type;
+        var name = type.name;
+        var oldType = this._types[name];
+        if (oldType && oldType != type) {
+            console.warn("redefining type " + name, type);
+        }
+        this._types[name] = type;
         var itemType = this.asItemType(type);
         if (itemType) {
-            this._itemTypes[itemType.name] = itemType;
+            this._itemTypes[name] = itemType;
         }
         return type;
     };
@@ -41,8 +52,8 @@ var ModelTypeRegistry = (function () {
     ModelTypeRegistry.prototype.getRegisteredNames = function () {
         return Object.keys(this._types);
     };
-    ModelTypeRegistry.prototype.createParseContext = function (obj) {
-        return new model_infra_1.ModelParseContext(obj);
+    ModelTypeRegistry.prototype.createParseContext = function (obj, type) {
+        return new model_infra_1.ModelParseContext(obj, type);
     };
     return ModelTypeRegistry;
 }());

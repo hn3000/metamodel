@@ -73,17 +73,29 @@ var ModelTypeConstrainable = (function (_super) {
     function ModelTypeConstrainable(name, constraints) {
         if (constraints === void 0) { constraints = null; }
         _super.call(this);
+        this._name = name;
         this._constraints = constraints || new ModelConstraints([]);
         var cid = this._constraints.id;
-        if ('' !== cid) {
-            this._name = name + "/" + cid;
-        }
-        else {
-            this._name = name;
-        }
+        this._qualifiers = [
+            ("type-" + this._name),
+            //`kind-${this.kind}`,
+            ("constraints-" + cid)
+        ];
     }
+    ModelTypeConstrainable.prototype.propSet = function (key, value) {
+        _super.prototype.propSet.call(this, key, value);
+        if (key === 'schema') {
+            this._setQualifier('format', value && value.format);
+            this._setQualifier('schemaid', value && value.id);
+        }
+    };
     Object.defineProperty(ModelTypeConstrainable.prototype, "name", {
         get: function () { return this._name; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ModelTypeConstrainable.prototype, "qualifiers", {
+        get: function () { return this._qualifiers; },
         enumerable: true,
         configurable: true
     });
@@ -99,6 +111,9 @@ var ModelTypeConstrainable = (function (_super) {
             c[_i - 0] = arguments[_i];
         }
         var result = this._clone((_a = this._constraints).add.apply(_a, c));
+        if (this.kind != 'object') {
+            result._setName(this.name + '/' + result._constraints.id);
+        }
         return result;
         var _a;
     };
@@ -108,6 +123,13 @@ var ModelTypeConstrainable = (function (_super) {
     };
     ModelTypeConstrainable.prototype._setName = function (name) {
         this._name = name;
+    };
+    ModelTypeConstrainable.prototype._setQualifier = function (scope, value) {
+        var prefix = scope + '-';
+        this._qualifiers.filter(function (x) { return -1 === x.indexOf(prefix); });
+        if (null != value) {
+            this._qualifiers.push(scope + "-" + value);
+        }
     };
     ModelTypeConstrainable.prototype._clone = function (constraints) {
         return new this.constructor(constraints);

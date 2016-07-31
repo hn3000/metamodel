@@ -110,7 +110,7 @@ export class  ModelViewField implements IModelViewField {
   }
   
   validate(val:any):IValidationMessage[] {
-    let ctx = new ModelParseContext(val);
+    let ctx = new ModelParseContext(val, this._type);
     this._type.validate(ctx);
     return [...ctx.errors,...ctx.warnings];
   }
@@ -198,14 +198,14 @@ export class ModelViewMeta<T> {
     var name = keyPath[0];
     var value:any;
 
-    let entryType = type && (type as IModelTypeComposite<any>).subModel(name);
+    let entryType = type && (type as IModelTypeComposite<any>).itemType(name);
 
     if (keyPath.length == 1) {
       value = newValue;
       
       if (null != entryType) {
-        let parseCtx = new ModelParseContext(newValue);
-        let modelValue = (null != entryType) ? entryType.parse(parseCtx) : newValue;
+        let parseCtx = new ModelParseContext(newValue, entryType);
+        let modelValue = entryType.parse(parseCtx);
         if (0 == parseCtx.errors.length) {
           value = modelValue;
         }
@@ -336,7 +336,7 @@ export class ModelView<T> implements IModelView<T> {
     if (!this._validations[kind]) {
       this._validations[kind] = Promise.resolve(null).then(
         () => {
-          let ctx = new ModelParseContext(this._inputModel);
+          let ctx = new ModelParseContext(this._inputModel, modelSlice);
           modelSlice.validate(ctx);
 
           let messages = [ ...ctx.errors, ...ctx.warnings];

@@ -22,6 +22,7 @@ export interface IModelParseMessage {
   path:string;
   msg:string;
   code:string;
+  qualifiers?: string[];
   props?:IMessageProps;
   isError:boolean;
 }
@@ -30,7 +31,8 @@ export interface IModelParseContext {
   currentValue():any;
   currentRequired():boolean;
   currentKeyPath():string[];
-  pushItem(key:string|number, required?:boolean):void;
+  currentType():IModelType<any>;
+  pushItem(key:string|number, required:boolean, type:IModelType<any>):void;
   popItem():void;
 
   addWarning(msg:string, code:string):void;
@@ -51,6 +53,7 @@ export interface IModelParseContext {
 export interface IModelType<T> extends IClientProps {
   name:string;
   kind:string;
+  qualifiers:string[];
   parse(ctx:IModelParseContext):T;
   validate(ctx:IModelParseContext):void;
   unparse(val:T):any;
@@ -94,7 +97,7 @@ export interface IModelTypeEntry {
 
 export interface IModelTypeComposite<C> extends IModelTypeConstrainable<C> {
   items:IModelTypeEntry[];
-  subModel(name:string|number):IModelType<any>;
+  itemType(name:string|number):IModelType<any>;
   slice(name:string[]|number[]):IModelTypeComposite<C>;
 }
 

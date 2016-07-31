@@ -52,7 +52,7 @@ var ModelTypeBool = (function (_super) {
     };
     ModelTypeBool.prototype.fromString = function (val) {
         var result = this._parseString(val);
-        var ctx = new model_infra_1.ModelParseContext(result);
+        var ctx = new model_infra_1.ModelParseContext(result, this);
         result = this._checkAndAdjustValue(result, ctx);
         return result;
     };

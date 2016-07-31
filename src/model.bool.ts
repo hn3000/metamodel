@@ -57,7 +57,7 @@ export class ModelTypeBool extends ModelTypeItem<boolean> {
 
   fromString(val:string):boolean {
     let result = this._parseString(val);
-    let ctx = new ModelParseContext(result);
+    let ctx = new ModelParseContext(result, this);
 
     result = this._checkAndAdjustValue(result, ctx);
     return result;

@@ -64,7 +64,7 @@ var ModelTypeNumber = (function (_super) {
     };
     ModelTypeNumber.prototype.fromString = function (val) {
         var result = parseFloat(val);
-        var ctx = new model_infra_1.ModelParseContext(result);
+        var ctx = new model_infra_1.ModelParseContext(result, this);
         result = this._checkAndAdjustValue(result, ctx);
         return result;
     };

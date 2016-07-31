@@ -43,7 +43,7 @@ var ModelTypeObject = (function (_super) {
         }
         return this;
     };
-    ModelTypeObject.prototype.subModel = function (name) {
+    ModelTypeObject.prototype.itemType = function (name) {
         if (typeof name === 'string' || typeof name === 'number') {
             var entry = this._entriesByName[name];
             return entry && entry.type;
@@ -86,7 +86,7 @@ var ModelTypeObject = (function (_super) {
         var result = this.create();
         for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
             var e = _a[_i];
-            ctx.pushItem(e.key, e.required);
+            ctx.pushItem(e.key, e.required, e.type);
             result[e.key] = e.type.parse(ctx);
             ctx.popItem();
         }
@@ -95,7 +95,7 @@ var ModelTypeObject = (function (_super) {
     ModelTypeObject.prototype.validate = function (ctx) {
         for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
             var e = _a[_i];
-            ctx.pushItem(e.key, e.required);
+            ctx.pushItem(e.key, e.required, e.type);
             e.type.validate(ctx);
             ctx.popItem();
         }
@@ -153,7 +153,7 @@ var ModelTypeConstraintEqualProperties = (function (_super) {
         if (values.length !== 1) {
             for (var _i = 0, fields_1 = fields; _i < fields_1.length; _i++) {
                 var f = fields_1[_i];
-                ctx.pushItem(f, !this.warnOnly());
+                ctx.pushItem(f, !this.warnOnly(), null);
                 ctx.addErrorEx("expected fields to be equal: " + fields.join(',') + ".", 'properties-different', { value: val, values: values, fields: fields.join(',') });
                 ctx.popItem();
             }
@@ -180,6 +180,8 @@ function createPredicateEquals(property, value, invert) {
 function createPredicate(condition) {
     var property = condition.property, value = condition.value, op = condition.op, invert = condition.invert;
     switch (op) {
+        case undefined:
+        case null:
         case '=': return createPredicateEquals(property, value, invert);
     }
     return function () { return false; };
@@ -240,7 +242,7 @@ var ModelTypeConstraintConditionalValue = (function (_super) {
             var isError = !this.isWarningOnly;
             for (var _i = 0, _a = s.properties; _i < _a.length; _i++) {
                 var f = _a[_i];
-                ctx.pushItem(f, isError);
+                ctx.pushItem(f, isError, null);
                 var thisValue = ctx.currentValue();
                 var valid = s.valueCheck(thisValue);
                 if (!valid) {
@@ -274,7 +276,7 @@ var ModelTypePropertyConstraint = (function (_super) {
         return this._constraint.id + "@" + this._property;
     };
     ModelTypePropertyConstraint.prototype.checkAndAdjustValue = function (val, ctx) {
-        ctx.pushItem(this._property);
+        ctx.pushItem(this._property, false, null);
         var value = ctx.currentValue();
         try {
             this._constraint.checkAndAdjustValue(value, ctx);

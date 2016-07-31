@@ -3,6 +3,7 @@ import {
   IMessageProps,
   IModelParseMessage,
   IModelParseContext,
+  IModelType,
   IModelTypeConstraint,
   IModelTypeComposite
 } from "./model.api"
@@ -11,22 +12,25 @@ export class ModelParseMessage implements IModelParseMessage {
   private _path:string;
   private _msg:string;
   private _code:string;
+  private _qualifiers:string[];
   private _props:any;
   private _isError:boolean;
 
-  constructor(isError:boolean, path: string, msg:string, code:string, props:IMessageProps) {
+  constructor(isError:boolean, path: string, msg:string, code:string, props:IMessageProps, qualifiers?:string[]) {
     this._path = path;
     this._msg = msg;
     this._code = code;
+    this._qualifiers = qualifiers || [];
     this._props = props;
     this._isError = isError;
   }
 
-  get path():string { return this._path; }
-  get msg():string { return this._msg; }
-  get code():string { return this._code; }
-  get props():any[] { return this._props; }
-  get isError():boolean { return this._isError; }
+  get path():string         { return this._path; }
+  get msg():string          { return this._msg; }
+  get code():string         { return this._code; }
+  get qualifiers():string[] { return this._qualifiers; }
+  get props():any[]         { return this._props; }
+  get isError():boolean     { return this._isError; }
 }
 
 export class ObjectTraversal {
@@ -101,11 +105,13 @@ export class ParallelTraversal {
 
 
 export class ModelParseContext implements IModelParseContext {
-  constructor(value:any, required?:boolean, allowConversion:boolean=true) {
+  constructor(value:any, type: IModelType<any>, required?:boolean, allowConversion:boolean=true) {
     this._valueTraversal = new ObjectTraversal(value);
+    this._currentType = type;
     this._currentRequired = !!required;
     this._allowConversion = allowConversion;
     this._keyPath = [];
+    this._typeStack = [];
     this._requiredStack = [];
     this._warnings = [];
     this._errors = [];
@@ -114,21 +120,38 @@ export class ModelParseContext implements IModelParseContext {
   currentValue():any {
     return this._valueTraversal.top;
   }
+  currentType():IModelType<any> {
+    return this._currentType;
+  }
   currentRequired():boolean {
     return this._currentRequired;
   }
   currentKeyPath():string[] {
     return this._keyPath;
   }
-  pushItem(key:string, required?:boolean) {
+  pushItem(key:string, required?:boolean, type?:IModelType<any>) {
     this._valueTraversal.descend(key);
+    this._typeStack.push(this._currentType);
     this._requiredStack.push(this._currentRequired);
+
+    let nextType = type;
+    if (!nextType) {
+      let currentType = this._currentType as IModelTypeComposite<any>;
+      if (currentType.itemType) {
+        nextType = currentType.itemType(key);
+      }
+      if (!nextType) {
+        nextType = type;
+      }
+    }
+    this._currentType = nextType;
     this._currentRequired = !!required;
     this._keyPath.push(key);
   }
   popItem() {
     if (0 < this._requiredStack.length) {
       this._valueTraversal.ascend();
+      this._currentType = this._typeStack.pop();
       this._currentRequired = this._requiredStack.pop();
       this._keyPath.pop();
     }
@@ -153,7 +176,8 @@ export class ModelParseContext implements IModelParseContext {
     var message = new ModelParseMessage(
       isError,
       this.currentKeyPath().join('.'),
-      msg, code, props
+      msg, code, props, 
+      this.currentType() ? this.currentType().qualifiers||[] :[]
     );
     (isError?this._errors:this._warnings).push(message);
   }
@@ -178,9 +202,11 @@ export class ModelParseContext implements IModelParseContext {
   }
 
   private _valueTraversal:ObjectTraversal;
+  private _currentType:IModelType<any>;
   private _currentRequired:boolean;
   private _allowConversion:boolean;
   private _requiredStack: boolean[];
+  private _typeStack: IModelType<any>[];
   private _keyPath: string[];
   private _warnings: IModelParseMessage[];
   private _errors: IModelParseMessage[];

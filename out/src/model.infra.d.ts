@@ -1,14 +1,16 @@
-import { IMessageProps, IModelParseMessage, IModelParseContext } from "./model.api";
+import { IMessageProps, IModelParseMessage, IModelParseContext, IModelType } from "./model.api";
 export declare class ModelParseMessage implements IModelParseMessage {
     private _path;
     private _msg;
     private _code;
+    private _qualifiers;
     private _props;
     private _isError;
-    constructor(isError: boolean, path: string, msg: string, code: string, props: IMessageProps);
+    constructor(isError: boolean, path: string, msg: string, code: string, props: IMessageProps, qualifiers?: string[]);
     readonly path: string;
     readonly msg: string;
     readonly code: string;
+    readonly qualifiers: string[];
     readonly props: any[];
     readonly isError: boolean;
 }
@@ -37,11 +39,12 @@ export declare class ParallelTraversal {
     private _stack;
 }
 export declare class ModelParseContext implements IModelParseContext {
-    constructor(value: any, required?: boolean, allowConversion?: boolean);
+    constructor(value: any, type: IModelType<any>, required?: boolean, allowConversion?: boolean);
     currentValue(): any;
+    currentType(): IModelType<any>;
     currentRequired(): boolean;
     currentKeyPath(): string[];
-    pushItem(key: string, required?: boolean): void;
+    pushItem(key: string, required?: boolean, type?: IModelType<any>): void;
     popItem(): void;
     hasMessagesForCurrentValue(): boolean;
     addMessage(isError: boolean, msg: string, code: string): void;
@@ -54,9 +57,11 @@ export declare class ModelParseContext implements IModelParseContext {
     readonly errors: IModelParseMessage[];
     readonly allowConversion: boolean;
     private _valueTraversal;
+    private _currentType;
     private _currentRequired;
     private _allowConversion;
     private _requiredStack;
+    private _typeStack;
     private _keyPath;
     private _warnings;
     private _errors;
