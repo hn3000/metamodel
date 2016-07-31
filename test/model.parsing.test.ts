@@ -44,7 +44,7 @@ export class ModelParsingTest extends TestClass {
       tgt3: '12',
       tlt5: '123456',
       tlt5d: '12d34'
-    })
+    }, type)
     type.validate(ctx);
     this.areIdentical(4, ctx.errors.length);
     this.areIdentical('value does not match /^\\d+$/:', ctx.errors[0].msg);
@@ -77,7 +77,7 @@ export class ModelParsingTest extends TestClass {
     var ctx = new ModelParseContext({
       p: '12',
       q: '14'
-    })
+    }, type)
     type.validate(ctx);
     this.areIdentical(1, ctx.errors.length);
     this.areIdentical('q', ctx.errors[0].path);
@@ -85,14 +85,14 @@ export class ModelParsingTest extends TestClass {
     ctx = new ModelParseContext({
       p: '12',
       q: '13'
-    })
+    }, type)
     type.validate(ctx);
     this.areIdentical(0, ctx.errors.length);
 
     ctx = new ModelParseContext({
       p: '11',
       q: '14'
-    })
+    }, type)
     type.validate(ctx);
     this.areIdentical(0, ctx.errors.length);
   }
@@ -118,7 +118,7 @@ export class ModelParsingTest extends TestClass {
     
     var ctx = new ModelParseContext({
       p: '2016-01-01'
-    })
+    }, type)
     type.validate(ctx);
     this.areIdentical(1, ctx.errors.length);
     this.areIdentical('p', ctx.errors[0].path);
@@ -145,7 +145,7 @@ export class ModelParsingTest extends TestClass {
     
     var ctx = new ModelParseContext({
       p: '1998-01-01'
-    })
+    }, type)
     type.validate(ctx);
     this.areIdentical(0, ctx.errors.length);
   }
@@ -171,13 +171,13 @@ export class ModelParsingTest extends TestClass {
     
     var ctx = new ModelParseContext({
       p: '1998-01-01'
-    })
+    }, type)
     type.validate(ctx);
     this.areIdentical(0, ctx.errors.length);
 
     ctx = new ModelParseContext({
       p: '2050-01-01'
-    })
+    }, type)
     type.validate(ctx);
     this.areIdentical(1, ctx.errors.length);
     this.areIdentical('p', ctx.errors[0].path);
@@ -211,13 +211,13 @@ export class ModelParsingTest extends TestClass {
 
     var ctx = new ModelParseContext({
       p: '1998-01-01'
-    })
+    }, type)
     slice.validate(ctx);
     this.areIdentical(0, ctx.errors.length);
 
     ctx = new ModelParseContext({
       p: '2050-01-01'
-    })
+    }, type)
     slice.validate(ctx);
     this.areIdentical(1, ctx.errors.length);
     this.areIdentical('p', ctx.errors[0].path);

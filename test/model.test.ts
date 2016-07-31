@@ -16,13 +16,13 @@ export class ModelTest extends TestClass {
       blub: 3.14
     };
 
-    let exampleModel = modelTypes.addObjectType('example', ()=>({}))
+    let exampleModel = modelTypes.addObjectType('example/1', ()=>({}))
       .addItem('lala', modelTypes.type('number/int'))
       .addItem('blah', modelTypes.type('string'))
       .addItem('blub', modelTypes.type('number'));
 
 
-    let context = new ModelParseContext(example);
+    let context = new ModelParseContext(example, exampleModel);
     exampleModel.validate(context);
 
     this.areIdentical(0, context.warnings.length);
@@ -36,13 +36,13 @@ export class ModelTest extends TestClass {
       blub: "3.14"
     };
 
-    let exampleModel = modelTypes.addObjectType('example/fails', ()=>({}))
+    let exampleModel = modelTypes.addObjectType('example/fails/1', ()=>({}))
       .addItem('lala', modelTypes.type('number/int'))
       .addItem('blah', modelTypes.type('string'))
       .addItem('blub', modelTypes.type('number/int'));
 
 
-    let context = new ModelParseContext(example);
+    let context = new ModelParseContext(example, exampleModel);
     exampleModel.validate(context);
 
     this.areIdentical(2, context.warnings.length);
@@ -56,11 +56,11 @@ export class ModelTest extends TestClass {
       lala: 1.1
     };
 
-    let exampleModel = modelTypes.addObjectType('example/fails', ()=>({}))
+    let exampleModel = modelTypes.addObjectType('example/fails/2', ()=>({}))
       .addItem('lala', modelTypes.itemType('number').withConstraints(ModelTypeConstraints.less(1).warnOnly()));
 
 
-    let context = new ModelParseContext(example);
+    let context = new ModelParseContext(example, exampleModel);
     let result:any = exampleModel.parse(context);
 
     this.areIdentical(1, context.warnings.length);
@@ -74,11 +74,11 @@ export class ModelTest extends TestClass {
       lala: 1.1
     };
 
-    let exampleModel = modelTypes.addObjectType('example/fails')
+    let exampleModel = modelTypes.addObjectType('example/fails/3')
       .addItem('lala', modelTypes.itemType('number').withConstraints(ModelTypeConstraints.less(1)));
 
 
-    let context = new ModelParseContext(example);
+    let context = new ModelParseContext(example, exampleModel);
     let result:any = exampleModel.parse(context);
 
     this.areIdentical(1, context.warnings.length);
@@ -93,13 +93,13 @@ export class ModelTest extends TestClass {
       choice: "one"
     };
 
-    let exampleModel = modelTypes.addObjectType('example/fails')
+    let exampleModel = modelTypes.addObjectType('example/fails/4')
       .addItem('value', modelTypes.itemType('number').withConstraints(ModelTypeConstraints.more(1)))
       .addItem('flag', modelTypes.itemType('boolean'))
       .addItem('choice', modelTypes.itemType('string').withConstraints(ModelTypeConstraints.possibleValues(['one','two', 'three'])));
 
 
-    let context = new ModelParseContext(example);
+    let context = new ModelParseContext(example, exampleModel);
     let result:any = exampleModel.parse(context);
 
     this.areIdentical(0, context.warnings.length);
@@ -111,16 +111,16 @@ export class ModelTest extends TestClass {
 
   }
   testMetaModelHasLowerBound() {
-    let exampleModel = modelTypes.addObjectType('example/succeds', ()=>({}))
+    let exampleModel = modelTypes.addObjectType('example/succeeds/1', ()=>({}))
       .addItem('lala', modelTypes.itemType('number').withConstraints(ModelTypeConstraints.more(1)));
       
-    this.isTrue(null != exampleModel.subModel('lala').asItemType().lowerBound(), `constraints: ${(<any>exampleModel.subModel("lala"))._constraints}`);
+    this.isTrue(null != exampleModel.itemType('lala').asItemType().lowerBound(), `constraints: ${(<any>exampleModel.itemType("lala"))._constraints}`);
   }
   testMetaModelHasUpperBound() {
-    let exampleModel = modelTypes.addObjectType('example/succeds', ()=>({}))
+    let exampleModel = modelTypes.addObjectType('example/succeeds/2', ()=>({}))
       .addItem('lala', modelTypes.itemType('number').withConstraints(ModelTypeConstraints.less(1)));
       
-    this.isTrue(null != exampleModel.subModel('lala').asItemType().upperBound(), `constraints: ${(<any>exampleModel.subModel("lala"))._constraints}`);
+    this.isTrue(null != exampleModel.itemType('lala').asItemType().upperBound(), `constraints: ${(<any>exampleModel.itemType("lala"))._constraints}`);
   }
   
   testPossibleValuesAllowsValue() {
@@ -128,10 +128,10 @@ export class ModelTest extends TestClass {
       lala: 'one'
     };
 
-    let exampleModel = modelTypes.addObjectType('example/succeeds')
+    let exampleModel = modelTypes.addObjectType('example/succeeds/3')
       .addItem('lala', modelTypes.itemType('string').withConstraints(ModelTypeConstraints.possibleValues(['one'])));
 
-    let context = new ModelParseContext(example);
+    let context = new ModelParseContext(example, exampleModel);
     let result:any = exampleModel.parse(context);
 
     this.areIdentical(0, context.warnings.length);
@@ -143,10 +143,10 @@ export class ModelTest extends TestClass {
       lala: 'two'
     };
 
-    let exampleModel = modelTypes.addObjectType('example/succeeds')
+    let exampleModel = modelTypes.addObjectType('example/succeeds/4')
       .addItem('lala', modelTypes.itemType('string').withConstraints(ModelTypeConstraints.possibleValues(['one'])));
 
-    let context = new ModelParseContext(example);
+    let context = new ModelParseContext(example, exampleModel);
     let result:any = exampleModel.parse(context);
 
     this.areIdentical(0, context.warnings.length);
@@ -161,12 +161,12 @@ export class ModelTest extends TestClass {
       strings: ['one', 'two', 'three']
     };
 
-    let exampleModel = modelTypes.addObjectType('example/succeeds')
+    let exampleModel = modelTypes.addObjectType('example/succeeds/5')
       .addItem('numbers', modelTypes.itemType('number[]'))
       .addItem('strings', modelTypes.itemType('string[]'))
       ;
 
-    let context = new ModelParseContext(example);
+    let context = new ModelParseContext(example, exampleModel);
     let result:any = exampleModel.parse(context);
 
     this.areIdentical(0, context.warnings.length);

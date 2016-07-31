@@ -15,11 +15,14 @@ export class ModelObjectTest extends TestClass {
 
   private model:IModelTypeComposite<any>;
   setUp() {
-     this.model = modelTypes.addObjectType('test')
-      .addItem('p', modelTypes.type('string'))
-      .addItem('q', modelTypes.type('string'))
-      .addItem('r', modelTypes.type('string'))
-      .addItem('s', modelTypes.type('string'));
+    modelTypes.removeType('test');
+    this.model = (
+      modelTypes.addObjectType('test')
+        .addItem('p', modelTypes.type('string'))
+        .addItem('q', modelTypes.type('string'))
+        .addItem('r', modelTypes.type('string'))
+        .addItem('s', modelTypes.type('string'))
+    );
   }
 
   testEqualPropertiesConstraint() {
@@ -31,12 +34,12 @@ export class ModelObjectTest extends TestClass {
       q: 13
     };
 
-    let context = modelTypes.createParseContext(t);
+    let context = modelTypes.createParseContext(t, model);
     model.validate(context);
 
     this.areIdentical(2, context.errors.length);
   }
-  testConstraintConditionalValueRequiresValues() {
+  testConstraintConditionalValueRequiresCorrectValues() {
     var model:ModelTypeObject<any> = this.model.slice(['p']) as ModelTypeObject<any>;
     model = model.withConstraints(new ModelTypeConstraintConditionalValue({
         condition: { property: 'p', value: '12' },
@@ -46,38 +49,17 @@ export class ModelObjectTest extends TestClass {
     let t:any = {
       p: '12',
       q: '13',
-      r: null
+      r: null 
     };
 
-    let context = modelTypes.createParseContext(t);
+    let context = modelTypes.createParseContext(t, model);
     model.validate(context);
 
     this.areIdentical(2, context.errors.length);
     this.areIdentical('r', context.errors[0].path);
     this.areIdentical('s', context.errors[1].path);
   }
-  testConstraintConditionalValueRequiresCorrectValues() {
-    var model = this.model as ModelTypeObject<any>;
-    model = model.withConstraints(new ModelTypeConstraintConditionalValue({
-        condition: { property: 'p', value: '12' },
-        properties:  ['q','r','s'],
-        possibleValue: ['13']
-    }));
-
-    let t:any = {
-      p: '12',
-      q: '13',
-      r: '14'
-    };
-
-    let context = modelTypes.createParseContext(t);
-    model.validate(context);
-
-    this.areIdentical(2, context.errors.length);
-    this.areIdentical('r', context.errors[0].path);
-    this.areIdentical('s', context.errors[1].path);
-  }
-  testConstraintConditionalValueRequiresCorrectValue() {
+  testConstraintConditionalValueChecksCorrectValue() {
     var model = this.model as ModelTypeObject<any>;
     model = model.withConstraints(new ModelTypeConstraintConditionalValue({
         condition: { property: 'p', value: '12' },
@@ -91,13 +73,13 @@ export class ModelObjectTest extends TestClass {
       r: '14'
     };
 
-    var context = modelTypes.createParseContext(t);
+    var context = modelTypes.createParseContext(t, model);
     model.validate(context);
 
     this.areIdentical(0, context.errors.length);
 
     t.q = '99';
-    context = modelTypes.createParseContext(t);
+    context = modelTypes.createParseContext(t, model);
     model.validate(context);
 
     this.areIdentical(1, context.errors.length);
@@ -116,7 +98,7 @@ export class ModelObjectTest extends TestClass {
       r: null
     };
 
-    let context = modelTypes.createParseContext(t);
+    let context = modelTypes.createParseContext(t, model);
     model.validate(context);
 
     this.areIdentical(0, context.errors.length);
