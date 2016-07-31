@@ -9,7 +9,7 @@
 		{
 			"isBuildCommand": true,
 			"taskName": "test",
-			"$$problemMatcher": "$tsc",
+			"disabled-problemMatcher": "$tsc",
 			"problemMatcher": { 
 				// The problem is owned by the typescript language service. Ensure that the problems
 				// are merged with problems produced by Visual Studio's language service.
@@ -36,7 +36,7 @@
 		
 		{ // used as pre-launch for running the unit tests in debugger
 			"taskName": "tsc",
-			"$$problemMatcher": "$tsc",
+			"disabled-problemMatcher": "$tsc",
 			"problemMatcher": { 
 				// The problem is owned by the typescript language service. Ensure that the problems
 				// are merged with problems produced by Visual Studio's language service.
