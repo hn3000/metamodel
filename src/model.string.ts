@@ -218,7 +218,7 @@ export class ModelTypeConstraintInvalidRegex extends ModelTypeConstraintOptional
   checkAndAdjustValue(value:string, ctx:IModelParseContext):string {
     var result = value;
 
-    if (!ctx.currentRequired() && (null == value || '' == value)) {
+    if (null == value || '' == value) {
       return value;
     }
     let pattern = this._pattern;

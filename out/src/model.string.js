@@ -200,7 +200,7 @@ var ModelTypeConstraintInvalidRegex = (function (_super) {
     ModelTypeConstraintInvalidRegex.prototype._id = function () { return "pattern[" + this._pattern + "]"; };
     ModelTypeConstraintInvalidRegex.prototype.checkAndAdjustValue = function (value, ctx) {
         var result = value;
-        if (!ctx.currentRequired() && (null == value || '' == value)) {
+        if (null == value || '' == value) {
             return value;
         }
         var pattern = this._pattern;
