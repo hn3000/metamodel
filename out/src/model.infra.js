@@ -1,15 +1,16 @@
 "use strict";
+var model_api_1 = require("./model.api");
 var ModelParseMessage = (function () {
-    function ModelParseMessage(isError, path, msg, code, props, qualifiers) {
-        this._path = path;
+    function ModelParseMessage(severity, property, msg, code, props, qualifiers) {
+        this._severity = severity;
+        this._property = property;
         this._msg = msg;
         this._code = code;
         this._qualifiers = qualifiers || [];
         this._props = props;
-        this._isError = isError;
     }
-    Object.defineProperty(ModelParseMessage.prototype, "path", {
-        get: function () { return this._path; },
+    Object.defineProperty(ModelParseMessage.prototype, "property", {
+        get: function () { return this._property; },
         enumerable: true,
         configurable: true
     });
@@ -33,8 +34,13 @@ var ModelParseMessage = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(ModelParseMessage.prototype, "severity", {
+        get: function () { return this._severity; },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(ModelParseMessage.prototype, "isError", {
-        get: function () { return this._isError; },
+        get: function () { return this._severity == model_api_1.MessageSeverity.ERROR; },
         enumerable: true,
         configurable: true
     });
@@ -123,8 +129,7 @@ var ModelParseContext = (function () {
         this._keyPath = [];
         this._typeStack = [];
         this._requiredStack = [];
-        this._warnings = [];
-        this._errors = [];
+        this._messages = [];
     }
     ModelParseContext.prototype.currentValue = function () {
         return this._valueTraversal.top;
@@ -166,38 +171,54 @@ var ModelParseContext = (function () {
     };
     ModelParseContext.prototype.hasMessagesForCurrentValue = function () {
         var keyPath = this.currentKeyPath().join('.');
-        return this._errors.some(function (x) { return x.path == keyPath; }) ||
-            this._warnings.some(function (x) { return x.path == keyPath; });
-    };
-    ModelParseContext.prototype.addMessage = function (isError, msg, code) {
-        this.addMessageEx(isError, msg, code, {});
+        return this._messages.some(function (x) { return x.property == keyPath; });
     };
     ModelParseContext.prototype.addWarning = function (msg, code) {
-        this.addMessage(false, msg, code);
+        this.addMessage(model_api_1.MessageSeverity.WARNING, msg, code);
     };
     ModelParseContext.prototype.addError = function (msg, code) {
-        this.addMessage(true, msg, code);
-    };
-    ModelParseContext.prototype.addMessageEx = function (isError, msg, code, props) {
-        var message = new ModelParseMessage(isError, this.currentKeyPath().join('.'), msg, code, props, this.currentType() ? this.currentType().qualifiers || [] : []);
-        (isError ? this._errors : this._warnings).push(message);
+        this.addMessage(model_api_1.MessageSeverity.ERROR, msg, code);
     };
     ModelParseContext.prototype.addWarningEx = function (msg, code, props) {
-        this.addMessageEx(false, msg, code, props);
+        this.addMessageEx(model_api_1.MessageSeverity.WARNING, msg, code, props);
     };
     ModelParseContext.prototype.addErrorEx = function (msg, code, props) {
-        this.addMessageEx(true, msg, code, props);
+        this.addMessageEx(model_api_1.MessageSeverity.ERROR, msg, code, props);
     };
+    ModelParseContext.prototype.addMessage = function (severity, msg, code) {
+        this.addMessageEx(severity, msg, code, {});
+    };
+    ModelParseContext.prototype.addMessageEx = function (severity, msg, code, props) {
+        var sev;
+        if (typeof severity === 'boolean') {
+            sev = severity ? model_api_1.MessageSeverity.ERROR : model_api_1.MessageSeverity.WARNING;
+        }
+        else {
+            sev = severity;
+        }
+        var message = new ModelParseMessage(sev, this.currentKeyPath().join('.'), msg, code, props, this.currentType() ? this.currentType().qualifiers || [] : []);
+        this._messages.push(message);
+    };
+    ModelParseContext.prototype._removeMessages = function (filter) {
+        this._messages = this._messages.filter(function (x) { return !filter(x); });
+    };
+    Object.defineProperty(ModelParseContext.prototype, "messages", {
+        get: function () {
+            return this._messages;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(ModelParseContext.prototype, "warnings", {
         get: function () {
-            return this._warnings;
+            return this._messages.filter(function (x) { return x.severity === model_api_1.MessageSeverity.WARNING; });
         },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(ModelParseContext.prototype, "errors", {
         get: function () {
-            return this._errors;
+            return this._messages.filter(function (x) { return x.severity === model_api_1.MessageSeverity.ERROR; });
         },
         enumerable: true,
         configurable: true

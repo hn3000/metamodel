@@ -10,7 +10,7 @@ export declare class ModelTypeRegistry {
     type(name: string): IModelType<any>;
     itemType(name: string): IModelTypeItem<any>;
     getRegisteredNames(): string[];
-    createParseContext(obj: any, type: IModelType<any>): ModelParseContext;
+    createParseContext(obj: any, type: IModelType<any>, required?: boolean, allowConversion?: boolean): ModelParseContext;
     private _types;
     private _itemTypes;
 }

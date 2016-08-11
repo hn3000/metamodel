@@ -246,6 +246,8 @@ export interface IConditionalValueConstraintOptions {
   properties: string|string[];
   // if required is a single string, this is allowed:
   possibleValue?: string|number|string[]|number[];
+
+  clearOtherwise: boolean;
 }
 
 export interface IConditionalValueConstraintSettings {
@@ -254,7 +256,7 @@ export interface IConditionalValueConstraintSettings {
   valueCheck: (x:any) => boolean;
   properties: string[];
   possibleValues: any[];
-
+  clearOtherwise: boolean;
 }
 
 export class ModelTypeConstraintConditionalValue extends ModelTypeConstraintOptional<any> {
@@ -282,6 +284,7 @@ export class ModelTypeConstraintConditionalValue extends ModelTypeConstraintOpti
         valueCheck: createValuePredicate(allowed),
         properties: props,
         possibleValues: allowed,
+        clearOtherwise: !!options.clearOtherwise,
         id: id
       };
 
@@ -316,6 +319,11 @@ export class ModelTypeConstraintConditionalValue extends ModelTypeConstraintOpti
         }
         ctx.popItem();
       }
+    } else if (s.clearOtherwise) {
+      for (var f of s.properties) {
+        delete val[f];
+      }
+      ctx._removeMessages((m) => -1 != s.properties.indexOf(m.property));
     }
 
     return val;

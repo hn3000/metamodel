@@ -1,4 +1,6 @@
 "use strict";
+var model_api_1 = require("./model.api");
+exports.MessageSeverity = model_api_1.MessageSeverity;
 var model_registry_1 = require("./model.registry");
 var model_base_1 = require("./model.base");
 exports.ModelTypeConstrainable = model_base_1.ModelTypeConstrainable;

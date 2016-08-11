@@ -1,36 +1,38 @@
 import {
   Predicate,
+  MessageSeverity,
   IMessageProps,
-  IModelParseMessage,
+  IPropertyStatusMessage,
   IModelParseContext,
   IModelType,
   IModelTypeConstraint,
   IModelTypeComposite
 } from "./model.api"
 
-export class ModelParseMessage implements IModelParseMessage {
-  private _path:string;
+export class ModelParseMessage implements IPropertyStatusMessage {
+  private _property:string;
   private _msg:string;
   private _code:string;
   private _qualifiers:string[];
   private _props:any;
-  private _isError:boolean;
+  private _severity: MessageSeverity;
 
-  constructor(isError:boolean, path: string, msg:string, code:string, props:IMessageProps, qualifiers?:string[]) {
-    this._path = path;
+  constructor(severity:MessageSeverity, property: string, msg:string, code:string, props:IMessageProps, qualifiers?:string[]) {
+    this._severity = severity;
+    this._property = property;
     this._msg = msg;
     this._code = code;
     this._qualifiers = qualifiers || [];
     this._props = props;
-    this._isError = isError;
   }
 
-  get path():string         { return this._path; }
-  get msg():string          { return this._msg; }
-  get code():string         { return this._code; }
-  get qualifiers():string[] { return this._qualifiers; }
-  get props():any[]         { return this._props; }
-  get isError():boolean     { return this._isError; }
+  get property():string          { return this._property; }
+  get msg():string               { return this._msg; }
+  get code():string              { return this._code; }
+  get qualifiers():string[]      { return this._qualifiers; }
+  get props():any[]              { return this._props; }
+  get severity():MessageSeverity { return this._severity; }
+  get isError():boolean { return this._severity == MessageSeverity.ERROR; }
 }
 
 export class ObjectTraversal {
@@ -113,8 +115,7 @@ export class ModelParseContext implements IModelParseContext {
     this._keyPath = [];
     this._typeStack = [];
     this._requiredStack = [];
-    this._warnings = [];
-    this._errors = [];
+    this._messages = [];
   }
 
   currentValue():any {
@@ -159,42 +160,54 @@ export class ModelParseContext implements IModelParseContext {
 
   hasMessagesForCurrentValue():boolean {
     let keyPath = this.currentKeyPath().join('.');
-    return this._errors.some(x => x.path == keyPath) ||
-           this._warnings.some(x => x.path == keyPath);
+    return this._messages.some(x => x.property == keyPath);
   }
 
-  addMessage(isError:boolean, msg:string, code:string) {
-    this.addMessageEx(isError, msg, code, {});
-  }
   addWarning(msg:string, code:string) {
-    this.addMessage(false, msg, code);
+    this.addMessage(MessageSeverity.WARNING, msg, code);
   }
   addError(msg:string, code:string) {
-    this.addMessage(true, msg, code);
+    this.addMessage(MessageSeverity.ERROR, msg, code);
   }
-  addMessageEx(isError:boolean, msg:string, code:string, props:IMessageProps) {
+  addWarningEx(msg:string, code:string, props:IMessageProps) {
+    this.addMessageEx(MessageSeverity.WARNING, msg, code, props);
+  }
+  addErrorEx(msg:string, code:string, props:IMessageProps) {
+    this.addMessageEx(MessageSeverity.ERROR, msg, code, props);
+  }
+  addMessage(severity:MessageSeverity|boolean, msg:string, code:string) {
+    this.addMessageEx(severity, msg, code, {});
+  }
+  addMessageEx(severity:MessageSeverity|boolean, msg:string, code:string, props:IMessageProps) {
+    let sev: MessageSeverity;
+    if (typeof severity === 'boolean') {
+      sev = severity ? MessageSeverity.ERROR : MessageSeverity.WARNING;
+    } else {
+      sev = severity;
+    }
     var message = new ModelParseMessage(
-      isError,
+      sev,
       this.currentKeyPath().join('.'),
       msg, code, props, 
       this.currentType() ? this.currentType().qualifiers||[] :[]
     );
-    (isError?this._errors:this._warnings).push(message);
-  }
-  addWarningEx(msg:string, code:string, props:IMessageProps) {
-    this.addMessageEx(false, msg, code, props);
-  }
-  addErrorEx(msg:string, code:string, props:IMessageProps) {
-    this.addMessageEx(true, msg, code, props);
+    this._messages.push(message);
   }
 
-
-  get warnings():IModelParseMessage[] {
-    return this._warnings;
+  _removeMessages(filter:(m:IPropertyStatusMessage) => boolean) {
+    this._messages = this._messages.filter((x) => !filter(x));
   }
 
-  get errors():IModelParseMessage[] {
-    return this._errors;
+  get messages():IPropertyStatusMessage[] {
+    return this._messages;
+  }
+
+  get warnings():IPropertyStatusMessage[] {
+    return this._messages.filter((x) => x.severity === MessageSeverity.WARNING);
+  }
+
+  get errors():IPropertyStatusMessage[] {
+    return this._messages.filter((x) => x.severity === MessageSeverity.ERROR);
   }
 
   get allowConversion():boolean {
@@ -208,6 +221,5 @@ export class ModelParseContext implements IModelParseContext {
   private _requiredStack: boolean[];
   private _typeStack: IModelType<any>[];
   private _keyPath: string[];
-  private _warnings: IModelParseMessage[];
-  private _errors: IModelParseMessage[];
+  private _messages: IPropertyStatusMessage[];
 }

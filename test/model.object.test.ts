@@ -43,7 +43,8 @@ export class ModelObjectTest extends TestClass {
     var model:ModelTypeObject<any> = this.model.slice(['p']) as ModelTypeObject<any>;
     model = model.withConstraints(new ModelTypeConstraintConditionalValue({
         condition: { property: 'p', value: '12' },
-        properties:  ['q','r','s']
+        properties:  ['q','r','s'],
+        clearOtherwise: false
     }));
 
     let t:any = {
@@ -56,15 +57,16 @@ export class ModelObjectTest extends TestClass {
     model.validate(context);
 
     this.areIdentical(2, context.errors.length);
-    this.areIdentical('r', context.errors[0].path);
-    this.areIdentical('s', context.errors[1].path);
+    this.areIdentical('r', context.errors[0].property);
+    this.areIdentical('s', context.errors[1].property);
   }
   testConstraintConditionalValueChecksCorrectValue() {
     var model = this.model as ModelTypeObject<any>;
     model = model.withConstraints(new ModelTypeConstraintConditionalValue({
         condition: { property: 'p', value: '12' },
         properties:  'q',
-        possibleValue: '13'
+        possibleValue: '13',
+        clearOtherwise: false
     }));
 
     let t:any = {
@@ -83,13 +85,14 @@ export class ModelObjectTest extends TestClass {
     model.validate(context);
 
     this.areIdentical(1, context.errors.length);
-    this.areIdentical('q', context.errors[0].path);
+    this.areIdentical('q', context.errors[0].property);
   }
   testConstraintConditionalValueIgnoresWhenConditionFalse() {
     var model:ModelTypeObject<any> = this.model.slice(['p']) as ModelTypeObject<any>;
     model = model.withConstraints(new ModelTypeConstraintConditionalValue({
         condition: { property: 'p', value: '12' },
-        properties:  ['q','r','s']
+        properties:  ['q','r','s'],
+        clearOtherwise: false
     }));
 
     let t:any = {
@@ -102,5 +105,31 @@ export class ModelObjectTest extends TestClass {
     model.validate(context);
 
     this.areIdentical(0, context.errors.length);
+  }
+  testConstraintConditionalValueClearsValuesWhenConditionFalse() {
+    var model:IModelTypeComposite<any> = this.model;
+    var modelwc = model.withConstraints(new ModelTypeConstraintConditionalValue({
+        condition: { property: 'p', value: '12' },
+        properties:  ['q','r','s'],
+        clearOtherwise: true
+    }));
+
+    let t:any = {
+      p: '13',
+      q: 'ab',
+      r: 17
+    };
+
+    let context = modelTypes.createParseContext(t, model, false, false);
+    let result = model.parse(context);
+
+    this.areIdentical(1, context.errors.length);
+    this.areIdentical('r', context.errors[0].property);
+
+    context = modelTypes.createParseContext(t, modelwc, false, false);
+    result = modelwc.parse(context);
+    this.areIdentical(0, context.errors.length);
+    this.areIdentical(undefined, result.q);
+    this.areIdentical(undefined, result.r);
   }
 }

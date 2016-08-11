@@ -2,7 +2,10 @@
 export {
   Predicate,
   IModelObject,
-  IModelParseMessage,
+  MessageSeverity,
+  IMessageProps,
+  IStatusMessage,
+  IPropertyStatusMessage,
   IModelParseContext,
   IModelType,
   IModelTypeConstrainable,
@@ -96,7 +99,6 @@ export {
 
 
 export {
-  IValidationMessage,
   Primitive,
   IModelViewField,
   IModelViewPage,

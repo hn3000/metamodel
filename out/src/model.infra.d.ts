@@ -1,17 +1,18 @@
-import { IMessageProps, IModelParseMessage, IModelParseContext, IModelType } from "./model.api";
-export declare class ModelParseMessage implements IModelParseMessage {
-    private _path;
+import { MessageSeverity, IMessageProps, IPropertyStatusMessage, IModelParseContext, IModelType } from "./model.api";
+export declare class ModelParseMessage implements IPropertyStatusMessage {
+    private _property;
     private _msg;
     private _code;
     private _qualifiers;
     private _props;
-    private _isError;
-    constructor(isError: boolean, path: string, msg: string, code: string, props: IMessageProps, qualifiers?: string[]);
-    readonly path: string;
+    private _severity;
+    constructor(severity: MessageSeverity, property: string, msg: string, code: string, props: IMessageProps, qualifiers?: string[]);
+    readonly property: string;
     readonly msg: string;
     readonly code: string;
     readonly qualifiers: string[];
     readonly props: any[];
+    readonly severity: MessageSeverity;
     readonly isError: boolean;
 }
 export declare class ObjectTraversal {
@@ -47,14 +48,16 @@ export declare class ModelParseContext implements IModelParseContext {
     pushItem(key: string, required?: boolean, type?: IModelType<any>): void;
     popItem(): void;
     hasMessagesForCurrentValue(): boolean;
-    addMessage(isError: boolean, msg: string, code: string): void;
     addWarning(msg: string, code: string): void;
     addError(msg: string, code: string): void;
-    addMessageEx(isError: boolean, msg: string, code: string, props: IMessageProps): void;
     addWarningEx(msg: string, code: string, props: IMessageProps): void;
     addErrorEx(msg: string, code: string, props: IMessageProps): void;
-    readonly warnings: IModelParseMessage[];
-    readonly errors: IModelParseMessage[];
+    addMessage(severity: MessageSeverity | boolean, msg: string, code: string): void;
+    addMessageEx(severity: MessageSeverity | boolean, msg: string, code: string, props: IMessageProps): void;
+    _removeMessages(filter: (m: IPropertyStatusMessage) => boolean): void;
+    readonly messages: IPropertyStatusMessage[];
+    readonly warnings: IPropertyStatusMessage[];
+    readonly errors: IPropertyStatusMessage[];
     readonly allowConversion: boolean;
     private _valueTraversal;
     private _currentType;
@@ -63,6 +66,5 @@ export declare class ModelParseContext implements IModelParseContext {
     private _requiredStack;
     private _typeStack;
     private _keyPath;
-    private _warnings;
-    private _errors;
+    private _messages;
 }

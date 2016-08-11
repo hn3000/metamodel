@@ -172,6 +172,7 @@ var ModelView = (function () {
             this._readonlyFields = shallowCopy(that._readonlyFields);
             this._currentPage = that._currentPage;
             this._validationScope = that._validationScope;
+            this._statusMessages = that._statusMessages;
             this._messages = that._messages;
             this._messagesByField = that._messagesByField;
         }
@@ -186,6 +187,7 @@ var ModelView = (function () {
             this._readonlyFields = {};
             this._currentPage = initialPage;
             this._validations = {};
+            this._statusMessages = [];
             this._messages = [];
             this._messagesByField = {};
         }
@@ -211,15 +213,20 @@ var ModelView = (function () {
         var newMessages = messages.slice();
         for (var _i = 0, messages_1 = messages; _i < messages_1.length; _i++) {
             var m = messages_1[_i];
-            if (!byField[m.path]) {
-                byField[m.path] = [m];
+            if (!byField[m.property]) {
+                byField[m.property] = [m];
             }
             else {
-                byField[m.path].push(m);
+                byField[m.property].push(m);
             }
         }
         result._messages = newMessages;
         result._messagesByField = byField;
+        return result;
+    };
+    ModelView.prototype.withStatusMessages = function (messages) {
+        var result = new ModelView(this, this._inputModel);
+        result._statusMessages = messages.slice();
         return result;
     };
     ModelView.prototype.validationScope = function () {
@@ -376,11 +383,14 @@ var ModelView = (function () {
         return this.areFieldsValid(Object.keys(this._visitedFields));
     };
     ModelView.prototype.isValid = function () {
-        return 0 === this._messages.length;
+        return 0 === this._messages.length && 0 === this._statusMessages.length;
     };
     ModelView.prototype.areFieldsValid = function (fields) {
         var _this = this;
         return fields.every(function (x) { return _this.isFieldValid(x); });
+    };
+    ModelView.prototype.getStatusMessages = function () {
+        return this._statusMessages;
     };
     Object.defineProperty(ModelView.prototype, "currentPageIndex", {
         get: function () {

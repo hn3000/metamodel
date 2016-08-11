@@ -18,14 +18,25 @@ export interface IMessageProps {
   [key:string]:number|string|any; 
 }
 
-export interface IModelParseMessage {
-  path:string;
+export enum MessageSeverity {
+  NOTE,
+  SUCCESS,
+  WARNING,
+  ERROR
+}
+
+export interface IStatusMessage {
   msg:string;
   code:string;
   qualifiers?: string[];
   props?:IMessageProps;
-  isError:boolean;
+  severity: MessageSeverity;
 }
+
+export interface IPropertyStatusMessage extends IStatusMessage {
+  property:string;
+}
+
 
 export interface IModelParseContext {
   currentValue():any;
@@ -37,15 +48,20 @@ export interface IModelParseContext {
 
   addWarning(msg:string, code:string):void;
   addError(msg:string, code:string):void;
-  addMessage(isError:boolean, msg:string, code:string):void;
-  addWarningEx(msg:string, code:string, props: IMessageProps):void;
   addErrorEx(msg:string, code:string, props: IMessageProps):void;
+  addWarningEx(msg:string, code:string, props: IMessageProps):void;
+  addMessage(isError:boolean, msg:string, code:string):void;
+  addMessage(severity:MessageSeverity, msg:string, code:string):void;
   addMessageEx(isError:boolean, msg:string, code:string, props: IMessageProps):void;
+  addMessageEx(severity:MessageSeverity, msg:string, code:string, props: IMessageProps):void;
+
+  _removeMessages(filter:(m:IPropertyStatusMessage)=>boolean):void;
 
   hasMessagesForCurrentValue():boolean;
 
-  errors:IModelParseMessage[];
-  warnings:IModelParseMessage[];
+  messages:IPropertyStatusMessage[];
+  warnings:IPropertyStatusMessage[];
+  errors:  IPropertyStatusMessage[];
 
   allowConversion:boolean;
 }

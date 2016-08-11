@@ -1,11 +1,11 @@
-import { IModelType, IModelTypeComposite, IModelParseMessage } from "./model.api";
+import { IModelType, IModelTypeComposite, IStatusMessage, IPropertyStatusMessage } from "./model.api";
 export declare type Primitive = string | number | boolean | string[] | number[];
 export interface IModelViewField {
     keypath: string[];
     pointer: string;
     key: string;
     type: IModelType<any>;
-    validate(val: any): IModelParseMessage[];
+    validate(val: any): IPropertyStatusMessage[];
 }
 export interface IModelViewPage {
     alias: string;
@@ -35,29 +35,31 @@ export interface IModelView<T> {
     getFieldValue(keyPath: string | string[]): any;
     getField(keyPath: string | string[]): IModelViewField;
     getFields(): IModelViewField[];
-    getFieldMessages(keyPath: string | string[]): IValidationMessage[];
+    getFieldMessages(keyPath: string | string[]): IPropertyStatusMessage[];
     isFieldValid(keyPath: string | string[]): boolean;
     getPages(): IModelViewPage[];
     getPage(aliasOrIndex?: string | number): IModelViewPage;
-    getPageMessages(aliasOrIndex?: string | number): IValidationMessage[];
+    getPageMessages(aliasOrIndex?: string | number): IPropertyStatusMessage[];
     isPageValid(aliasOrIndex?: string | number): boolean;
     isVisitedValid(): boolean;
     isValid(): boolean;
+    getStatusMessages(): IStatusMessage[];
     currentPageIndex: number;
     currentPageNo: number;
     changePage(step: number): IModelView<T>;
     gotoPage(index: number, validationScope?: ValidationScope): IModelView<T>;
-    withValidationMessages(messages: IValidationMessage[]): IModelView<T>;
+    withValidationMessages(messages: IPropertyStatusMessage[]): IModelView<T>;
+    withStatusMessages(messages: IStatusMessage[]): IModelView<T>;
     validationScope(): ValidationScope;
     validateDefault(): Promise<IModelView<T>>;
     validateVisited(): Promise<IModelView<T>>;
     validatePage(): Promise<IModelView<T>>;
     validateFull(): Promise<IModelView<T>>;
 }
-export interface IValidationMessage extends IModelParseMessage {
+export interface IPropertyStatusMessage extends IPropertyStatusMessage {
 }
 export interface IValidationResult {
-    messages: IValidationMessage[];
+    messages: IPropertyStatusMessage[];
 }
 export interface IValidator {
     (oldModel: any, newModel: any): Promise<IValidationResult>;
@@ -68,7 +70,7 @@ export declare class ModelViewField implements IModelViewField {
     readonly key: string;
     readonly pointer: string;
     readonly type: IModelType<any>;
-    validate(val: any): IValidationMessage[];
+    validate(val: any): IPropertyStatusMessage[];
     private _keyString;
     private _keyPath;
     private _type;
@@ -104,7 +106,8 @@ export declare class ModelView<T> implements IModelView<T> {
     getField(keyPath: string | string[]): IModelViewField;
     getFields(): IModelViewField[];
     getModel(): T;
-    withValidationMessages(messages: IValidationMessage[]): ModelView<T>;
+    withValidationMessages(messages: IPropertyStatusMessage[]): ModelView<T>;
+    withStatusMessages(messages: IStatusMessage[]): ModelView<T>;
     validationScope(): ValidationScope;
     validateDefault(): Promise<IModelView<T>>;
     validateVisited(): Promise<IModelView<T>>;
@@ -121,15 +124,16 @@ export declare class ModelView<T> implements IModelView<T> {
     _asKeyArray(keyPath: string | string[]): string[];
     _asKeyString(keyPath: string | string[]): string;
     getFieldValue(keyPath: string | string[]): any;
-    getFieldMessages(keyPath: string | string[]): IValidationMessage[];
+    getFieldMessages(keyPath: string | string[]): IPropertyStatusMessage[];
     isFieldValid(keyPath: string | string[]): boolean;
     getPages(): ModelViewPage[];
     getPage(aliasOrIndex?: string | number): IModelViewPage;
-    getPageMessages(aliasOrIndex?: string | number): IValidationMessage[];
+    getPageMessages(aliasOrIndex?: string | number): IPropertyStatusMessage[];
     isPageValid(aliasOrIndex?: string | number): boolean;
     isVisitedValid(): boolean;
     isValid(): boolean;
     areFieldsValid(fields: string[]): boolean;
+    getStatusMessages(): IStatusMessage[];
     readonly currentPageIndex: number;
     readonly currentPageNo: number;
     changePage(step: number): IModelView<T>;
@@ -142,6 +146,7 @@ export declare class ModelView<T> implements IModelView<T> {
     private _currentPage;
     private _validationScope;
     private _validations;
+    private _statusMessages;
     private _messages;
     private _messagesByField;
 }

@@ -220,6 +220,7 @@ var ModelTypeConstraintConditionalValue = (function (_super) {
                 valueCheck: createValuePredicate(allowed),
                 properties: props,
                 possibleValues: allowed,
+                clearOtherwise: !!options.clearOtherwise,
                 id: id
             };
         }
@@ -255,6 +256,13 @@ var ModelTypeConstraintConditionalValue = (function (_super) {
                 }
                 ctx.popItem();
             }
+        }
+        else if (s.clearOtherwise) {
+            for (var _b = 0, _c = s.properties; _b < _c.length; _b++) {
+                var f = _c[_b];
+                delete val[f];
+            }
+            ctx._removeMessages(function (m) { return -1 != s.properties.indexOf(m.property); });
         }
         return val;
     };

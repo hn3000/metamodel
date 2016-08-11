@@ -52,8 +52,8 @@ var ModelTypeRegistry = (function () {
     ModelTypeRegistry.prototype.getRegisteredNames = function () {
         return Object.keys(this._types);
     };
-    ModelTypeRegistry.prototype.createParseContext = function (obj, type) {
-        return new model_infra_1.ModelParseContext(obj, type);
+    ModelTypeRegistry.prototype.createParseContext = function (obj, type, required, allowConversion) {
+        return new model_infra_1.ModelParseContext(obj, type, required, allowConversion);
     };
     return ModelTypeRegistry;
 }());

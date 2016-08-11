@@ -80,7 +80,7 @@ export class ModelParsingTest extends TestClass {
     }, type)
     type.validate(ctx);
     this.areIdentical(1, ctx.errors.length);
-    this.areIdentical('q', ctx.errors[0].path);
+    this.areIdentical('q', ctx.errors[0].property);
 
     ctx = new ModelParseContext({
       p: '12',
@@ -121,7 +121,7 @@ export class ModelParsingTest extends TestClass {
     }, type)
     type.validate(ctx);
     this.areIdentical(1, ctx.errors.length);
-    this.areIdentical('p', ctx.errors[0].path);
+    this.areIdentical('p', ctx.errors[0].property);
   }
 
   testSchemaWithMinAge18YearsConstraintSucceeds() {
@@ -180,7 +180,7 @@ export class ModelParsingTest extends TestClass {
     }, type)
     type.validate(ctx);
     this.areIdentical(1, ctx.errors.length);
-    this.areIdentical('p', ctx.errors[0].path);
+    this.areIdentical('p', ctx.errors[0].property);
   }
   testSchemaWithMinAge18OnSlicedObject() {
     var parser = new ModelSchemaParser();
@@ -220,6 +220,6 @@ export class ModelParsingTest extends TestClass {
     }, type)
     slice.validate(ctx);
     this.areIdentical(1, ctx.errors.length);
-    this.areIdentical('p', ctx.errors[0].path);
+    this.areIdentical('p', ctx.errors[0].property);
   }
 }

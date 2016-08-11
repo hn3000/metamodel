@@ -72,8 +72,8 @@ export class ModelTypeRegistry {
     return Object.keys(this._types);
   }
 
-  createParseContext(obj:any, type:IModelType<any>) {
-    return new ModelParseContext(obj, type);
+  createParseContext(obj:any, type:IModelType<any>, required?:boolean, allowConversion?:boolean) {
+    return new ModelParseContext(obj, type, required, allowConversion);
   }
 
   private _types:{ [name:string]: IModelType<any>; } = {};

@@ -46,8 +46,8 @@ export class ModelTest extends TestClass {
     exampleModel.validate(context);
 
     this.areIdentical(2, context.warnings.length);
-    this.areIdentical('lala', context.warnings[0].path);
-    this.areIdentical('blub', context.warnings[1].path);
+    this.areIdentical('lala', context.warnings[0].property);
+    this.areIdentical('blub', context.warnings[1].property);
     this.areIdentical(0, context.errors.length);
   }
 
@@ -64,7 +64,7 @@ export class ModelTest extends TestClass {
     let result:any = exampleModel.parse(context);
 
     this.areIdentical(1, context.warnings.length);
-    this.areIdentical('lala', context.warnings[0].path);
+    this.areIdentical('lala', context.warnings[0].property);
     this.areIdentical(0, context.errors.length);
     this.areIdentical(1.1,result.lala);
   }
@@ -82,7 +82,7 @@ export class ModelTest extends TestClass {
     let result:any = exampleModel.parse(context);
 
     this.areIdentical(1, context.warnings.length);
-    this.areIdentical('lala', context.warnings[0].path);
+    this.areIdentical('lala', context.warnings[0].property);
     this.areIdentical(0, context.errors.length);
     this.areIdentical(1,result.lala);
   }
@@ -151,7 +151,7 @@ export class ModelTest extends TestClass {
 
     this.areIdentical(0, context.warnings.length);
     this.areIdentical(1, context.errors.length);
-    this.areIdentical('lala', context.errors[0].path);
+    this.areIdentical('lala', context.errors[0].property);
     this.areIdentical(null, result['lala']);
   }
 

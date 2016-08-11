@@ -39,6 +39,7 @@ export interface IConditionalValueConstraintOptions {
     condition: IConditionOptions;
     properties: string | string[];
     possibleValue?: string | number | string[] | number[];
+    clearOtherwise: boolean;
 }
 export interface IConditionalValueConstraintSettings {
     id: string;
@@ -46,6 +47,7 @@ export interface IConditionalValueConstraintSettings {
     valueCheck: (x: any) => boolean;
     properties: string[];
     possibleValues: any[];
+    clearOtherwise: boolean;
 }
 export declare class ModelTypeConstraintConditionalValue extends ModelTypeConstraintOptional<any> {
     constructor(optionsOrSelf: IConditionalValueConstraintOptions | ModelTypeConstraintConditionalValue);

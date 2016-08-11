@@ -2,7 +2,8 @@
 import {
   IModelType,
   IModelTypeComposite,
-  IModelParseMessage
+  IStatusMessage,
+  IPropertyStatusMessage
 } from "./model.api";
 
 import {
@@ -18,7 +19,7 @@ export interface IModelViewField {
   pointer:string;     // "/a/b/c"
   key:string;         // "a.b.c"
   type:IModelType<any>;
-  validate(val:any):IModelParseMessage[];
+  validate(val:any):IPropertyStatusMessage[];
 }
 
 export interface IModelViewPage {
@@ -50,22 +51,25 @@ export interface IModelView<T> {
   getField(keyPath:string|string[]):IModelViewField;
   getFields():IModelViewField[];
 
-  getFieldMessages(keyPath:string|string[]):IValidationMessage[];
+  getFieldMessages(keyPath:string|string[]):IPropertyStatusMessage[];
   isFieldValid(keyPath:string|string[]):boolean;
 
   getPages():IModelViewPage[];
   getPage(aliasOrIndex?:string|number):IModelViewPage;
-  getPageMessages(aliasOrIndex?:string|number):IValidationMessage[];
+  getPageMessages(aliasOrIndex?:string|number):IPropertyStatusMessage[];
   isPageValid(aliasOrIndex?:string|number):boolean;
   isVisitedValid():boolean;
   isValid(): boolean;
+
+  getStatusMessages():IStatusMessage[];
 
   currentPageIndex:number; // 0 based
   currentPageNo:number;    // 1 based
   changePage(step:number):IModelView<T>;
   gotoPage(index:number, validationScope?:ValidationScope):IModelView<T>;
 
-  withValidationMessages(messages:IValidationMessage[]):IModelView<T>;
+  withValidationMessages(messages:IPropertyStatusMessage[]):IModelView<T>;
+  withStatusMessages(messages:IStatusMessage[]):IModelView<T>;
 
   validationScope():ValidationScope;
   validateDefault():Promise<IModelView<T>>;
@@ -75,12 +79,12 @@ export interface IModelView<T> {
 }
 
 
-export interface IValidationMessage extends IModelParseMessage {
+export interface IPropertyStatusMessage extends IPropertyStatusMessage {
     // nothing added for now
 }
 
 export interface IValidationResult {
-  messages: IValidationMessage[];
+  messages: IPropertyStatusMessage[];
 } 
 
 export interface IValidator {
@@ -109,7 +113,7 @@ export class  ModelViewField implements IModelViewField {
     return this._type;
   }
   
-  validate(val:any):IValidationMessage[] {
+  validate(val:any):IPropertyStatusMessage[] {
     let ctx = new ModelParseContext(val, this._type);
     this._type.validate(ctx);
     return [...ctx.errors,...ctx.warnings];
@@ -248,6 +252,7 @@ export class ModelView<T> implements IModelView<T> {
       this._readonlyFields = shallowCopy(that._readonlyFields);
       this._currentPage = that._currentPage;
       this._validationScope = that._validationScope;
+      this._statusMessages = that._statusMessages;
       this._messages = that._messages;
       this._messagesByField = that._messagesByField;
     } else {
@@ -260,6 +265,7 @@ export class ModelView<T> implements IModelView<T> {
       this._readonlyFields = {};
       this._currentPage = initialPage;
       this._validations = {};
+      this._statusMessages = [];
       this._messages = [];
       this._messagesByField = {};
     }
@@ -281,21 +287,27 @@ export class ModelView<T> implements IModelView<T> {
     return this._model;
   } 
 
-  withValidationMessages(messages:IValidationMessage[]):ModelView<T> {
+  withValidationMessages(messages:IPropertyStatusMessage[]):ModelView<T> {
     let result = new ModelView(this, this._inputModel);
-    let byField: { [keypath:string]:IValidationMessage[]; } = {};
+    let byField: { [keypath:string]:IPropertyStatusMessage[]; } = {};
 
     let newMessages = messages.slice();
     for (var m of messages) {
-      if (!byField[m.path]) {
-        byField[m.path] = [ m ];
+      if (!byField[m.property]) {
+        byField[m.property] = [ m ];
       } else {
-        byField[m.path].push(m);
+        byField[m.property].push(m);
       }
     }
     result._messages = newMessages;
     result._messagesByField = byField
 
+    return result;
+  }
+
+  withStatusMessages(messages:IStatusMessage[]):ModelView<T> {
+    let result = new ModelView(this, this._inputModel);
+    result._statusMessages = messages.slice();
     return result;
   }
 
@@ -430,7 +442,7 @@ export class ModelView<T> implements IModelView<T> {
     return path.reduce((o:any,k:string):any => (o && o[k]), this._inputModel);
   }
 
-  getFieldMessages(keyPath:string|string[]):IValidationMessage[] {
+  getFieldMessages(keyPath:string|string[]):IPropertyStatusMessage[] {
     let path = this._asKeyString(keyPath);
     return this._messagesByField[path] || [];
   }
@@ -456,9 +468,9 @@ export class ModelView<T> implements IModelView<T> {
     return page;
   }
 
-  getPageMessages(aliasOrIndex?:string|number):IValidationMessage[] {
+  getPageMessages(aliasOrIndex?:string|number):IPropertyStatusMessage[] {
     let page = this.getPage(aliasOrIndex);
-    let result:IValidationMessage[] = [];
+    let result:IPropertyStatusMessage[] = [];
     page.fields.forEach((x) => result.push(...this.getFieldMessages(x)));
     return result;    
   }
@@ -472,11 +484,15 @@ export class ModelView<T> implements IModelView<T> {
     return this.areFieldsValid(Object.keys(this._visitedFields));
   }
   isValid() {
-    return 0 === this._messages.length;
+    return 0 === this._messages.length && 0 === this._statusMessages.length;
   }
 
   areFieldsValid(fields:string[]) {
     return fields.every((x) => this.isFieldValid(x));
+  }
+
+  getStatusMessages(): IStatusMessage[] {
+    return this._statusMessages;
   }
 
   get currentPageIndex():number {
@@ -512,8 +528,9 @@ export class ModelView<T> implements IModelView<T> {
 
   private _validationScope:ValidationScope;
   private _validations:{[kind:number]:Promise<ModelView<T>>};
-  private _messages:IModelParseMessage[];
-  private _messagesByField:{ [keypath:string]:IModelParseMessage[]; };
+  private _statusMessages:IStatusMessage[];
+  private _messages:IPropertyStatusMessage[];
+  private _messagesByField:{ [keypath:string]:IPropertyStatusMessage[]; };
 
 }
 
