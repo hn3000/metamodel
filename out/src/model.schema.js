@@ -240,7 +240,7 @@ var ModelSchemaParser = (function () {
         else {
             elementType = this.parseSchemaObject(schemaObject.items);
         }
-        if (null != elementType) {
+        if (null == elementType) {
             elementType = new model_object_1.ModelTypeObject("any");
         }
         var type = new model_array_1.ModelTypeArray(elementType);

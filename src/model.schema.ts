@@ -337,7 +337,7 @@ export class ModelSchemaParser implements IModelTypeRegistry {
       elementType = this.parseSchemaObject(schemaObject.items);
     }
 
-    if (null != elementType) {
+    if (null == elementType) {
       elementType = new ModelTypeObject("any");
     }
     var type = new ModelTypeArray(elementType);
