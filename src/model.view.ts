@@ -48,6 +48,7 @@ export interface IModelView<T> {
   withChangedField(keyPath:string|string[], newValue:Primitive|any[]):IModelView<T>;
   withAddedData(obj:any):IModelView<T>;
   getFieldValue(keyPath:string|string[]):any;
+  getFieldType(keyPath:string|string[]):IModelType<any>;
   getField(keyPath:string|string[]):IModelViewField;
   getFields():IModelViewField[];
 
@@ -92,7 +93,7 @@ export interface IValidator {
 }
 
 
-export class  ModelViewField implements IModelViewField {
+export class ModelViewField implements IModelViewField {
   constructor(key:string, type:IModelType<any>) {
     this._keyString = key;
     this._keyPath = key.split('.');
@@ -197,7 +198,7 @@ export class ModelViewMeta<T> {
 
   _updatedModelWithType(model:any, keyPath:string[], newValue:Primitive|any[], type:IModelType<any>) {
     var keys = Object.keys(model);
-    var result:any = {};
+    var result:any = (null != type && type.create) ? type.create() : {};
 
     var name = keyPath[0];
     var value:any;
@@ -440,6 +441,11 @@ export class ModelView<T> implements IModelView<T> {
   getFieldValue(keyPath:string|string[]):any {
     let path = this._asKeyArray(keyPath);
     return path.reduce((o:any,k:string):any => (o && o[k]), this._inputModel);
+  }
+
+  getFieldType(keyPath:string|string[]):IModelType<any> {
+    let path = this._asKeyArray(keyPath);
+    return path.reduce((o:IModelTypeComposite<any>,k:string):any => (o && o.itemType(k)), this._viewMeta.getModelType());
   }
 
   getFieldMessages(keyPath:string|string[]):IPropertyStatusMessage[] {

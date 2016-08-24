@@ -1,6 +1,8 @@
 import {
   IModelType,
-  IModelParseContext
+  IModelParseContext,
+  IModelTypeComposite,
+  IModelTypeEntry
 } from "./model.api"
 
 import {
@@ -9,23 +11,26 @@ import {
   ModelTypeConstraintOptional
 } from "./model.base"
 
-export class ModelTypeArray<T> extends ModelTypeConstrainable<T[]> {
+export class ModelTypeArray<T> extends ModelTypeConstrainable<T[]> implements IModelTypeComposite<T[]> {
   constructor(elementType:IModelType<T>, constraints?:ModelConstraints<T[]>) {
     super(elementType.name+"[]", constraints);
     this._elementType = elementType;
   }
   parse(ctx:IModelParseContext):T[] {
-    let result:T[] = [];
     let source = ctx.currentValue();
 
-    // TODO: determine minimum length and maximum length from constraints?
-    for (let i=0,n=source.length; i<n; ++i) {
-      ctx.pushItem(i, false, this._elementType);
-      result[i] = this._elementType.parse(ctx);
-      ctx.popItem();
+    if (null != source) {
+      let result:T[] = [];
+      // TODO: determine minimum length and maximum length from constraints?
+      for (let i=0,n=source.length; i<n; ++i) {
+        ctx.pushItem(i, false, this._elementType);
+        result[i] = this._elementType.parse(ctx);
+        ctx.popItem();
+      }
+      result = this._checkAndAdjustValue(result, ctx);
+      return result;
     }
-    result = this._checkAndAdjustValue(result, ctx);
-    return result;
+    return source;
   }
   validate(ctx:IModelParseContext):void {
     this.parse(ctx);
@@ -39,6 +44,17 @@ export class ModelTypeArray<T> extends ModelTypeConstrainable<T[]> {
   }
   create():T[] {
     return [];
+  }
+
+  get items():IModelTypeEntry[] {
+    return [];
+  }
+
+  itemType() {
+    return this._elementType;
+  }
+  slice() {
+    return this;
   }
 
   protected _kind() { return 'array'; }

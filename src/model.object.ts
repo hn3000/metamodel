@@ -18,6 +18,59 @@ function constructionNotAllowed<T>():T {
   throw new Error('can not use subtype for construction');
 }
 
+export class ModelTypeAny
+  extends ModelTypeConstrainable<any>
+  implements IModelTypeItem<any>
+{
+  private _constructFun: ()=>any;
+
+  constructor(name:string, construct?:()=>any, constraints?:ModelConstraints<any>) {
+    super(name, constraints);
+    this._constructFun = construct || (()=>(<any>{}));
+  }
+
+  protected _clone(constraints:ModelConstraints<any>):this {
+    let result = new (<any>this.constructor)(this.name, this._constructFun, constraints);
+    return result;
+  }
+
+  protected _kind() { return 'any' }
+
+  asItemType():IModelTypeItem<any> {
+    return this;
+  }
+
+  fromString(text: string) {
+    return JSON.parse(text);
+  }
+  asString(obj: any) {
+    return JSON.stringify(obj, null, 2);
+  }
+
+  lowerBound(): IModelTypeConstraint<any> { return null; }
+  upperBound(): IModelTypeConstraint<any> { return null; }
+  possibleValues() : any[] { return null; }
+
+  create() {
+    return this._constructFun ? this._constructFun() : {};
+  }
+
+  parse(ctx:IModelParseContext):any {
+    this.validate(ctx);
+    return ctx.currentValue();
+  }
+  validate(ctx:IModelParseContext):void {
+    if (ctx.currentRequired() && null == ctx.currentValue()) {
+      ctx.addError('required value is missing', 'required-empty');
+    }
+  }
+  unparse(val:any):any {
+    return val;
+  }
+
+
+}
+
 export class ModelTypeObject<T> 
   extends ModelTypeConstrainable<T>
   implements IModelTypeCompositeBuilder<T>
@@ -25,6 +78,7 @@ export class ModelTypeObject<T>
   private _constructFun: ()=>T;
   private _entries: IModelTypeEntry[];
   private _entriesByName: { [key:string]:IModelTypeEntry };
+  private _allowAdditional = true;
 
   constructor(name:string, construct?:()=>T, constraints?:ModelConstraints<T>) {
     super(name, constraints);
@@ -38,6 +92,7 @@ export class ModelTypeObject<T>
     for (var e of this._entries) {
       result.addItem(e.key, e.type, e.required);
     }
+    result._allowAdditional = this._allowAdditional;
     return result;
   }
 
@@ -104,11 +159,28 @@ export class ModelTypeObject<T>
 
   parse(ctx:IModelParseContext):T {
     let result = this.create();
+
+    let val = ctx.currentValue();
+    let keys: string[] = [];
+    if (this._allowAdditional && val) {
+      keys = Object.keys(val);
+    }
     for (let e of this._entries) {
       ctx.pushItem(e.key, e.required, e.type);
       (<any>result)[e.key] = e.type.parse(ctx);
+      let kp = keys.indexOf(e.key);
+      if (-1 != kp) {
+        keys.splice(kp, 1);
+      }
       ctx.popItem();
     }
+
+    if (keys.length) {
+      for (var k of keys) {
+        (result as any)[k] = val[k];
+      }
+    }
+
     return result;
   }
   validate(ctx:IModelParseContext):void {

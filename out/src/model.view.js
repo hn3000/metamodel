@@ -122,7 +122,7 @@ var ModelViewMeta = (function () {
     };
     ModelViewMeta.prototype._updatedModelWithType = function (model, keyPath, newValue, type) {
         var keys = Object.keys(model);
-        var result = {};
+        var result = (null != type && type.create) ? type.create() : {};
         var name = keyPath[0];
         var value;
         var entryType = type && type.itemType(name);
@@ -343,6 +343,10 @@ var ModelView = (function () {
     ModelView.prototype.getFieldValue = function (keyPath) {
         var path = this._asKeyArray(keyPath);
         return path.reduce(function (o, k) { return (o && o[k]); }, this._inputModel);
+    };
+    ModelView.prototype.getFieldType = function (keyPath) {
+        var path = this._asKeyArray(keyPath);
+        return path.reduce(function (o, k) { return (o && o.itemType(k)); }, this._viewMeta.getModelType());
     };
     ModelView.prototype.getFieldMessages = function (keyPath) {
         var path = this._asKeyString(keyPath);

@@ -1,9 +1,26 @@
 import { IModelType, IModelTypeItem, IModelTypeCompositeBuilder, IModelTypeEntry, IModelTypeComposite, IModelParseContext, IModelTypeConstraint } from "./model.api";
 import { ModelTypeConstrainable, ModelConstraints, ModelTypeConstraintOptional } from "./model.base";
+export declare class ModelTypeAny extends ModelTypeConstrainable<any> implements IModelTypeItem<any> {
+    private _constructFun;
+    constructor(name: string, construct?: () => any, constraints?: ModelConstraints<any>);
+    protected _clone(constraints: ModelConstraints<any>): this;
+    protected _kind(): string;
+    asItemType(): IModelTypeItem<any>;
+    fromString(text: string): any;
+    asString(obj: any): string;
+    lowerBound(): IModelTypeConstraint<any>;
+    upperBound(): IModelTypeConstraint<any>;
+    possibleValues(): any[];
+    create(): any;
+    parse(ctx: IModelParseContext): any;
+    validate(ctx: IModelParseContext): void;
+    unparse(val: any): any;
+}
 export declare class ModelTypeObject<T> extends ModelTypeConstrainable<T> implements IModelTypeCompositeBuilder<T> {
     private _constructFun;
     private _entries;
     private _entriesByName;
+    private _allowAdditional;
     constructor(name: string, construct?: () => T, constraints?: ModelConstraints<T>);
     protected _clone(constraints: ModelConstraints<T>): this;
     asItemType(): IModelTypeItem<T>;

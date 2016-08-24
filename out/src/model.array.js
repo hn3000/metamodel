@@ -12,16 +12,19 @@ var ModelTypeArray = (function (_super) {
         this._elementType = elementType;
     }
     ModelTypeArray.prototype.parse = function (ctx) {
-        var result = [];
         var source = ctx.currentValue();
-        // TODO: determine minimum length and maximum length from constraints?
-        for (var i = 0, n = source.length; i < n; ++i) {
-            ctx.pushItem(i, false, this._elementType);
-            result[i] = this._elementType.parse(ctx);
-            ctx.popItem();
+        if (null != source) {
+            var result = [];
+            // TODO: determine minimum length and maximum length from constraints?
+            for (var i = 0, n = source.length; i < n; ++i) {
+                ctx.pushItem(i, false, this._elementType);
+                result[i] = this._elementType.parse(ctx);
+                ctx.popItem();
+            }
+            result = this._checkAndAdjustValue(result, ctx);
+            return result;
         }
-        result = this._checkAndAdjustValue(result, ctx);
-        return result;
+        return source;
     };
     ModelTypeArray.prototype.validate = function (ctx) {
         this.parse(ctx);
@@ -35,6 +38,19 @@ var ModelTypeArray = (function (_super) {
     };
     ModelTypeArray.prototype.create = function () {
         return [];
+    };
+    Object.defineProperty(ModelTypeArray.prototype, "items", {
+        get: function () {
+            return [];
+        },
+        enumerable: true,
+        configurable: true
+    });
+    ModelTypeArray.prototype.itemType = function () {
+        return this._elementType;
+    };
+    ModelTypeArray.prototype.slice = function () {
+        return this;
     };
     ModelTypeArray.prototype._kind = function () { return 'array'; };
     return ModelTypeArray;

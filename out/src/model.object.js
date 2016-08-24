@@ -8,10 +8,52 @@ var model_base_1 = require("./model.base");
 function constructionNotAllowed() {
     throw new Error('can not use subtype for construction');
 }
+var ModelTypeAny = (function (_super) {
+    __extends(ModelTypeAny, _super);
+    function ModelTypeAny(name, construct, constraints) {
+        _super.call(this, name, constraints);
+        this._constructFun = construct || (function () { return ({}); });
+    }
+    ModelTypeAny.prototype._clone = function (constraints) {
+        var result = new this.constructor(this.name, this._constructFun, constraints);
+        return result;
+    };
+    ModelTypeAny.prototype._kind = function () { return 'any'; };
+    ModelTypeAny.prototype.asItemType = function () {
+        return this;
+    };
+    ModelTypeAny.prototype.fromString = function (text) {
+        return JSON.parse(text);
+    };
+    ModelTypeAny.prototype.asString = function (obj) {
+        return JSON.stringify(obj, null, 2);
+    };
+    ModelTypeAny.prototype.lowerBound = function () { return null; };
+    ModelTypeAny.prototype.upperBound = function () { return null; };
+    ModelTypeAny.prototype.possibleValues = function () { return null; };
+    ModelTypeAny.prototype.create = function () {
+        return this._constructFun ? this._constructFun() : {};
+    };
+    ModelTypeAny.prototype.parse = function (ctx) {
+        this.validate(ctx);
+        return ctx.currentValue();
+    };
+    ModelTypeAny.prototype.validate = function (ctx) {
+        if (ctx.currentRequired() && null == ctx.currentValue()) {
+            ctx.addError('required value is missing', 'required-empty');
+        }
+    };
+    ModelTypeAny.prototype.unparse = function (val) {
+        return val;
+    };
+    return ModelTypeAny;
+}(model_base_1.ModelTypeConstrainable));
+exports.ModelTypeAny = ModelTypeAny;
 var ModelTypeObject = (function (_super) {
     __extends(ModelTypeObject, _super);
     function ModelTypeObject(name, construct, constraints) {
         _super.call(this, name, constraints);
+        this._allowAdditional = true;
         this._constructFun = construct || (function () { return ({}); });
         this._entries = [];
         this._entriesByName = {};
@@ -22,6 +64,7 @@ var ModelTypeObject = (function (_super) {
             var e = _a[_i];
             result.addItem(e.key, e.type, e.required);
         }
+        result._allowAdditional = this._allowAdditional;
         return result;
     };
     ModelTypeObject.prototype.asItemType = function () {
@@ -84,11 +127,26 @@ var ModelTypeObject = (function (_super) {
     });
     ModelTypeObject.prototype.parse = function (ctx) {
         var result = this.create();
+        var val = ctx.currentValue();
+        var keys = [];
+        if (this._allowAdditional && val) {
+            keys = Object.keys(val);
+        }
         for (var _i = 0, _a = this._entries; _i < _a.length; _i++) {
             var e = _a[_i];
             ctx.pushItem(e.key, e.required, e.type);
             result[e.key] = e.type.parse(ctx);
+            var kp = keys.indexOf(e.key);
+            if (-1 != kp) {
+                keys.splice(kp, 1);
+            }
             ctx.popItem();
+        }
+        if (keys.length) {
+            for (var _b = 0, keys_1 = keys; _b < keys_1.length; _b++) {
+                var k = keys_1[_b];
+                result[k] = val[k];
+            }
         }
         return result;
     };

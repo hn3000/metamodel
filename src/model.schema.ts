@@ -5,6 +5,7 @@ import {
   IModelTypeConstrainable,
   IModelTypeConstraintFactory,
   IModelTypeRegistry,
+  IModelTypeComposite,
   IModelTypeCompositeBuilder
 } from "./model.api"
 
@@ -56,6 +57,7 @@ import {
 } from "./model.array"
 
 import {
+  ModelTypeAny,
   ModelTypeObject,
   ModelTypeConstraintEqualProperties,
   ModelTypeConstraintConditionalValue,
@@ -300,16 +302,18 @@ export class ModelSchemaParser implements IModelTypeRegistry {
     return new ModelTypeBool(constraints);
   }
   
-  parseSchemaObjectTypeObject(schemaObject:any, name?:string) {
+  parseSchemaObjectTypeObject(schemaObject:any, name?:string): IModelTypeConstrainable<any> {
     var id = name || schemaObject.id || anonymousId();
     let constraints = this._parseConstraints(schemaObject, [constraintFactoriesDefault.objects,constraintFactoriesDefault.universal]);
     var type:IModelTypeCompositeBuilder<any>;
+    var props = schemaObject['properties'];
+    var keys = props && Object.keys(props);
+    var allOf = schemaObject['allOf'];
+
     type = new ModelTypeObject(id, null, constraints);
 
     var required:string[] = schemaObject['required'] || [];
-    var props = schemaObject['properties'];
     if (props) {
-      var keys = Object.keys(props);
       for (var key of keys) {
         let isRequired = (-1 != required.indexOf(key));
         type.addItem(key, this.parseSchemaObject(props[key], key), isRequired);
@@ -321,9 +325,15 @@ export class ModelSchemaParser implements IModelTypeRegistry {
       var index = 0;
       for (var inner of allOf) {
         let innerType = this.parseSchemaObjectTypeObject(inner, `${name}/allOf[${index}]`);
-        type = type.extend(innerType);
+        if ((innerType as IModelTypeComposite<any>).items) {
+          type = type.extend(innerType as IModelTypeComposite<any>);
+        }
         ++index;
       }
+    }
+
+    if (0 == type.items.length) {
+      return new ModelTypeAny(id, null, constraints);
     }
 
     return type;
@@ -338,19 +348,19 @@ export class ModelSchemaParser implements IModelTypeRegistry {
     }
 
     if (null == elementType) {
-      elementType = new ModelTypeObject("any");
+      elementType = new ModelTypeAny("any");
     }
     var type = new ModelTypeArray(elementType);
     
     return type;
   }
 
-  parseSchemaObjectUntyped(schemaObject:any, name?:string) {
-    if (schemaObject.properties) {
+  parseSchemaObjectUntyped(schemaObject:any, name?:string):IModelTypeConstrainable<any> {
+    if (schemaObject.properties || schemaObject.allOf) {
       return this.parseSchemaObjectTypeObject(schemaObject, name);
     }
     console.log(`no implementation for schema type ${schemaObject.type} in ${JSON.stringify(schemaObject)}`);
-    return new ModelTypeObject(name);
+    return new ModelTypeAny(name);
   }
 
   _parseConstraints(

@@ -209,11 +209,12 @@ var ModelSchemaParser = (function () {
         var id = name || schemaObject.id || anonymousId();
         var constraints = this._parseConstraints(schemaObject, [constraintFactoriesDefault.objects, constraintFactoriesDefault.universal]);
         var type;
+        var props = schemaObject['properties'];
+        var keys = props && Object.keys(props);
+        var allOf = schemaObject['allOf'];
         type = new model_object_1.ModelTypeObject(id, null, constraints);
         var required = schemaObject['required'] || [];
-        var props = schemaObject['properties'];
         if (props) {
-            var keys = Object.keys(props);
             for (var _i = 0, keys_2 = keys; _i < keys_2.length; _i++) {
                 var key = keys_2[_i];
                 var isRequired = (-1 != required.indexOf(key));
@@ -226,9 +227,14 @@ var ModelSchemaParser = (function () {
             for (var _a = 0, allOf_1 = allOf; _a < allOf_1.length; _a++) {
                 var inner = allOf_1[_a];
                 var innerType = this.parseSchemaObjectTypeObject(inner, name + "/allOf[" + index + "]");
-                type = type.extend(innerType);
+                if (innerType.items) {
+                    type = type.extend(innerType);
+                }
                 ++index;
             }
+        }
+        if (0 == type.items.length) {
+            return new model_object_1.ModelTypeAny(id, null, constraints);
         }
         return type;
     };
@@ -241,17 +247,17 @@ var ModelSchemaParser = (function () {
             elementType = this.parseSchemaObject(schemaObject.items);
         }
         if (null == elementType) {
-            elementType = new model_object_1.ModelTypeObject("any");
+            elementType = new model_object_1.ModelTypeAny("any");
         }
         var type = new model_array_1.ModelTypeArray(elementType);
         return type;
     };
     ModelSchemaParser.prototype.parseSchemaObjectUntyped = function (schemaObject, name) {
-        if (schemaObject.properties) {
+        if (schemaObject.properties || schemaObject.allOf) {
             return this.parseSchemaObjectTypeObject(schemaObject, name);
         }
         console.log("no implementation for schema type " + schemaObject.type + " in " + JSON.stringify(schemaObject));
-        return new model_object_1.ModelTypeObject(name);
+        return new model_object_1.ModelTypeAny(name);
     };
     ModelSchemaParser.prototype._parseConstraints = function (schemaObject, factories) {
         var constraints = schemaObject.constraints;

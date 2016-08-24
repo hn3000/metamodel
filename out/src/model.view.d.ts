@@ -33,6 +33,7 @@ export interface IModelView<T> {
     withChangedField(keyPath: string | string[], newValue: Primitive | any[]): IModelView<T>;
     withAddedData(obj: any): IModelView<T>;
     getFieldValue(keyPath: string | string[]): any;
+    getFieldType(keyPath: string | string[]): IModelType<any>;
     getField(keyPath: string | string[]): IModelViewField;
     getFields(): IModelViewField[];
     getFieldMessages(keyPath: string | string[]): IPropertyStatusMessage[];
@@ -124,6 +125,7 @@ export declare class ModelView<T> implements IModelView<T> {
     _asKeyArray(keyPath: string | string[]): string[];
     _asKeyString(keyPath: string | string[]): string;
     getFieldValue(keyPath: string | string[]): any;
+    getFieldType(keyPath: string | string[]): IModelType<any>;
     getFieldMessages(keyPath: string | string[]): IPropertyStatusMessage[];
     isFieldValid(keyPath: string | string[]): boolean;
     getPages(): ModelViewPage[];
