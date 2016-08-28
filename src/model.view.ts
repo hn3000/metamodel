@@ -54,6 +54,7 @@ export interface IModelView<T> {
 
   getFieldMessages(keyPath:string|string[]):IPropertyStatusMessage[];
   isFieldValid(keyPath:string|string[]):boolean;
+  areFieldsValid(fields:string[]):boolean;
 
   getPages():IModelViewPage[];
   getPage(aliasOrIndex?:string|number):IModelViewPage;

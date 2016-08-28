@@ -38,6 +38,7 @@ export interface IModelView<T> {
     getFields(): IModelViewField[];
     getFieldMessages(keyPath: string | string[]): IPropertyStatusMessage[];
     isFieldValid(keyPath: string | string[]): boolean;
+    areFieldsValid(fields: string[]): boolean;
     getPages(): IModelViewPage[];
     getPage(aliasOrIndex?: string | number): IModelViewPage;
     getPageMessages(aliasOrIndex?: string | number): IPropertyStatusMessage[];
