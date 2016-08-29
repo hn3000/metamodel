@@ -1,4 +1,5 @@
 "use strict";
+var model_api_1 = require("./model.api");
 var model_infra_1 = require("./model.infra");
 var es6_promise_1 = require('es6-promise');
 (function (ValidationScope) {
@@ -211,17 +212,24 @@ var ModelView = (function () {
         var result = new ModelView(this, this._inputModel);
         var byField = {};
         var newMessages = messages.slice();
+        var statusMessages = [];
         for (var _i = 0, messages_1 = messages; _i < messages_1.length; _i++) {
             var m = messages_1[_i];
-            if (!byField[m.property]) {
-                byField[m.property] = [m];
+            if (null == m.property || '' === m.property) {
+                statusMessages.push(m);
             }
             else {
-                byField[m.property].push(m);
+                if (!byField[m.property]) {
+                    byField[m.property] = [m];
+                }
+                else {
+                    byField[m.property].push(m);
+                }
             }
         }
         result._messages = newMessages;
         result._messagesByField = byField;
+        result._statusMessages = statusMessages;
         return result;
     };
     ModelView.prototype.withStatusMessages = function (messages) {
@@ -377,14 +385,15 @@ var ModelView = (function () {
         var page = this.getPage(aliasOrIndex);
         var result = [];
         page.fields.forEach(function (x) { return result.push.apply(result, _this.getFieldMessages(x)); });
+        result.push.apply(result, this._statusMessages);
         return result;
     };
     ModelView.prototype.isPageValid = function (aliasOrIndex) {
         var page = this.getPage(aliasOrIndex);
-        return null == page || this.areFieldsValid(page.fields);
+        return null == page || this.areFieldsValid(page.fields) && !this.hasStatusError();
     };
     ModelView.prototype.isVisitedValid = function () {
-        return this.areFieldsValid(Object.keys(this._visitedFields));
+        return this.areFieldsValid(Object.keys(this._visitedFields)) && !this.hasStatusError();
     };
     ModelView.prototype.isValid = function () {
         return 0 === this._messages.length && 0 === this._statusMessages.length;
@@ -392,6 +401,9 @@ var ModelView = (function () {
     ModelView.prototype.areFieldsValid = function (fields) {
         var _this = this;
         return fields.every(function (x) { return _this.isFieldValid(x); });
+    };
+    ModelView.prototype.hasStatusError = function () {
+        return this._statusMessages.some(function (x) { return (x.severity == model_api_1.MessageSeverity.ERROR); });
     };
     ModelView.prototype.getStatusMessages = function () {
         return this._statusMessages;

@@ -3,7 +3,8 @@ import {
   IModelType,
   IModelTypeComposite,
   IStatusMessage,
-  IPropertyStatusMessage
+  IPropertyStatusMessage,
+  MessageSeverity
 } from "./model.api";
 
 import {
@@ -58,7 +59,7 @@ export interface IModelView<T> {
 
   getPages():IModelViewPage[];
   getPage(aliasOrIndex?:string|number):IModelViewPage;
-  getPageMessages(aliasOrIndex?:string|number):IPropertyStatusMessage[];
+  getPageMessages(aliasOrIndex?:string|number):IStatusMessage[];
   isPageValid(aliasOrIndex?:string|number):boolean;
   isVisitedValid():boolean;
   isValid(): boolean;
@@ -294,15 +295,21 @@ export class ModelView<T> implements IModelView<T> {
     let byField: { [keypath:string]:IPropertyStatusMessage[]; } = {};
 
     let newMessages = messages.slice();
+    let statusMessages:IStatusMessage[] = [];
     for (var m of messages) {
-      if (!byField[m.property]) {
-        byField[m.property] = [ m ];
+      if (null == m.property || '' === m.property) {
+        statusMessages.push(m);
       } else {
-        byField[m.property].push(m);
+        if (!byField[m.property]) {
+          byField[m.property] = [ m ];
+        } else {
+          byField[m.property].push(m);
+        }
       }
     }
     result._messages = newMessages;
     result._messagesByField = byField
+    result._statusMessages = statusMessages;
 
     return result;
   }
@@ -475,20 +482,21 @@ export class ModelView<T> implements IModelView<T> {
     return page;
   }
 
-  getPageMessages(aliasOrIndex?:string|number):IPropertyStatusMessage[] {
+  getPageMessages(aliasOrIndex?:string|number):IStatusMessage[] {
     let page = this.getPage(aliasOrIndex);
-    let result:IPropertyStatusMessage[] = [];
+    let result:IStatusMessage[] = [];
     page.fields.forEach((x) => result.push(...this.getFieldMessages(x)));
+    result.push(...this._statusMessages);
     return result;    
   }
 
   isPageValid(aliasOrIndex?:string|number) {
     let page = this.getPage(aliasOrIndex);
-    return null == page || this.areFieldsValid(page.fields);
+    return null == page || this.areFieldsValid(page.fields) && !this.hasStatusError();
   }
 
   isVisitedValid() {
-    return this.areFieldsValid(Object.keys(this._visitedFields));
+    return this.areFieldsValid(Object.keys(this._visitedFields))  && !this.hasStatusError();
   }
   isValid() {
     return 0 === this._messages.length && 0 === this._statusMessages.length;
@@ -496,6 +504,10 @@ export class ModelView<T> implements IModelView<T> {
 
   areFieldsValid(fields:string[]) {
     return fields.every((x) => this.isFieldValid(x));
+  }
+
+  hasStatusError() {
+    return this._statusMessages.some((x) => (x.severity == MessageSeverity.ERROR));
   }
 
   getStatusMessages(): IStatusMessage[] {
