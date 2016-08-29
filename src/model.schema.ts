@@ -303,16 +303,34 @@ export class ModelSchemaParser implements IModelTypeRegistry {
   }
   
   parseSchemaObjectTypeObject(schemaObject:any, name?:string): IModelTypeConstrainable<any> {
-    var id = name || schemaObject.id || anonymousId();
+    let id = name || schemaObject.id || anonymousId();
     let constraints = this._parseConstraints(schemaObject, [constraintFactoriesDefault.objects,constraintFactoriesDefault.universal]);
-    var type:IModelTypeCompositeBuilder<any>;
-    var props = schemaObject['properties'];
-    var keys = props && Object.keys(props);
-    var allOf = schemaObject['allOf'];
+    let type:IModelTypeCompositeBuilder<any>;
+    let props = schemaObject['properties'];
+    let keys = props && Object.keys(props);
+
+    let dependencies = schemaObject['dependencies'];
+    if (null != dependencies) {
+      let deps = Object.keys(dependencies);
+      for (let d of deps) {
+        if (Array.isArray(dependencies[d])) {
+          let dependentProperties = dependencies[d] as string[];
+          constraints = constraints.add(new ModelTypeConstraintConditionalValue({
+            condition: {
+              property: d as string,
+              invert: true,
+              value: null as string
+            },
+            properties: dependentProperties,
+            clearOtherwise: false
+          }));
+        }
+      }
+    }
 
     type = new ModelTypeObject(id, null, constraints);
 
-    var required:string[] = schemaObject['required'] || [];
+    let required:string[] = schemaObject['required'] || [];
     if (props) {
       for (var key of keys) {
         let isRequired = (-1 != required.indexOf(key));
@@ -320,7 +338,7 @@ export class ModelSchemaParser implements IModelTypeRegistry {
       }
     }
 
-    var allOf = schemaObject['allOf'];
+    let allOf = schemaObject['allOf'];
     if (allOf && Array.isArray(allOf)) {
       var index = 0;
       for (var inner of allOf) {
@@ -367,15 +385,19 @@ export class ModelSchemaParser implements IModelTypeRegistry {
     schemaObject:any, 
     factories:IConstraintFactory<any>[]
   ):ModelConstraints<any> {
-    var constraints = schemaObject.constraints;
+    var constraints = schemaObject.constraints as any[];
     if (constraints && Array.isArray(constraints)) {
       var cc = constraints.map((c:any) => {
-        var fact:(o:any) => ModelTypeConstrainable<any> = findfirst(factories, c.constraint as string);
-        if (!fact) {
+        var factory:(o:any) => IModelTypeConstraint<any>;
+        factory = this._constraintFactory[c.constraint];
+        if (!factory) {
+          factory = findfirst(factories, c.constraint);
+        }
+        if (!factory) {
           console.log("unrecognized constraint", c.constraint, c);
         }
-        return fact && fact(c);
-      }).filter((x:IModelTypeConstraint<any>) => x != null);
+        return factory && factory(c);
+      }).filter((x) => x != null);
       return new ModelConstraints<any>(cc); 
     }
     return new ModelConstraints<any>([]);
@@ -414,7 +436,7 @@ function fetchFetcher(url:string):Promise<string> {
   });
 }
 
-function findfirst(tt:any[], name:string):any {
+function findfirst<T>(tt:{[k:string]:T}[], name:string):T {
   for (var t of tt) {
     if (t[name]) return t[name];
   }

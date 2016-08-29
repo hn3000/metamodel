@@ -211,12 +211,30 @@ var ModelSchemaParser = (function () {
         var type;
         var props = schemaObject['properties'];
         var keys = props && Object.keys(props);
-        var allOf = schemaObject['allOf'];
+        var dependencies = schemaObject['dependencies'];
+        if (null != dependencies) {
+            var deps = Object.keys(dependencies);
+            for (var _i = 0, deps_1 = deps; _i < deps_1.length; _i++) {
+                var d = deps_1[_i];
+                if (Array.isArray(dependencies[d])) {
+                    var dependentProperties = dependencies[d];
+                    constraints = constraints.add(new model_object_1.ModelTypeConstraintConditionalValue({
+                        condition: {
+                            property: d,
+                            invert: true,
+                            value: null
+                        },
+                        properties: dependentProperties,
+                        clearOtherwise: false
+                    }));
+                }
+            }
+        }
         type = new model_object_1.ModelTypeObject(id, null, constraints);
         var required = schemaObject['required'] || [];
         if (props) {
-            for (var _i = 0, keys_2 = keys; _i < keys_2.length; _i++) {
-                var key = keys_2[_i];
+            for (var _a = 0, keys_2 = keys; _a < keys_2.length; _a++) {
+                var key = keys_2[_a];
                 var isRequired = (-1 != required.indexOf(key));
                 type.addItem(key, this.parseSchemaObject(props[key], key), isRequired);
             }
@@ -224,8 +242,8 @@ var ModelSchemaParser = (function () {
         var allOf = schemaObject['allOf'];
         if (allOf && Array.isArray(allOf)) {
             var index = 0;
-            for (var _a = 0, allOf_1 = allOf; _a < allOf_1.length; _a++) {
-                var inner = allOf_1[_a];
+            for (var _b = 0, allOf_1 = allOf; _b < allOf_1.length; _b++) {
+                var inner = allOf_1[_b];
                 var innerType = this.parseSchemaObjectTypeObject(inner, name + "/allOf[" + index + "]");
                 if (innerType.items) {
                     type = type.extend(innerType);
@@ -260,14 +278,19 @@ var ModelSchemaParser = (function () {
         return new model_object_1.ModelTypeAny(name);
     };
     ModelSchemaParser.prototype._parseConstraints = function (schemaObject, factories) {
+        var _this = this;
         var constraints = schemaObject.constraints;
         if (constraints && Array.isArray(constraints)) {
             var cc = constraints.map(function (c) {
-                var fact = findfirst(factories, c.constraint);
-                if (!fact) {
+                var factory;
+                factory = _this._constraintFactory[c.constraint];
+                if (!factory) {
+                    factory = findfirst(factories, c.constraint);
+                }
+                if (!factory) {
                     console.log("unrecognized constraint", c.constraint, c);
                 }
-                return fact && fact(c);
+                return factory && factory(c);
             }).filter(function (x) { return x != null; });
             return new model_base_1.ModelConstraints(cc);
         }
