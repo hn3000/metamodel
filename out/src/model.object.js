@@ -35,13 +35,13 @@ var ModelTypeAny = (function (_super) {
         return this._constructFun ? this._constructFun() : {};
     };
     ModelTypeAny.prototype.parse = function (ctx) {
-        this.validate(ctx);
-        return ctx.currentValue();
-    };
-    ModelTypeAny.prototype.validate = function (ctx) {
         if (ctx.currentRequired() && null == ctx.currentValue()) {
             ctx.addError('required value is missing', 'required-empty');
         }
+        return this._checkAndAdjustValue(ctx.currentValue(), ctx);
+    };
+    ModelTypeAny.prototype.validate = function (ctx) {
+        this.parse(ctx);
     };
     ModelTypeAny.prototype.unparse = function (val) {
         return val;
@@ -148,6 +148,7 @@ var ModelTypeObject = (function (_super) {
                 result[k] = val[k];
             }
         }
+        result = this._checkAndAdjustValue(result, ctx);
         return result;
     };
     ModelTypeObject.prototype.validate = function (ctx) {
@@ -272,7 +273,7 @@ var ModelTypeConstraintConditionalValue = (function (_super) {
             var allowed = safeArray(possibleValue);
             var id_p = props.join(',');
             var id_v = allowed ? " == [" + allowed.join(',') + "]" : "";
-            var id = "conditionalValue(" + condition.property + " == " + condition.value + " -> " + id_p + id_v + ")";
+            var id = "conditionalValue(" + condition.property + " " + (condition.invert ? '!=' : '==') + " " + condition.value + " -> " + id_p + id_v + ")";
             this._settings = {
                 predicate: createPredicate(condition),
                 valueCheck: createValuePredicate(allowed),

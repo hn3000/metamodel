@@ -56,13 +56,13 @@ export class ModelTypeAny
   }
 
   parse(ctx:IModelParseContext):any {
-    this.validate(ctx);
-    return ctx.currentValue();
-  }
-  validate(ctx:IModelParseContext):void {
     if (ctx.currentRequired() && null == ctx.currentValue()) {
       ctx.addError('required value is missing', 'required-empty');
     }
+    return this._checkAndAdjustValue(ctx.currentValue(), ctx);
+  }
+  validate(ctx:IModelParseContext):void {
+    this.parse(ctx);
   }
   unparse(val:any):any {
     return val;
@@ -180,6 +180,8 @@ export class ModelTypeObject<T>
         (result as any)[k] = val[k];
       }
     }
+
+    result = this._checkAndAdjustValue(result, ctx);
 
     return result;
   }
@@ -316,7 +318,7 @@ export interface IConditionalValueConstraintOptions {
 
   // properties to require (may be just single item)  
   properties: string|string[];
-  // if required is a single string, this is allowed:
+  // if properties is a single string, this is allowed:
   possibleValue?: string|number|string[]|number[];
 
   clearOtherwise: boolean;
@@ -348,7 +350,7 @@ export class ModelTypeConstraintConditionalValue extends ModelTypeConstraintOpti
 
       let id_p = props.join(',');
       let id_v = allowed ? ` == [${allowed.join(',')}]` : ""
-      let id = `conditionalValue(${condition.property} == ${condition.value} -> ${id_p}${id_v})`;
+      let id = `conditionalValue(${condition.property} ${condition.invert?'!=':'=='} ${condition.value} -> ${id_p}${id_v})`;
 
 
       this._settings = {
