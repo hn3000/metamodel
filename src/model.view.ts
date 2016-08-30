@@ -300,11 +300,16 @@ export class ModelView<T> implements IModelView<T> {
       if (null == m.property || '' === m.property) {
         statusMessages.push(m);
       } else {
-        if (!byField[m.property]) {
-          byField[m.property] = [ m ];
-        } else {
-          byField[m.property].push(m);
-        }
+        let mp = m.property;
+        do {
+          if (!byField[mp]) {
+            byField[mp] = [ m ];
+          } else {
+            byField[mp].push(m);
+          }
+          let dotpos = mp.lastIndexOf('.');
+          mp = mp.substring(0, dotpos);
+        } while (mp !== '');
       }
     }
     result._messages = newMessages;
