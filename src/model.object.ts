@@ -11,7 +11,8 @@ import {
 import {
   ModelTypeConstrainable,
   ModelConstraints,
-  ModelTypeConstraintOptional
+  ModelTypeConstraintOptional,
+  intersectArrays
 } from "./model.base"
 
 function constructionNotAllowed<T>():T {
@@ -96,10 +97,6 @@ export class ModelTypeObject<T>
     return result;
   }
 
-  asItemType():IModelTypeItem<T> {
-    return null;
-  }
-
   addItem(key:string, type:IModelType<any>, required?:boolean):IModelTypeCompositeBuilder<T> {
     if (null == key) {
       throw new Error(`addItem requires valid key, got ${key} and type ${type}`);
@@ -116,6 +113,20 @@ export class ModelTypeObject<T>
       this._entriesByName[key] = entry;
     }
     return this;
+  }
+
+  extend<X>(type:IModelTypeComposite<X>):IModelTypeCompositeBuilder<T> {
+    let constraints:IModelTypeConstraint<any>[] = type.findConstraints(()=>true);
+    let result = this.withConstraints(...constraints);
+    for (var item of type.items) {
+      let { key, type, required } = item;
+      result.addItem(key, type, required)
+    }
+    return result;
+  }
+
+  asItemType():IModelTypeItem<T> {
+    return null;
   }
 
   itemType(name:string|number) {
@@ -141,16 +152,6 @@ export class ModelTypeObject<T>
       return result;
     }
     return null;
-  }
-
-  extend<X>(type:IModelTypeComposite<X>):IModelTypeCompositeBuilder<T> {
-    let constraints:IModelTypeConstraint<any>[] = type.findConstraints(()=>true);
-    let result = this.withConstraints(...constraints);
-    for (var item of type.items) {
-      let { key, type, required } = item;
-      result.addItem(key, type, required)
-    }
-    return result;
   }
 
   get items():IModelTypeEntry[] {
@@ -207,6 +208,26 @@ export class ModelTypeObject<T>
   }
   create():T {
     return this._constructFun ? this._constructFun() : <T><any>{};
+  }
+
+  // null -> no list of allowed values (no known restrictions) 
+  // empty array -> no values possible
+  possibleValuesForContextData(name:string|number, data:any):any[] {
+    let result: any[] = null;
+
+    let fieldType = this.itemType(name).asItemType();
+    if (fieldType) {
+      result = fieldType.possibleValues();
+    } 
+
+    let cx = this.findConstraints((c) => null != c.possibleValuesForContextData);
+
+    result = cx.reduce(
+      (r, c) => intersectArrays(r, c.possibleValuesForContextData(name, data)),
+      result
+    );
+
+    return result;
   }
 
   protected _kind() { return 'object'; }
@@ -401,6 +422,14 @@ export class ModelTypeConstraintConditionalValue extends ModelTypeConstraintOpti
     }
 
     return val;
+  }
+
+  possibleValuesForContextData?(name:string|number, data:any):any[] {
+    let s = this._settings;
+    if (null != name && s.predicate(data) && -1 != s.properties.indexOf(name.toString())) {
+      return s.possibleValues;
+    }
+    return null;
   }
 
   usedItems():string[] { return this._settings.properties; }

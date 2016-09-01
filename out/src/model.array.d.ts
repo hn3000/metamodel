@@ -9,6 +9,7 @@ export declare class ModelTypeArray<T> extends ModelTypeConstrainable<T[]> imple
     readonly items: IModelTypeEntry[];
     itemType(): IModelType<T>;
     slice(): this;
+    possibleValuesForContextData(name: string | number, data: any): any[];
     protected _kind(): string;
     private _elementType;
 }

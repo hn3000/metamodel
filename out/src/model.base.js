@@ -176,6 +176,7 @@ function intersectArrays(a, b) {
     }
     return result;
 }
+exports.intersectArrays = intersectArrays;
 var ModelTypeConstraintOptional = (function () {
     function ModelTypeConstraintOptional() {
         this._onlyWarn = false;

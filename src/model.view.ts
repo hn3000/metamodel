@@ -52,6 +52,7 @@ export interface IModelView<T> {
   getFieldType(keyPath:string|string[]):IModelType<any>;
   getField(keyPath:string|string[]):IModelViewField;
   getFields():IModelViewField[];
+  getPossibleFieldValues(keyPath:string|string[]):any[];
 
   getFieldMessages(keyPath:string|string[]):IPropertyStatusMessage[];
   isFieldValid(keyPath:string|string[]):boolean;
@@ -454,6 +455,23 @@ export class ModelView<T> implements IModelView<T> {
   getFieldValue(keyPath:string|string[]):any {
     let path = this._asKeyArray(keyPath);
     return path.reduce((o:any,k:string):any => (o && o[k]), this._inputModel);
+  }
+
+  getPossibleFieldValues(keyPath:string|string[]):any[] {
+    let path = this._asKeyArray(keyPath);
+    let last = path.splice(path.length-1, 1)[0];
+
+    let type = this.getFieldType(path) as IModelTypeComposite<any>;
+    let fieldType = type && type.itemType(last).asItemType();
+    if (null == fieldType) {
+      return null; // no known restrictions
+    }
+
+    let value = this.getFieldValue(path);
+    if (type.possibleValuesForContextData) {
+      return  type.possibleValuesForContextData(last, value);
+    }
+    return fieldType.possibleValues();
   }
 
   getFieldType(keyPath:string|string[]):IModelType<any> {

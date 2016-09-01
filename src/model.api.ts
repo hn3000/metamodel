@@ -90,6 +90,7 @@ export interface IModelTypeConstraint<T> {
   usedItems?():string[];
 
   appliesTo?(kind:string):boolean;
+  possibleValuesForContextData?(name:string|number, data:T):any[];
 }
 
 export interface IModelTypeConstraintFactory {
@@ -102,7 +103,7 @@ export interface IModelTypeItem<T> extends IModelTypeConstrainable<T> {
 
   lowerBound():IModelTypeConstraint<T>;
   upperBound():IModelTypeConstraint<T>;
-  possibleValues():T[]; // null -> no list of allowed values
+  possibleValues():T[]; // null -> no list of allowed values, no values possible -> empty array
 }
 
 export interface IModelTypeEntry {
@@ -115,6 +116,11 @@ export interface IModelTypeComposite<C> extends IModelTypeConstrainable<C> {
   items:IModelTypeEntry[];
   itemType(name:string|number):IModelType<any>;
   slice(name:string[]|number[]):IModelTypeComposite<C>;
+  /**
+   * return: null -> no list of allowed values, 
+   *         empty array -> no values possible
+   */
+  possibleValuesForContextData(name:string|number, data:any):any[]; 
 }
 
 export interface IModelTypeCompositeBuilder<C> extends IModelTypeComposite<C> {

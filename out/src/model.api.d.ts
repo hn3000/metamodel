@@ -70,6 +70,7 @@ export interface IModelTypeConstraint<T> {
     checkAndAdjustValue(val: T, ctx: IModelParseContext): T;
     usedItems?(): string[];
     appliesTo?(kind: string): boolean;
+    possibleValuesForContextData?(name: string | number, data: T): any[];
 }
 export interface IModelTypeConstraintFactory {
     [kind: string]: (options: any) => IModelTypeConstraint<any>;
@@ -90,6 +91,11 @@ export interface IModelTypeComposite<C> extends IModelTypeConstrainable<C> {
     items: IModelTypeEntry[];
     itemType(name: string | number): IModelType<any>;
     slice(name: string[] | number[]): IModelTypeComposite<C>;
+    /**
+     * return: null -> no list of allowed values,
+     *         empty array -> no values possible
+     */
+    possibleValuesForContextData(name: string | number, data: any): any[];
 }
 export interface IModelTypeCompositeBuilder<C> extends IModelTypeComposite<C> {
     extend<X>(type: IModelTypeComposite<X>): IModelTypeCompositeBuilder<C>;

@@ -52,6 +52,11 @@ var ModelTypeArray = (function (_super) {
     ModelTypeArray.prototype.slice = function () {
         return this;
     };
+    ModelTypeArray.prototype.possibleValuesForContextData = function (name, data) {
+        // TODO
+        //return this._elementType.possibleValuesForContextData(data[name]);
+        return null;
+    };
     ModelTypeArray.prototype._kind = function () { return 'array'; };
     return ModelTypeArray;
 }(model_base_1.ModelTypeConstrainable));

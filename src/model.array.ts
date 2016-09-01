@@ -57,6 +57,12 @@ export class ModelTypeArray<T> extends ModelTypeConstrainable<T[]> implements IM
     return this;
   }
 
+  possibleValuesForContextData(name: string|number, data: any): any[] {
+    // TODO
+    //return this._elementType.possibleValuesForContextData(data[name]);
+    return null;
+  }
+
   protected _kind() { return 'array'; }
 
   private _elementType: IModelType<T>;

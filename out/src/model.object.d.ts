@@ -23,16 +23,17 @@ export declare class ModelTypeObject<T> extends ModelTypeConstrainable<T> implem
     private _allowAdditional;
     constructor(name: string, construct?: () => T, constraints?: ModelConstraints<T>);
     protected _clone(constraints: ModelConstraints<T>): this;
-    asItemType(): IModelTypeItem<T>;
     addItem(key: string, type: IModelType<any>, required?: boolean): IModelTypeCompositeBuilder<T>;
+    extend<X>(type: IModelTypeComposite<X>): IModelTypeCompositeBuilder<T>;
+    asItemType(): IModelTypeItem<T>;
     itemType(name: string | number): IModelType<any>;
     slice(names: string[] | number[]): IModelTypeComposite<T>;
-    extend<X>(type: IModelTypeComposite<X>): IModelTypeCompositeBuilder<T>;
     readonly items: IModelTypeEntry[];
     parse(ctx: IModelParseContext): T;
     validate(ctx: IModelParseContext): void;
     unparse(value: T): any;
     create(): T;
+    possibleValuesForContextData(name: string | number, data: any): any[];
     protected _kind(): string;
 }
 export interface IEqualPropertiesConstraintOptions {
@@ -71,6 +72,7 @@ export declare class ModelTypeConstraintConditionalValue extends ModelTypeConstr
     private _isConstraintConditionalValue();
     protected _id(): string;
     checkAndAdjustValue(val: any, ctx: IModelParseContext): Date;
+    possibleValuesForContextData?(name: string | number, data: any): any[];
     usedItems(): string[];
     private _settings;
 }

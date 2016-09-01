@@ -357,6 +357,20 @@ var ModelView = (function () {
         var path = this._asKeyArray(keyPath);
         return path.reduce(function (o, k) { return (o && o[k]); }, this._inputModel);
     };
+    ModelView.prototype.getPossibleFieldValues = function (keyPath) {
+        var path = this._asKeyArray(keyPath);
+        var last = path.splice(path.length - 1, 1)[0];
+        var type = this.getFieldType(path);
+        var fieldType = type && type.itemType(last).asItemType();
+        if (null == fieldType) {
+            return null; // no known restrictions
+        }
+        var value = this.getFieldValue(path);
+        if (type.possibleValuesForContextData) {
+            return type.possibleValuesForContextData(last, value);
+        }
+        return fieldType.possibleValues();
+    };
     ModelView.prototype.getFieldType = function (keyPath) {
         var path = this._asKeyArray(keyPath);
         return path.reduce(function (o, k) { return (o && o.itemType(k)); }, this._viewMeta.getModelType());

@@ -174,7 +174,7 @@ export abstract class ModelTypeItem<T>
 
 }
 
-function intersectArrays<T>(a:T[], b:T[]) {
+export function intersectArrays<T>(a:T[], b:T[]) {
   if (null == a) return b;
   if (null == b) return a;
   let result:T[] = [];

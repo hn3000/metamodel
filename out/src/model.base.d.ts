@@ -50,6 +50,7 @@ export declare abstract class ModelTypeItem<T> extends ModelTypeConstrainable<T>
     abstract fromString(val: string): T;
     abstract asString(val: T): string;
 }
+export declare function intersectArrays<T>(a: T[], b: T[]): T[];
 export declare abstract class ModelTypeConstraintOptional<T> implements IModelTypeConstraint<T> {
     constructor();
     warnOnly(): this;

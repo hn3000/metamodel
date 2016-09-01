@@ -67,9 +67,6 @@ var ModelTypeObject = (function (_super) {
         result._allowAdditional = this._allowAdditional;
         return result;
     };
-    ModelTypeObject.prototype.asItemType = function () {
-        return null;
-    };
     ModelTypeObject.prototype.addItem = function (key, type, required) {
         if (null == key) {
             throw new Error("addItem requires valid key, got " + key + " and type " + type);
@@ -85,6 +82,19 @@ var ModelTypeObject = (function (_super) {
             this._entriesByName[key] = entry;
         }
         return this;
+    };
+    ModelTypeObject.prototype.extend = function (type) {
+        var constraints = type.findConstraints(function () { return true; });
+        var result = this.withConstraints.apply(this, constraints);
+        for (var _i = 0, _a = type.items; _i < _a.length; _i++) {
+            var item = _a[_i];
+            var key = item.key, type_1 = item.type, required = item.required;
+            result.addItem(key, type_1, required);
+        }
+        return result;
+    };
+    ModelTypeObject.prototype.asItemType = function () {
+        return null;
     };
     ModelTypeObject.prototype.itemType = function (name) {
         if (typeof name === 'string' || typeof name === 'number') {
@@ -107,16 +117,6 @@ var ModelTypeObject = (function (_super) {
             return result;
         }
         return null;
-    };
-    ModelTypeObject.prototype.extend = function (type) {
-        var constraints = type.findConstraints(function () { return true; });
-        var result = this.withConstraints.apply(this, constraints);
-        for (var _i = 0, _a = type.items; _i < _a.length; _i++) {
-            var item = _a[_i];
-            var key = item.key, type_1 = item.type, required = item.required;
-            result.addItem(key, type_1, required);
-        }
-        return result;
     };
     Object.defineProperty(ModelTypeObject.prototype, "items", {
         get: function () {
@@ -174,6 +174,18 @@ var ModelTypeObject = (function (_super) {
     };
     ModelTypeObject.prototype.create = function () {
         return this._constructFun ? this._constructFun() : {};
+    };
+    // null -> no list of allowed values (no known restrictions) 
+    // empty array -> no values possible
+    ModelTypeObject.prototype.possibleValuesForContextData = function (name, data) {
+        var result = null;
+        var fieldType = this.itemType(name).asItemType();
+        if (fieldType) {
+            result = fieldType.possibleValues();
+        }
+        var cx = this.findConstraints(function (c) { return null != c.possibleValuesForContextData; });
+        result = cx.reduce(function (r, c) { return model_base_1.intersectArrays(r, c.possibleValuesForContextData(name, data)); }, result);
+        return result;
     };
     ModelTypeObject.prototype._kind = function () { return 'object'; };
     return ModelTypeObject;
@@ -324,6 +336,13 @@ var ModelTypeConstraintConditionalValue = (function (_super) {
             ctx._removeMessages(function (m) { return -1 != s.properties.indexOf(m.property); });
         }
         return val;
+    };
+    ModelTypeConstraintConditionalValue.prototype.possibleValuesForContextData = function (name, data) {
+        var s = this._settings;
+        if (null != name && s.predicate(data) && -1 != s.properties.indexOf(name.toString())) {
+            return s.possibleValues;
+        }
+        return null;
     };
     ModelTypeConstraintConditionalValue.prototype.usedItems = function () { return this._settings.properties; };
     return ModelTypeConstraintConditionalValue;
