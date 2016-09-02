@@ -327,10 +327,10 @@ function createValuePredicate(possibleValues:string[]|number[]): (x:string|numbe
     return (x:string|number) => x != null;
   } else if (possibleValues.length == 1) {
     let val = possibleValues[0];
-    return (x:string|number) => x == val;
+    return (x:string|number) => null == x || x == val;
   } else {
     let valArray = possibleValues as any[];
-    return (x:string|number) => -1 != valArray.indexOf(x as any);
+    return (x:string|number) => null == x || -1 != valArray.indexOf(x as any);
   }
 }
 

@@ -263,11 +263,11 @@ function createValuePredicate(possibleValues) {
     }
     else if (possibleValues.length == 1) {
         var val_1 = possibleValues[0];
-        return function (x) { return x == val_1; };
+        return function (x) { return null == x || x == val_1; };
     }
     else {
         var valArray_1 = possibleValues;
-        return function (x) { return -1 != valArray_1.indexOf(x); };
+        return function (x) { return null == x || -1 != valArray_1.indexOf(x); };
     }
 }
 var ModelTypeConstraintConditionalValue = (function (_super) {
