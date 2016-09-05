@@ -30,6 +30,8 @@ export interface IModelView<T> {
         [keyPath: string]: boolean;
     }): IModelView<T>;
     isFieldEditable(keyPath: string | string[]): boolean;
+    withClearedVisitedFlags(): IModelView<any>;
+    withAddedVisitedFlags(fields: string[]): IModelView<any>;
     withChangedField(keyPath: string | string[], newValue: Primitive | any[]): IModelView<T>;
     withAddedData(obj: any): IModelView<T>;
     getFieldValue(keyPath: string | string[]): any;
@@ -111,6 +113,8 @@ export declare class ModelView<T> implements IModelView<T> {
     getModel(): T;
     withValidationMessages(messages: IPropertyStatusMessage[]): ModelView<T>;
     withStatusMessages(messages: IStatusMessage[]): ModelView<T>;
+    withClearedVisitedFlags(): IModelView<any>;
+    withAddedVisitedFlags(fields: string[]): IModelView<any>;
     validationScope(): ValidationScope;
     validateDefault(): Promise<IModelView<T>>;
     validateVisited(): Promise<IModelView<T>>;

@@ -242,6 +242,19 @@ var ModelView = (function () {
         result._statusMessages = messages.slice();
         return result;
     };
+    ModelView.prototype.withClearedVisitedFlags = function () {
+        var result = new ModelView(this, this._inputModel);
+        result._visitedFields = {};
+        return result;
+    };
+    ModelView.prototype.withAddedVisitedFlags = function (fields) {
+        var result = new ModelView(this, this._inputModel);
+        for (var _i = 0, fields_1 = fields; _i < fields_1.length; _i++) {
+            var f = fields_1[_i];
+            this._visitedFields[f] = true;
+        }
+        return result;
+    };
     ModelView.prototype.validationScope = function () {
         return this._validationScope;
     };
@@ -415,7 +428,7 @@ var ModelView = (function () {
         return this.areFieldsValid(Object.keys(this._visitedFields)) && !this.hasStatusError();
     };
     ModelView.prototype.isValid = function () {
-        return 0 === this._messages.length && 0 === this._statusMessages.length;
+        return !this._messages.some(isNonSuccess) && !this._statusMessages.some(isNonSuccess);
     };
     ModelView.prototype.areFieldsValid = function (fields) {
         var _this = this;
@@ -458,6 +471,9 @@ var ModelView = (function () {
     return ModelView;
 }());
 exports.ModelView = ModelView;
+function isNonSuccess(x) {
+    return x.severity != model_api_1.MessageSeverity.SUCCESS && x.severity != model_api_1.MessageSeverity.NOTE;
+}
 function shallowCopy(x) {
     var keys = Object.keys(x);
     var result = {};

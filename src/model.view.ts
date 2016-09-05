@@ -45,6 +45,8 @@ export interface IModelView<T> {
   withFieldEditableFlag(keyPath:string|string[], flag:boolean):IModelView<T>;
   withFieldEditableFlags(flags:{ [keyPath:string]:boolean; }):IModelView<T>;
   isFieldEditable(keyPath:string|string[]):boolean;
+  withClearedVisitedFlags(): IModelView<any>;
+  withAddedVisitedFlags(fields:string[]): IModelView<any>;
 
   withChangedField(keyPath:string|string[], newValue:Primitive|any[]):IModelView<T>;
   withAddedData(obj:any):IModelView<T>;
@@ -326,6 +328,19 @@ export class ModelView<T> implements IModelView<T> {
     return result;
   }
 
+  withClearedVisitedFlags(): IModelView<any> {
+    let result = new ModelView(this, this._inputModel);
+    result._visitedFields = {};
+    return result;
+  }
+  withAddedVisitedFlags(fields:string[]): IModelView<any> {
+    let result = new ModelView(this, this._inputModel);
+    for (let f of fields) {
+      this._visitedFields[f] = true;
+    }
+    return result;
+  }
+
   validationScope() {
     return this._validationScope;
   }
@@ -522,7 +537,7 @@ export class ModelView<T> implements IModelView<T> {
     return this.areFieldsValid(Object.keys(this._visitedFields))  && !this.hasStatusError();
   }
   isValid() {
-    return 0 === this._messages.length && 0 === this._statusMessages.length;
+    return !this._messages.some(isNonSuccess) && !this._statusMessages.some(isNonSuccess);
   }
 
   areFieldsValid(fields:string[]) {
@@ -574,6 +589,10 @@ export class ModelView<T> implements IModelView<T> {
   private _messages:IPropertyStatusMessage[];
   private _messagesByField:{ [keypath:string]:IPropertyStatusMessage[]; };
 
+}
+
+function isNonSuccess(x:IStatusMessage) {
+  return x.severity != MessageSeverity.SUCCESS && x.severity != MessageSeverity.NOTE;
 }
 
 function shallowCopy(x:any) {
