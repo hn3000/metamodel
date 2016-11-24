@@ -57,13 +57,16 @@ export interface IModelView<T> {
   getPossibleFieldValues(keyPath:string|string[]):any[];
 
   getFieldMessages(keyPath:string|string[]):IPropertyStatusMessage[];
+  isFieldVisited(field: string | string[]):boolean;
   isFieldValid(keyPath:string|string[]):boolean;
   areFieldsValid(fields:string[]):boolean;
 
   getPages():IModelViewPage[];
   getPage(aliasOrIndex?:string|number):IModelViewPage;
   getPageMessages(aliasOrIndex?:string|number):IStatusMessage[];
+  isPageVisited(aliasOrIndex: string | number):boolean;
   isPageValid(aliasOrIndex?:string|number):boolean;
+  
   isVisitedValid():boolean;
   isValid(): boolean;
 
@@ -542,6 +545,15 @@ export class ModelView<T> implements IModelView<T> {
 
   areFieldsValid(fields:string[]) {
     return fields.every((x) => this.isFieldValid(x));
+  }
+  isFieldVisited(field: string | string[]):boolean {
+    let fieldPath = this._asKeyString(field);
+    return null != this._visitedFields[fieldPath];
+  }
+  isPageVisited(aliasOrIndex: string | number):boolean {
+    let page = this.getPage(aliasOrIndex);
+    let visited = page.fields.some(f => this.isFieldVisited(f));
+    return visited;
   }
 
   hasStatusError() {

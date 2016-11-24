@@ -142,6 +142,8 @@ export declare class ModelView<T> implements IModelView<T> {
     isVisitedValid(): boolean;
     isValid(): boolean;
     areFieldsValid(fields: string[]): boolean;
+    isFieldVisited(field: string | string[]):boolean;
+    isPageVisited(aliasOrIndex: string | number):boolean;
     hasStatusError(): boolean;
     getStatusMessages(): IStatusMessage[];
     readonly currentPageIndex: number;
