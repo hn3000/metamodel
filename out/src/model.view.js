@@ -434,6 +434,16 @@ var ModelView = (function () {
         var _this = this;
         return fields.every(function (x) { return _this.isFieldValid(x); });
     };
+    ModelView.prototype.isFieldVisited = function (field) {
+        var fieldPath = this._asKeyString(field);
+        return null != this._visitedFields[fieldPath];
+    };
+    ModelView.prototype.isPageVisited = function (aliasOrIndex) {
+        var _this = this;
+        var page = this.getPage(aliasOrIndex);
+        var visited = page.fields.some(function (f) { return _this.isFieldVisited(f); });
+        return visited;
+    };
     ModelView.prototype.hasStatusError = function () {
         return this._statusMessages.some(function (x) { return (x.severity == model_api_1.MessageSeverity.ERROR); });
     };

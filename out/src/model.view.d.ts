@@ -40,11 +40,13 @@ export interface IModelView<T> {
     getFields(): IModelViewField[];
     getPossibleFieldValues(keyPath: string | string[]): any[];
     getFieldMessages(keyPath: string | string[]): IPropertyStatusMessage[];
+    isFieldVisited(field: string | string[]): boolean;
     isFieldValid(keyPath: string | string[]): boolean;
     areFieldsValid(fields: string[]): boolean;
     getPages(): IModelViewPage[];
     getPage(aliasOrIndex?: string | number): IModelViewPage;
     getPageMessages(aliasOrIndex?: string | number): IStatusMessage[];
+    isPageVisited(aliasOrIndex: string | number): boolean;
     isPageValid(aliasOrIndex?: string | number): boolean;
     isVisitedValid(): boolean;
     isValid(): boolean;
@@ -142,8 +144,8 @@ export declare class ModelView<T> implements IModelView<T> {
     isVisitedValid(): boolean;
     isValid(): boolean;
     areFieldsValid(fields: string[]): boolean;
-    isFieldVisited(field: string | string[]):boolean;
-    isPageVisited(aliasOrIndex: string | number):boolean;
+    isFieldVisited(field: string | string[]): boolean;
+    isPageVisited(aliasOrIndex: string | number): boolean;
     hasStatusError(): boolean;
     getStatusMessages(): IStatusMessage[];
     readonly currentPageIndex: number;
