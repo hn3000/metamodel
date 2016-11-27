@@ -1,3 +1,4 @@
+/// <reference types="es6-promise" />
 import { IModelType, IModelTypeComposite, IStatusMessage, IPropertyStatusMessage } from "./model.api";
 export declare type Primitive = string | number | boolean | string[] | number[];
 export interface IModelViewField {

@@ -1,3 +1,4 @@
+/// <reference types="es6-promise" />
 import { IModelType, IModelTypeItem, IModelTypeConstraint, IModelTypeConstrainable, IModelTypeConstraintFactory, IModelTypeRegistry } from "./model.api";
 import { ModelConstraints } from "./model.base";
 import { ModelTypeNumber } from "./model.number";
