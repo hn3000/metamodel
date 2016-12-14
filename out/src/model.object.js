@@ -11,8 +11,9 @@ function constructionNotAllowed() {
 var ModelTypeAny = (function (_super) {
     __extends(ModelTypeAny, _super);
     function ModelTypeAny(name, construct, constraints) {
-        _super.call(this, name, constraints);
-        this._constructFun = construct || (function () { return ({}); });
+        var _this = _super.call(this, name, constraints) || this;
+        _this._constructFun = construct || (function () { return ({}); });
+        return _this;
     }
     ModelTypeAny.prototype._clone = function (constraints) {
         var result = new this.constructor(this.name, this._constructFun, constraints);
@@ -52,11 +53,12 @@ exports.ModelTypeAny = ModelTypeAny;
 var ModelTypeObject = (function (_super) {
     __extends(ModelTypeObject, _super);
     function ModelTypeObject(name, construct, constraints) {
-        _super.call(this, name, constraints);
-        this._allowAdditional = true;
-        this._constructFun = construct || (function () { return ({}); });
-        this._entries = [];
-        this._entriesByName = {};
+        var _this = _super.call(this, name, constraints) || this;
+        _this._allowAdditional = true;
+        _this._constructFun = construct || (function () { return ({}); });
+        _this._entries = [];
+        _this._entriesByName = {};
+        return _this;
     }
     ModelTypeObject.prototype._clone = function (constraints) {
         var result = new this.constructor(this.name, this._constructFun, constraints);
@@ -197,16 +199,17 @@ function safeArray(val) {
 var ModelTypeConstraintEqualProperties = (function (_super) {
     __extends(ModelTypeConstraintEqualProperties, _super);
     function ModelTypeConstraintEqualProperties(fieldsOrSelf) {
-        _super.call(this);
+        var _this = _super.call(this) || this;
         if (Array.isArray(fieldsOrSelf)) {
-            this._fields = fieldsOrSelf.slice();
+            _this._fields = fieldsOrSelf.slice();
         }
         else if (fieldsOrSelf && fieldsOrSelf.properties) {
-            this._fields = safeArray(fieldsOrSelf.properties);
+            _this._fields = safeArray(fieldsOrSelf.properties);
         }
         else {
-            this._fields = fieldsOrSelf._fields.slice();
+            _this._fields = fieldsOrSelf._fields.slice();
         }
+        return _this;
     }
     ModelTypeConstraintEqualProperties.prototype._isConstraintEqualFields = function () { }; // marker property
     ModelTypeConstraintEqualProperties.prototype._id = function () {
@@ -273,7 +276,7 @@ function createValuePredicate(possibleValues) {
 var ModelTypeConstraintConditionalValue = (function (_super) {
     __extends(ModelTypeConstraintConditionalValue, _super);
     function ModelTypeConstraintConditionalValue(optionsOrSelf) {
-        _super.call(this);
+        var _this = _super.call(this) || this;
         var options = optionsOrSelf;
         if (options.condition && options.properties) {
             var condition = options.condition, properties = options.properties, possibleValue = options.possibleValue;
@@ -286,7 +289,7 @@ var ModelTypeConstraintConditionalValue = (function (_super) {
             var id_p = props.join(',');
             var id_v = allowed ? " == [" + allowed.join(',') + "]" : "";
             var id = "conditionalValue(" + condition.property + " " + (condition.invert ? '!=' : '==') + " " + condition.value + " -> " + id_p + id_v + ")";
-            this._settings = {
+            _this._settings = {
                 predicate: createPredicate(condition),
                 valueCheck: createValuePredicate(allowed),
                 properties: props,
@@ -295,13 +298,14 @@ var ModelTypeConstraintConditionalValue = (function (_super) {
                 id: id
             };
         }
-        else if (this._isConstraintConditionalValue == optionsOrSelf["_isConstraintConditionalValue"]) {
-            this._settings = optionsOrSelf._settings;
+        else if (_this._isConstraintConditionalValue == optionsOrSelf["_isConstraintConditionalValue"]) {
+            _this._settings = optionsOrSelf._settings;
         }
         else {
             console.log("invalid constructor argument", optionsOrSelf);
             throw new Error("invalid constructor argument" + optionsOrSelf);
         }
+        return _this;
     }
     ModelTypeConstraintConditionalValue.prototype._isConstraintConditionalValue = function () { }; // marker property
     ModelTypeConstraintConditionalValue.prototype._id = function () {
@@ -354,9 +358,10 @@ exports.ModelTypeConstraintConditionalValue = ModelTypeConstraintConditionalValu
 var ModelTypePropertyConstraint = (function (_super) {
     __extends(ModelTypePropertyConstraint, _super);
     function ModelTypePropertyConstraint(property, constraint) {
-        _super.call(this);
-        this._property = property;
-        this._constraint = constraint;
+        var _this = _super.call(this) || this;
+        _this._property = property;
+        _this._constraint = constraint;
+        return _this;
     }
     ModelTypePropertyConstraint.prototype._id = function () {
         return this._constraint.id + "@" + this._property;

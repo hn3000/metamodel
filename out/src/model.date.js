@@ -9,7 +9,7 @@ var model_base_1 = require("./model.base");
 var ModelTypeDate = (function (_super) {
     __extends(ModelTypeDate, _super);
     function ModelTypeDate(c) {
-        _super.call(this, 'number', c);
+        return _super.call(this, 'number', c) || this;
     }
     ModelTypeDate.prototype.lowerBound = function () {
         var lower = this.findConstraints(function (x) {
@@ -92,7 +92,7 @@ exports.ModelTypeDate = ModelTypeDate;
 var ModelTypeConstraintDateBase = (function (_super) {
     __extends(ModelTypeConstraintDateBase, _super);
     function ModelTypeConstraintDateBase() {
-        _super.call(this);
+        return _super.call(this) || this;
     }
     Object.defineProperty(ModelTypeConstraintDateBase.prototype, "value", {
         get: function () {
@@ -138,13 +138,14 @@ exports.ModelTypeConstraintDateBase = ModelTypeConstraintDateBase;
 var ModelTypeConstraintDateFixed = (function (_super) {
     __extends(ModelTypeConstraintDateFixed, _super);
     function ModelTypeConstraintDateFixed(val) {
-        _super.call(this);
+        var _this = _super.call(this) || this;
         if (val instanceof Date || typeof val === 'string') {
-            this._value = this.asDate(val);
+            _this._value = _this.asDate(val);
         }
         else {
-            this._value = val._value;
+            _this._value = val._value;
         }
+        return _this;
     }
     ModelTypeConstraintDateFixed.prototype._val = function () { return this._value; };
     ModelTypeConstraintDateFixed.prototype._limit = function () { return this._value; };
@@ -154,7 +155,7 @@ exports.ModelTypeConstraintDateFixed = ModelTypeConstraintDateFixed;
 var ModelTypeConstraintBefore = (function (_super) {
     __extends(ModelTypeConstraintBefore, _super);
     function ModelTypeConstraintBefore(val) {
-        _super.call(this, val);
+        return _super.call(this, val) || this;
     }
     ModelTypeConstraintBefore.prototype._op = function () { return "<"; };
     ModelTypeConstraintBefore.prototype._compare = function (a, b) { return a < b; };
@@ -165,7 +166,7 @@ exports.ModelTypeConstraintBefore = ModelTypeConstraintBefore;
 var ModelTypeConstraintAfter = (function (_super) {
     __extends(ModelTypeConstraintAfter, _super);
     function ModelTypeConstraintAfter(val) {
-        _super.call(this, val);
+        return _super.call(this, val) || this;
     }
     ModelTypeConstraintAfter.prototype._op = function () { return ">"; };
     ModelTypeConstraintAfter.prototype._compare = function (a, b) { return a > b; };
@@ -214,15 +215,16 @@ var TimeSpan = (function () {
                 break;
         }
     };
-    TimeSpan.REGEX = /([0-9]+(?:\.[0.9]+)?)\s*([a-z]+)/;
     return TimeSpan;
 }());
+TimeSpan.REGEX = /([0-9]+(?:\.[0.9]+)?)\s*([a-z]+)/;
 exports.TimeSpan = TimeSpan;
 var ModelTypeConstraintOlder = (function (_super) {
     __extends(ModelTypeConstraintOlder, _super);
     function ModelTypeConstraintOlder(timespan) {
-        _super.call(this);
-        this._timespan = new TimeSpan(timespan);
+        var _this = _super.call(this) || this;
+        _this._timespan = new TimeSpan(timespan);
+        return _this;
     }
     ModelTypeConstraintOlder.prototype._op = function () { return "<"; };
     ModelTypeConstraintOlder.prototype._compare = function (a, b) { return a < b; };

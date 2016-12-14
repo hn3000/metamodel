@@ -72,15 +72,16 @@ var ModelTypeConstrainable = (function (_super) {
     __extends(ModelTypeConstrainable, _super);
     function ModelTypeConstrainable(name, constraints) {
         if (constraints === void 0) { constraints = null; }
-        _super.call(this);
-        this._name = name;
-        this._constraints = constraints || new ModelConstraints([]);
-        var cid = this._constraints.id;
-        this._qualifiers = [
-            ("type-" + this._name),
+        var _this = _super.call(this) || this;
+        _this._name = name;
+        _this._constraints = constraints || new ModelConstraints([]);
+        var cid = _this._constraints.id;
+        _this._qualifiers = [
+            "type-" + _this._name,
             //`kind-${this.kind}`,
-            ("constraints-" + cid)
+            "constraints-" + cid
         ];
+        return _this;
     }
     ModelTypeConstrainable.prototype.propSet = function (key, value) {
         _super.prototype.propSet.call(this, key, value);
@@ -146,7 +147,7 @@ exports.ModelTypeConstrainable = ModelTypeConstrainable;
 var ModelTypeItem = (function (_super) {
     __extends(ModelTypeItem, _super);
     function ModelTypeItem() {
-        _super.apply(this, arguments);
+        return _super.apply(this, arguments) || this;
     }
     ModelTypeItem.prototype.asItemType = function () {
         return this;

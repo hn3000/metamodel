@@ -8,8 +8,9 @@ var model_base_1 = require("./model.base");
 var ModelTypeArray = (function (_super) {
     __extends(ModelTypeArray, _super);
     function ModelTypeArray(elementType, constraints) {
-        _super.call(this, elementType.name + "[]", constraints);
-        this._elementType = elementType;
+        var _this = _super.call(this, elementType.name + "[]", constraints) || this;
+        _this._elementType = elementType;
+        return _this;
     }
     ModelTypeArray.prototype.parse = function (ctx) {
         var source = ctx.currentValue();
@@ -64,13 +65,14 @@ exports.ModelTypeArray = ModelTypeArray;
 var ModelTypeArraySizeConstraint = (function (_super) {
     __extends(ModelTypeArraySizeConstraint, _super);
     function ModelTypeArraySizeConstraint(options) {
-        _super.call(this);
+        var _this = _super.call(this) || this;
         var minLength = options.minLength, maxLength = options.maxLength;
         ;
-        this._settings = {
+        _this._settings = {
             minLength: null != minLength ? Math.max(0, minLength) : null,
             maxLength: null != maxLength ? Math.max(0, maxLength) : null,
         };
+        return _this;
     }
     ModelTypeArraySizeConstraint.prototype._id = function () {
         var _a = this._settings, minLength = _a.minLength, maxLength = _a.maxLength;
@@ -96,7 +98,7 @@ exports.ModelTypeArraySizeConstraint = ModelTypeArraySizeConstraint;
 var ModelTypeArrayUniqueElementsConstraint = (function (_super) {
     __extends(ModelTypeArrayUniqueElementsConstraint, _super);
     function ModelTypeArrayUniqueElementsConstraint() {
-        _super.call(this);
+        return _super.call(this) || this;
     }
     ModelTypeArrayUniqueElementsConstraint.prototype._id = function () {
         return 'uniqueElements';

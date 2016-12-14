@@ -1,13 +1,13 @@
 "use strict";
 var model_api_1 = require("./model.api");
 var model_infra_1 = require("./model.infra");
-var es6_promise_1 = require('es6-promise');
+var es6_promise_1 = require("es6-promise");
+var ValidationScope;
 (function (ValidationScope) {
     ValidationScope[ValidationScope["VISITED"] = 0] = "VISITED";
     ValidationScope[ValidationScope["PAGE"] = 1] = "PAGE";
     ValidationScope[ValidationScope["FULL"] = 2] = "FULL";
-})(exports.ValidationScope || (exports.ValidationScope = {}));
-var ValidationScope = exports.ValidationScope;
+})(ValidationScope = exports.ValidationScope || (exports.ValidationScope = {}));
 var ModelViewField = (function () {
     function ModelViewField(key, type) {
         this._keyString = key;

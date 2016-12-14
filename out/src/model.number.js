@@ -9,7 +9,7 @@ var model_base_1 = require("./model.base");
 var ModelTypeNumber = (function (_super) {
     __extends(ModelTypeNumber, _super);
     function ModelTypeNumber(c) {
-        _super.call(this, 'number', c);
+        return _super.call(this, 'number', c) || this;
     }
     ModelTypeNumber.prototype.lowerBound = function () {
         var lower = this.findConstraints(function (x) {
@@ -99,13 +99,14 @@ exports.ModelTypeConstraintInteger = ModelTypeConstraintInteger;
 var ModelTypeConstraintMultipleOf = (function (_super) {
     __extends(ModelTypeConstraintMultipleOf, _super);
     function ModelTypeConstraintMultipleOf(modulus) {
-        _super.call(this);
+        var _this = _super.call(this) || this;
         if (typeof (modulus) === 'number') {
-            this._modulus = modulus;
+            _this._modulus = modulus;
         }
         else {
-            this._modulus = modulus._modulus;
+            _this._modulus = modulus._modulus;
         }
+        return _this;
     }
     ModelTypeConstraintMultipleOf.prototype._id = function () { return "mult(" + this._modulus + ")"; };
     ModelTypeConstraintMultipleOf.prototype.checkAndAdjustValue = function (value, ctx) {
@@ -134,13 +135,14 @@ exports.ModelTypeConstraintMultipleOf = ModelTypeConstraintMultipleOf;
 var ModelTypeConstraintComparison = (function (_super) {
     __extends(ModelTypeConstraintComparison, _super);
     function ModelTypeConstraintComparison(val) {
-        _super.call(this);
+        var _this = _super.call(this) || this;
         if (typeof val == 'number') {
-            this._val = val;
+            _this._val = val;
         }
         else {
-            this._val = val._val;
+            _this._val = val._val;
         }
+        return _this;
     }
     Object.defineProperty(ModelTypeConstraintComparison.prototype, "value", {
         get: function () {
@@ -181,7 +183,7 @@ exports.ModelTypeConstraintComparison = ModelTypeConstraintComparison;
 var ModelTypeConstraintLess = (function (_super) {
     __extends(ModelTypeConstraintLess, _super);
     function ModelTypeConstraintLess(val) {
-        _super.call(this, val);
+        return _super.call(this, val) || this;
     }
     ModelTypeConstraintLess.prototype._op = function () { return "<"; };
     ModelTypeConstraintLess.prototype._compare = function (a, b) { return a < b; };
@@ -192,7 +194,7 @@ exports.ModelTypeConstraintLess = ModelTypeConstraintLess;
 var ModelTypeConstraintLessEqual = (function (_super) {
     __extends(ModelTypeConstraintLessEqual, _super);
     function ModelTypeConstraintLessEqual(val) {
-        _super.call(this, val);
+        return _super.call(this, val) || this;
     }
     ModelTypeConstraintLessEqual.prototype._op = function () { return "<="; };
     ModelTypeConstraintLessEqual.prototype._compare = function (a, b) { return a <= b; };
@@ -203,7 +205,7 @@ exports.ModelTypeConstraintLessEqual = ModelTypeConstraintLessEqual;
 var ModelTypeConstraintMore = (function (_super) {
     __extends(ModelTypeConstraintMore, _super);
     function ModelTypeConstraintMore(val) {
-        _super.call(this, val);
+        return _super.call(this, val) || this;
     }
     ModelTypeConstraintMore.prototype._op = function () { return ">"; };
     ModelTypeConstraintMore.prototype._compare = function (a, b) { return a > b; };
@@ -214,7 +216,7 @@ exports.ModelTypeConstraintMore = ModelTypeConstraintMore;
 var ModelTypeConstraintMoreEqual = (function (_super) {
     __extends(ModelTypeConstraintMoreEqual, _super);
     function ModelTypeConstraintMoreEqual(val) {
-        _super.call(this, val);
+        return _super.call(this, val) || this;
     }
     ModelTypeConstraintMoreEqual.prototype._op = function () { return ">="; };
     ModelTypeConstraintMoreEqual.prototype._compare = function (a, b) { return a >= b; };

@@ -9,7 +9,7 @@ var model_base_1 = require("./model.base");
 var ModelTypeBool = (function (_super) {
     __extends(ModelTypeBool, _super);
     function ModelTypeBool(c) {
-        _super.call(this, 'boolean', c);
+        return _super.call(this, 'boolean', c) || this;
     }
     ModelTypeBool.prototype.lowerBound = function () { return null; };
     ;

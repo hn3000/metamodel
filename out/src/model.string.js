@@ -8,7 +8,7 @@ var model_base_1 = require("./model.base");
 var ModelTypeString = (function (_super) {
     __extends(ModelTypeString, _super);
     function ModelTypeString(c) {
-        _super.call(this, 'string', c);
+        return _super.call(this, 'string', c) || this;
     }
     ModelTypeString.prototype.lowerBound = function () { return null; };
     ;
@@ -49,8 +49,9 @@ exports.ModelTypeString = ModelTypeString;
 var ModelTypeConstraintPossibleValues = (function (_super) {
     __extends(ModelTypeConstraintPossibleValues, _super);
     function ModelTypeConstraintPossibleValues(values) {
-        _super.call(this);
-        this._allowedValues = values || [];
+        var _this = _super.call(this) || this;
+        _this._allowedValues = values || [];
+        return _this;
     }
     Object.defineProperty(ModelTypeConstraintPossibleValues.prototype, "allowedValues", {
         get: function () {
@@ -83,11 +84,11 @@ exports.ModelTypeConstraintPossibleValues = ModelTypeConstraintPossibleValues;
 var ModelTypeConstraintLength = (function (_super) {
     __extends(ModelTypeConstraintLength, _super);
     function ModelTypeConstraintLength(minLen, maxLen, message) {
-        _super.call(this);
-        this._minLength = minLen;
-        this._maxLength = maxLen;
+        var _this = _super.call(this) || this;
+        _this._minLength = minLen;
+        _this._maxLength = maxLen;
         if (null != message) {
-            this._message = message;
+            _this._message = message;
         }
         else {
             var msg;
@@ -100,8 +101,9 @@ var ModelTypeConstraintLength = (function (_super) {
             else {
                 msg = "length must be between " + (minLen || 0) + " and " + maxLen + ":";
             }
-            this._message = msg;
+            _this._message = msg;
         }
+        return _this;
     }
     ModelTypeConstraintLength.prototype._id = function () {
         var from = this._minLength != null ? this._minLength + " <= " : '';
@@ -152,15 +154,16 @@ exports.ModelTypeConstraintLength = ModelTypeConstraintLength;
 var ModelTypeConstraintRegex = (function (_super) {
     __extends(ModelTypeConstraintRegex, _super);
     function ModelTypeConstraintRegex(pattern, flags, message) {
-        _super.call(this);
+        var _this = _super.call(this) || this;
         var patternSource = pattern.source || pattern.toString();
-        this._pattern = new RegExp(patternSource, flags || '');
+        _this._pattern = new RegExp(patternSource, flags || '');
         if (null != message) {
-            this._message = message;
+            _this._message = message;
         }
         else {
-            this._message = "value does not match " + this._pattern.toString() + ":";
+            _this._message = "value does not match " + _this._pattern.toString() + ":";
         }
+        return _this;
     }
     ModelTypeConstraintRegex.prototype._id = function () { return "pattern[" + this._pattern + "]"; };
     ModelTypeConstraintRegex.prototype.checkAndAdjustValue = function (value, ctx) {
@@ -187,15 +190,16 @@ exports.ModelTypeConstraintRegex = ModelTypeConstraintRegex;
 var ModelTypeConstraintInvalidRegex = (function (_super) {
     __extends(ModelTypeConstraintInvalidRegex, _super);
     function ModelTypeConstraintInvalidRegex(pattern, flags, message) {
-        _super.call(this);
+        var _this = _super.call(this) || this;
         var patternSource = pattern.source || pattern.toString();
-        this._pattern = new RegExp(patternSource, flags || 'g');
+        _this._pattern = new RegExp(patternSource, flags || 'g');
         if (null != message) {
-            this._message = message;
+            _this._message = message;
         }
         else {
-            this._message = "value should not match " + this._pattern.toString() + ":";
+            _this._message = "value should not match " + _this._pattern.toString() + ":";
         }
+        return _this;
     }
     ModelTypeConstraintInvalidRegex.prototype._id = function () { return "pattern[" + this._pattern + "]"; };
     ModelTypeConstraintInvalidRegex.prototype.checkAndAdjustValue = function (value, ctx) {
