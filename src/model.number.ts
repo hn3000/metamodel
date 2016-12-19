@@ -46,10 +46,13 @@ export class ModelTypeNumber extends ModelTypeItem<number> {
     let result:number = null;
     if (typeof value === 'number') {
       result = value;
-    } else if (typeof value === 'string') {
+    } else if (typeof value === 'string' && ctx.allowConversion) {
       result = parseFloat(value);
     }
-    if (null == result && ctx.currentRequired()) {
+
+    if (
+      null == result && (ctx.currentRequired() || (value != null && !ctx.allowConversion))
+    ) {
       if (null == value) {
         ctx.addError('required value is missing', 'required-empty');
       } else {

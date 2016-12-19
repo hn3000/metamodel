@@ -1,6 +1,12 @@
 
+
+export type Primitive = string|number|boolean|string[]|number[];
+
 export interface Predicate<T> {
   (x:T):boolean;
+}
+export interface Comparison<T> {
+  (x:T, y:T):boolean;
 }
 
 export interface IModelObject {

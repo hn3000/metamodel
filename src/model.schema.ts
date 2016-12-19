@@ -59,6 +59,7 @@ import {
 import {
   ModelTypeAny,
   ModelTypeObject,
+  ModelTypeConstraintCompareProperties,
   ModelTypeConstraintEqualProperties,
   ModelTypeConstraintConditionalValue,
   ModelTypePropertyConstraint
@@ -132,6 +133,7 @@ var constraintFactoriesDefault:IConstraintFactories = {
       return new ModelTypePropertyConstraint(o.property, new ModelTypeConstraintAfter<string>(o.date));
     },
     equalProperties(o:any) { return new ModelTypeConstraintEqualProperties(o); },
+    compareProperties(o:any) { return new ModelTypeConstraintCompareProperties(o); },
     requiredIf(o:any) { 
       return new ModelTypeConstraintConditionalValue({
         condition: o.condition,

@@ -4,7 +4,8 @@ import {
   IModelTypeComposite,
   IStatusMessage,
   IPropertyStatusMessage,
-  MessageSeverity
+  MessageSeverity,
+  Primitive
 } from "./model.api";
 
 import {
@@ -12,8 +13,6 @@ import {
 } from "./model.infra";
 
 import { Promise } from 'es6-promise';
-
-export type Primitive = string|number|boolean|string[]|number[];
 
 export interface IModelViewField {
   keypath:string[];   // ["a","b","c"]

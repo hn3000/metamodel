@@ -1,4 +1,4 @@
-export { Predicate, IModelObject, MessageSeverity, IMessageProps, IStatusMessage, IPropertyStatusMessage, IModelParseContext, IModelType, IModelTypeConstrainable, IModelTypeItem, IModelTypeEntry, IModelTypeComposite, IModelTypeCompositeBuilder, IModelTypeConstraint, IModelTypeConstraintFactory, IModelTypeRegistry, IClientProps } from "./model.api";
+export { Primitive, Predicate, IModelObject, MessageSeverity, IMessageProps, IStatusMessage, IPropertyStatusMessage, IModelParseContext, IModelType, IModelTypeConstrainable, IModelTypeItem, IModelTypeEntry, IModelTypeComposite, IModelTypeCompositeBuilder, IModelTypeConstraint, IModelTypeConstraintFactory, IModelTypeRegistry, IClientProps } from "./model.api";
 import { ModelTypeRegistry } from "./model.registry";
 export { ModelTypeConstrainable, ModelTypeItem, ModelConstraints, ModelTypeConstraintOptional, ClientProps } from "./model.base";
 import { ModelTypeConstraintLess, ModelTypeConstraintLessEqual, ModelTypeConstraintMore, ModelTypeConstraintMoreEqual } from "./model.number";
@@ -9,9 +9,9 @@ export { ModelTypeNumber, ModelTypeConstraintLess, ModelTypeConstraintLessEqual,
 export { ModelTypeString, ModelTypeConstraintPossibleValues, ModelTypeConstraintLength, ModelTypeConstraintRegex } from "./model.string";
 export { ModelTypeBool } from "./model.bool";
 export { ModelTypeArray } from "./model.array";
-export { ModelTypeObject, ModelTypeConstraintConditionalValue, ModelTypeConstraintEqualProperties } from "./model.object";
+export { ModelTypeObject, ModelTypeConstraintConditionalValue, ModelTypeConstraintCompareProperties, ModelTypeConstraintEqualProperties } from "./model.object";
 export { ModelSchemaParser } from "./model.schema";
-export { Primitive, IModelViewField, IModelViewPage, IModelView, ValidationScope, ModelView } from "./model.view";
+export { IModelViewField, IModelViewPage, IModelView, ValidationScope, ModelView } from "./model.view";
 export { JsonPointer, JsonReference, JsonReferenceProcessor } from "@hn3000/json-ref";
 export declare class ModelTypeConstraints {
     static less(v: number): ModelTypeConstraintLess;

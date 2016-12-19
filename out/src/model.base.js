@@ -47,7 +47,7 @@ var ModelConstraints = (function () {
     ModelConstraints.prototype.add = function () {
         var c = [];
         for (var _i = 0; _i < arguments.length; _i++) {
-            c[_i - 0] = arguments[_i];
+            c[_i] = arguments[_i];
         }
         return new ModelConstraints(this._constraints.concat(c));
     };
@@ -109,7 +109,7 @@ var ModelTypeConstrainable = (function (_super) {
     ModelTypeConstrainable.prototype.withConstraints = function () {
         var c = [];
         for (var _i = 0; _i < arguments.length; _i++) {
-            c[_i - 0] = arguments[_i];
+            c[_i] = arguments[_i];
         }
         var result = this._clone((_a = this._constraints).add.apply(_a, c));
         if (this.kind != 'object') {

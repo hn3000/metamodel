@@ -34,6 +34,7 @@ exports.ModelTypeArray = model_array_1.ModelTypeArray;
 var model_object_1 = require("./model.object");
 exports.ModelTypeObject = model_object_1.ModelTypeObject;
 exports.ModelTypeConstraintConditionalValue = model_object_1.ModelTypeConstraintConditionalValue;
+exports.ModelTypeConstraintCompareProperties = model_object_1.ModelTypeConstraintCompareProperties;
 exports.ModelTypeConstraintEqualProperties = model_object_1.ModelTypeConstraintEqualProperties;
 var model_schema_1 = require("./model.schema");
 exports.ModelSchemaParser = model_schema_1.ModelSchemaParser;

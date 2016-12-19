@@ -36,6 +36,20 @@ export declare class ModelTypeObject<T> extends ModelTypeConstrainable<T> implem
     possibleValuesForContextData(name: string | number, data: any): any[];
     protected _kind(): string;
 }
+export declare type ComparisonOp = "=" | "==" | "<" | "<=" | ">" | ">=" | "!=";
+export interface IComparePropertiesConstraintOptions {
+    properties: string | string[];
+    op: ComparisonOp;
+}
+export declare class ModelTypeConstraintCompareProperties extends ModelTypeConstraintOptional<any> {
+    constructor(fieldsOrSelf: string[] | IComparePropertiesConstraintOptions | ModelTypeConstraintCompareProperties, op?: ComparisonOp);
+    protected _id(): string;
+    checkAndAdjustValue(val: any, ctx: IModelParseContext): any;
+    usedItems(): string[];
+    private _fields;
+    private _op;
+    private _comparator;
+}
 export interface IEqualPropertiesConstraintOptions {
     properties: string | string[];
 }
@@ -50,7 +64,7 @@ export declare class ModelTypeConstraintEqualProperties extends ModelTypeConstra
 export interface IConditionOptions {
     property: string;
     value: string | string[] | number | number[];
-    op?: "=";
+    op?: ComparisonOp;
     invert?: boolean;
 }
 export interface IConditionalValueConstraintOptions {

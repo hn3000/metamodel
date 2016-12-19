@@ -20,7 +20,7 @@ var ModelTypeString = (function (_super) {
         if (typeof value === 'string') {
             result = value;
         }
-        if (null == result && ctx.currentRequired()) {
+        if (null == result && (ctx.currentRequired() || (null != value && !ctx.allowConversion))) {
             if (value == null) {
                 ctx.addErrorEx('required value is missing', 'required-empty', { value: value });
             }

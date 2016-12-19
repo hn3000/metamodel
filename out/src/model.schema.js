@@ -49,6 +49,7 @@ var constraintFactoriesDefault = {
             return new model_object_1.ModelTypePropertyConstraint(o.property, new model_date_1.ModelTypeConstraintAfter(o.date));
         },
         equalProperties: function (o) { return new model_object_1.ModelTypeConstraintEqualProperties(o); },
+        compareProperties: function (o) { return new model_object_1.ModelTypeConstraintCompareProperties(o); },
         requiredIf: function (o) {
             return new model_object_1.ModelTypeConstraintConditionalValue({
                 condition: o.condition,

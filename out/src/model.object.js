@@ -196,6 +196,141 @@ exports.ModelTypeObject = ModelTypeObject;
 function safeArray(val) {
     return Array.isArray(val) ? val.slice() : null != val ? [val] : null;
 }
+var ComparisonOp_Names = {
+    "=": "equal",
+    "==": "equal",
+    "<": "less",
+    "<=": "less-equal",
+    ">": "greater",
+    ">=": "greater-equal",
+    "!=": "different"
+};
+function comparisonEquals(a, b) {
+    if (a === b) {
+        return true;
+    }
+    if ((null == a) != (null == b)) {
+        return false;
+    }
+    var isArrA = Array.isArray(a);
+    var isArrB = Array.isArray(b);
+    if (isArrA != isArrB) {
+        return false;
+    }
+    if (isArrA) {
+        var aa = a;
+        var ab = b;
+        if (aa.length != ab.length) {
+            return false;
+        }
+        for (var i = 0, n = aa.length; i < n; ++i) {
+            if (aa[i] != ab[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+    // simple case was handled first, this means a !== b here
+    return false;
+}
+function comparisonLess(a, b) {
+    if ((null == a) != (null == b)) {
+        return false;
+    }
+    if ((null == a) && (null == b)) {
+        return false;
+    }
+    var isArrA = Array.isArray(a);
+    var isArrB = Array.isArray(b);
+    if (isArrA || isArrB) {
+        return false;
+    }
+    return (a < b);
+}
+function comparisonGreater(a, b) {
+    return comparisonLess(b, a);
+}
+function inverse(comp) {
+    return function (a, b) { return !comp(a, b); };
+}
+var ComparisonOp_Comparator = {
+    "=": comparisonEquals,
+    "==": comparisonEquals,
+    "<": comparisonLess,
+    "<=": inverse(comparisonGreater),
+    ">": comparisonGreater,
+    ">=": inverse(comparisonLess),
+    "!=": inverse(comparisonEquals)
+};
+var ModelTypeConstraintCompareProperties = (function (_super) {
+    __extends(ModelTypeConstraintCompareProperties, _super);
+    function ModelTypeConstraintCompareProperties(fieldsOrSelf, op) {
+        var _this = _super.call(this) || this;
+        if (Array.isArray(fieldsOrSelf) && null != op) {
+            _this._fields = safeArray(fieldsOrSelf);
+            _this._op = op;
+            _this._comparator = ComparisonOp_Comparator[op];
+        }
+        else {
+            var props = fieldsOrSelf;
+            if (props && props.properties) {
+                _this._fields = safeArray(props.properties);
+                _this._op = props.op;
+                _this._comparator = ComparisonOp_Comparator[props.op] || comparisonEquals;
+            }
+            else {
+                var that = fieldsOrSelf;
+                _this._fields = that._fields.slice();
+                _this._op = that._op;
+                _this._comparator = that._comparator;
+            }
+        }
+        return _this;
+    }
+    //private _isConstraintEqualFields() {} // marker property
+    ModelTypeConstraintCompareProperties.prototype._id = function () {
+        return "compareFields(" + this._fields.join(',') + ", " + this._op + ")";
+    };
+    ModelTypeConstraintCompareProperties.prototype.checkAndAdjustValue = function (val, ctx) {
+        var fields = this._fields;
+        var values = fields.reduce(function (acc, k) {
+            acc.push(val[k]);
+            return acc;
+        }, []);
+        var valid = true;
+        var comp = this._comparator;
+        for (var i = 1, n = values.length; i < n; ++i) {
+            if (!comp(values[i - 1], values[i])) {
+                valid = false;
+                break;
+            }
+        }
+        var result = val;
+        if (!valid) {
+            for (var _i = 0, fields_1 = fields; _i < fields_1.length; _i++) {
+                var f = fields_1[_i];
+                ctx.pushItem(f, !this.warnOnly(), null);
+                switch (this._op) {
+                    case '=':
+                    case '==':
+                        ctx.addErrorEx("expected fields to be equal: " + fields.join(',') + ".", 'properties-different', { value: val, values: values, fields: fields.join(',') });
+                        break;
+                    case '!=':
+                        ctx.addErrorEx("expected fields to be different: " + fields.join(',') + ".", 'properties-equal', { value: val, values: values, fields: fields.join(',') });
+                        break;
+                    default:
+                        ctx.addErrorEx("expected fields to be ordered (" + this._op + "): " + fields.join(',') + ".", 'properties-wrong-order-' + (ComparisonOp_Names[this._op] || this._op), { value: val, values: values, fields: fields.join(',') });
+                        break;
+                }
+                ctx.popItem();
+            }
+        }
+        return result;
+    };
+    ModelTypeConstraintCompareProperties.prototype.usedItems = function () { return this._fields; };
+    return ModelTypeConstraintCompareProperties;
+}(model_base_1.ModelTypeConstraintOptional));
+exports.ModelTypeConstraintCompareProperties = ModelTypeConstraintCompareProperties;
 var ModelTypeConstraintEqualProperties = (function (_super) {
     __extends(ModelTypeConstraintEqualProperties, _super);
     function ModelTypeConstraintEqualProperties(fieldsOrSelf) {
@@ -225,8 +360,8 @@ var ModelTypeConstraintEqualProperties = (function (_super) {
         }, []);
         var result = val;
         if (values.length !== 1) {
-            for (var _i = 0, fields_1 = fields; _i < fields_1.length; _i++) {
-                var f = fields_1[_i];
+            for (var _i = 0, fields_2 = fields; _i < fields_2.length; _i++) {
+                var f = fields_2[_i];
                 ctx.pushItem(f, !this.warnOnly(), null);
                 ctx.addErrorEx("expected fields to be equal: " + fields.join(',') + ".", 'properties-different', { value: val, values: values, fields: fields.join(',') });
                 ctx.popItem();
@@ -256,8 +391,18 @@ function createPredicate(condition) {
     switch (op) {
         case undefined:
         case null:
+        case '==':
         case '=': return createPredicateEquals(property, value, invert);
+        case '<':
+        case '<=':
+        case '>':
+        case '>=':
+            if (invert) {
+                return function (o) { return inverse(ComparisonOp_Comparator[op])(o[property], value); };
+            }
+            return function (o) { return ComparisonOp_Comparator[op](o[property], value); };
     }
+    console.warn("unsupported condition: " + op, condition);
     return function () { return false; };
 }
 function createValuePredicate(possibleValues) {

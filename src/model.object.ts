@@ -1,3 +1,4 @@
+
 import {
   IModelType,
   IModelTypeItem,
@@ -5,7 +6,10 @@ import {
   IModelTypeEntry,
   IModelTypeComposite,
   IModelParseContext,
-  IModelTypeConstraint
+  IModelTypeConstraint,
+  Primitive,
+  Comparison,
+  Predicate
 } from "./model.api"
 
 import {
@@ -238,10 +242,177 @@ function safeArray<T>(val:T|T[]):T[] {
   return  Array.isArray(val) ? val.slice() : null != val ? [ val ] : null;
 }
 
+export type ComparisonOp = "=" | "==" | "<" | "<=" | ">" | ">=" | "!=";
+
+const ComparisonOp_Names : { [op:string]: string; } = {
+  "=":  "equal",
+  "==": "equal",
+  "<":  "less",
+  "<=": "less-equal",
+  ">":  "greater",
+  ">=": "greater-equal",
+  "!=": "different"
+};
+
+function comparisonEquals(a: Primitive, b: Primitive) {
+  if (a === b) {
+    return true;
+  }
+  if ((null == a) != (null == b)) {
+    return false;
+  }
+
+  let isArrA = Array.isArray(a);
+  let isArrB = Array.isArray(b);
+  if (isArrA != isArrB) {
+    return false;
+  }
+
+  if (isArrA) {
+    let aa = a as Array<any>;
+    let ab = b as Array<any>;
+    if (aa.length != ab.length) {
+      return false;
+    }
+    for (let i = 0, n = aa.length; i < n; ++i) {
+      if (aa[i] != ab[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+  // simple case was handled first, this means a !== b here
+  return false;
+}
+
+function comparisonLess(a: Primitive, b: Primitive) {
+  if ((null == a) != (null == b)) {
+    return false;
+  }
+  if ((null == a) && (null == b)) {
+    return false;
+  }
+
+  let isArrA = Array.isArray(a);
+  let isArrB = Array.isArray(b);
+  if (isArrA || isArrB) {
+    return false;
+  }
+
+  return (a < b);
+}
+
+function comparisonGreater(a: Primitive, b: Primitive) {
+  return comparisonLess(b,a);
+}
+
+function inverse(comp: Comparison<Primitive>) {
+  return (a: Primitive,b: Primitive) => !comp(a,b);
+}
+
+const ComparisonOp_Comparator : { [op:string]: Comparison<Primitive>; } = {
+  "=":  comparisonEquals,
+  "==": comparisonEquals,
+  "<":  comparisonLess,
+  "<=": inverse(comparisonGreater),
+  ">":  comparisonGreater,
+  ">=": inverse(comparisonLess),
+  "!=": inverse(comparisonEquals)
+};
+
+export interface IComparePropertiesConstraintOptions {
+  properties: string|string[];
+  op: ComparisonOp;
+}
+
+export class ModelTypeConstraintCompareProperties extends ModelTypeConstraintOptional<any> {
+  constructor(fieldsOrSelf:string[]|IComparePropertiesConstraintOptions|ModelTypeConstraintCompareProperties, op?: ComparisonOp) {
+    super();
+
+    if (Array.isArray(fieldsOrSelf) && null != op) {
+      this._fields = safeArray(fieldsOrSelf);
+      this._op = op;
+      this._comparator = ComparisonOp_Comparator[op];
+    } else {
+      let props = (fieldsOrSelf as IComparePropertiesConstraintOptions);
+      if (props && props.properties) {
+      this._fields = safeArray(props.properties);
+      this._op = props.op;
+      this._comparator = ComparisonOp_Comparator[props.op] || comparisonEquals;
+      } else {
+        let that = (<ModelTypeConstraintCompareProperties>fieldsOrSelf);
+        this._fields = that._fields.slice();
+        this._op = that._op;
+        this._comparator = that._comparator;
+      }
+    }
+  }
+  //private _isConstraintEqualFields() {} // marker property
+
+  protected _id():string {
+    return `compareFields(${this._fields.join(',')}, ${this._op})`;
+  }
+
+  checkAndAdjustValue(val:any, ctx:IModelParseContext):any {
+    let fields = this._fields;
+    let values = fields.reduce((acc,k) => { 
+      acc.push(val[k]); 
+      return acc; 
+    }, []);
+
+    let valid = true;
+    let comp = this._comparator;
+    for (let i = 1, n = values.length; i < n; ++i) {
+      if (!comp(values[i-1], values[i])) {
+        valid = false;
+        break;
+      }
+    }
+
+    let result = val;
+    if (!valid) {
+      for (var f of fields) {
+        ctx.pushItem(f, !this.warnOnly(), null);
+        switch (this._op) {
+          case '=':
+          case '==':
+            ctx.addErrorEx(
+              `expected fields to be equal: ${fields.join(',')}.`, 
+              'properties-different', 
+              { value: val, values: values, fields: fields.join(',') }
+            );
+            break;
+          case '!=':
+            ctx.addErrorEx(
+              `expected fields to be different: ${fields.join(',')}.`, 
+              'properties-equal', 
+              { value: val, values: values, fields: fields.join(',') }
+            );
+            break;
+          default:
+            ctx.addErrorEx(
+              `expected fields to be ordered (${this._op}): ${fields.join(',')}.`, 
+              'properties-wrong-order-' + (ComparisonOp_Names[this._op] || this._op), 
+              { value: val, values: values, fields: fields.join(',') }
+            );
+            break;
+        }
+        ctx.popItem();
+      }
+    }
+    return result;
+  }
+
+  usedItems():string[] { return this._fields; }
+
+  private _fields: string[];
+  private _op: ComparisonOp;
+  private _comparator: Comparison<Primitive>;
+}
+
 export interface IEqualPropertiesConstraintOptions {
   properties: string|string[];
 }
-
 
 export class ModelTypeConstraintEqualProperties extends ModelTypeConstraintOptional<any> {
   constructor(fieldsOrSelf:string[]|IEqualPropertiesConstraintOptions|ModelTypeConstraintEqualProperties) {
@@ -292,11 +463,11 @@ export class ModelTypeConstraintEqualProperties extends ModelTypeConstraintOptio
 export interface IConditionOptions {
   property: string;
   value: string|string[]|number|number[];
-  op?: "=";
+  op?: ComparisonOp;
   invert?: boolean;
 }
 
-function createPredicateEquals(property:string, value:any, invert:boolean) {
+function createPredicateEquals(property:string, value:any, invert:boolean): Predicate<any> {
   if (Array.isArray(value)) {
     let valueArray = value.slice() as any[];
 
@@ -311,14 +482,26 @@ function createPredicateEquals(property:string, value:any, invert:boolean) {
   }
 }
 
-function createPredicate(condition: IConditionOptions) {
+function createPredicate(condition: IConditionOptions): Predicate<any> {
   let { property, value, op, invert } = condition;
 
   switch (op) {
     case undefined:
     case null:
+    case '==':
     case '=': return createPredicateEquals(property, value, invert);
+
+    case '<':
+    case '<=':
+    case '>':
+    case '>=':
+      if (invert) {
+        return (o:any) => inverse(ComparisonOp_Comparator[op])(o[property], value);
+      }
+      return (o:any) => ComparisonOp_Comparator[op](o[property], value);
   }
+
+  console.warn(`unsupported condition: ${op}`, condition);
   return () => false;
 }
 

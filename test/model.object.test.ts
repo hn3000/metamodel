@@ -2,6 +2,7 @@ import {
     IModelTypeComposite,
     modelTypes,
     ModelTypeConstraintConditionalValue,
+    ModelTypeConstraintCompareProperties,
     ModelTypeConstraintEqualProperties,
     ModelTypeConstraints,
     ModelTypeObject
@@ -25,7 +26,109 @@ export class ModelObjectTest extends TestClass {
     );
   }
 
-  testEqualPropertiesConstraint() {
+  testComparePropertiesConstraintEqualWithDifferentValues() {
+    var model:ModelTypeObject<any> = this.model.slice(['p']) as ModelTypeObject<any>;
+    model = model.withConstraints(new ModelTypeConstraintCompareProperties({properties: ['p','q'], op: '=='}));
+
+    let t = {
+      p: 12,
+      q: 13
+    };
+
+    let context = modelTypes.createParseContext(t, model);
+    model.validate(context);
+
+    this.areIdentical(2, context.errors.length);
+  }
+
+  testComparePropertiesConstraintEqualWithEqualValues() {
+    var model:ModelTypeObject<any> = this.model.slice(['p']) as ModelTypeObject<any>;
+    model = model.withConstraints(new ModelTypeConstraintCompareProperties({properties: ['p','q'], op: '=='}));
+
+    let t = {
+      p: 12,
+      q: 12
+    };
+
+    let context = modelTypes.createParseContext(t, model);
+    model.validate(context);
+
+    this.areIdentical(0, context.errors.length);
+  }
+
+  testComparePropertiesConstraintLessWithCorrectValues() {
+    var model:ModelTypeObject<any> = this.model.slice(['p']) as ModelTypeObject<any>;
+    model = model.withConstraints(new ModelTypeConstraintCompareProperties({properties: ['p','q'], op: '<'}));
+
+    let t = {
+      p: 12,
+      q: 13
+    };
+
+    let context = modelTypes.createParseContext(t, model);
+    model.validate(context);
+
+    this.areIdentical(0, context.errors.length);
+  }
+
+  testComparePropertiesConstraintLessWithWrongValues() {
+    var model:ModelTypeObject<any> = this.model.slice(['p']) as ModelTypeObject<any>;
+    model = model.withConstraints(new ModelTypeConstraintCompareProperties({properties: ['p','q'], op: '<'}));
+
+    let t = {
+      p: 12,
+      q: 12
+    };
+
+    let context = modelTypes.createParseContext(t, model);
+    model.validate(context);
+
+    this.areIdentical(2, context.errors.length);
+    this.areIdentical('properties-wrong-order-less', context.errors[0].code);
+    this.areIdentical('p', context.errors[0].property);
+    this.areIdentical('properties-wrong-order-less', context.errors[1].code);
+    this.areIdentical('q', context.errors[1].property);
+  }
+
+  testComparePropertiesConstraintGreaterWithWrongValues() {
+    var model:ModelTypeObject<any> = this.model.slice(['p']) as ModelTypeObject<any>;
+    model = model.withConstraints(new ModelTypeConstraintCompareProperties({properties: ['p','q'], op: '>'}));
+
+    let t = {
+      p: 12,
+      q: 12
+    };
+
+    let context = modelTypes.createParseContext(t, model);
+    model.validate(context);
+
+    this.areIdentical(2, context.errors.length);
+    this.areIdentical('properties-wrong-order-greater', context.errors[0].code);
+    this.areIdentical('p', context.errors[0].property);
+    this.areIdentical('properties-wrong-order-greater', context.errors[1].code);
+    this.areIdentical('q', context.errors[1].property);
+  }
+
+  testComparePropertiesConstraintGreaterEqualWithWrongValues() {
+    var model:ModelTypeObject<any> = this.model.slice(['p']) as ModelTypeObject<any>;
+    model = model.withConstraints(new ModelTypeConstraintCompareProperties({properties: ['p','q'], op: '>='}));
+
+    let t = {
+      p: 12,
+      q: 13
+    };
+
+    let context = modelTypes.createParseContext(t, model);
+    model.validate(context);
+
+    this.areIdentical(2, context.errors.length);
+    this.areIdentical('properties-wrong-order-greater-equal', context.errors[0].code);
+    this.areIdentical('p', context.errors[0].property);
+    this.areIdentical('properties-wrong-order-greater-equal', context.errors[1].code);
+    this.areIdentical('q', context.errors[1].property);
+  }
+
+  testEqualPropertiesConstraintWithDifferentValues() {
     var model:ModelTypeObject<any> = this.model.slice(['p']) as ModelTypeObject<any>;
     model = model.withConstraints(new ModelTypeConstraintEqualProperties(['p','q']));
 
@@ -38,7 +141,27 @@ export class ModelObjectTest extends TestClass {
     model.validate(context);
 
     this.areIdentical(2, context.errors.length);
+    this.areIdentical('properties-different', context.errors[0].code);
+    this.areIdentical('p', context.errors[0].property);
+    this.areIdentical('properties-different', context.errors[1].code);
+    this.areIdentical('q', context.errors[1].property);
   }
+
+  testEqualPropertiesConstraintWithEqualsValues() {
+    var model:ModelTypeObject<any> = this.model.slice(['p']) as ModelTypeObject<any>;
+    model = model.withConstraints(new ModelTypeConstraintEqualProperties(['p','q']));
+
+    let t = {
+      p: 12,
+      q: 12
+    };
+
+    let context = modelTypes.createParseContext(t, model);
+    model.validate(context);
+
+    this.areIdentical(0, context.errors.length);
+  }
+
   testConstraintConditionalValueRequiresCorrectValues() {
     var model:ModelTypeObject<any> = this.model.slice(['p']) as ModelTypeObject<any>;
     model = model.withConstraints(new ModelTypeConstraintConditionalValue({
@@ -120,7 +243,8 @@ export class ModelObjectTest extends TestClass {
       r: 17
     };
 
-    let context = modelTypes.createParseContext(t, model, false, false);
+    let context = modelTypes.createParseContext(t, model, true, false);
+    debugger;
     let result = model.parse(context);
 
     this.areIdentical(1, context.errors.length);

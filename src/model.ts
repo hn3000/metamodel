@@ -1,5 +1,6 @@
 
 export {
+  Primitive,
   Predicate,
   IModelObject,
   MessageSeverity,
@@ -90,6 +91,7 @@ export {
 export {
   ModelTypeObject,
   ModelTypeConstraintConditionalValue,
+  ModelTypeConstraintCompareProperties,
   ModelTypeConstraintEqualProperties
 } from "./model.object";
 
@@ -99,7 +101,6 @@ export {
 
 
 export {
-  Primitive,
   IModelViewField,
   IModelViewPage,
   IModelView,
