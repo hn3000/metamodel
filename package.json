@@ -7,7 +7,6 @@
     "tsc:w": "tsc -w",
     "pretest": "tsc",
     "precover": "tsc",
-    "postinstall": "typings install",
     "test": "node out/test/allTests.js",
     "cover": "istanbul cover out/test/allTests.js"
   },
