@@ -47,11 +47,14 @@ export class ModelTypeNumber extends ModelTypeItem<number> {
     if (typeof value === 'number') {
       result = value;
     } else if (typeof value === 'string' && ctx.allowConversion) {
-      result = parseFloat(value);
+      result = Number(value);
+      if (isNaN(result)) {
+        result = null;
+      }
     }
 
     if (
-      null == result && (ctx.currentRequired() || (value != null && !ctx.allowConversion))
+      null == result && (ctx.currentRequired() || (value != null))
     ) {
       if (null == value) {
         ctx.addError('required value is missing', 'required-empty');
