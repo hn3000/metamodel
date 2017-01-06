@@ -71,7 +71,7 @@ var constraintFactoriesDefault = {
         possibleValues: function (o) { return new model_string_1.ModelTypeConstraintPossibleValues(o); },
     }
 };
-var SimpleReRE = /^\^\[(.+)\][+*]\$$/;
+var SimpleReRE = /^\^\[([^\]\[]+)\][+*]\$$/;
 var ModelSchemaParser = (function () {
     function ModelSchemaParser(constraintFactory) {
         this._constraintFactory = constraintFactory || {};

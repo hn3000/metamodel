@@ -156,7 +156,7 @@ var constraintFactoriesDefault:IConstraintFactories = {
   }
 };
 
-const SimpleReRE = /^\^\[(.+)\][+*]\$$/;
+const SimpleReRE = /^\^\[([^\]\[]+)\][+*]\$$/;
 
 export class ModelSchemaParser implements IModelTypeRegistry {
   constructor(constraintFactory?:IModelTypeConstraintFactory) {
