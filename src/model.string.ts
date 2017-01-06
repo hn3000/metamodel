@@ -29,6 +29,8 @@ export class ModelTypeString extends ModelTypeItem<string> {
     let result:string = null;
     if (typeof value === 'string') {
       result = value;
+    } else if (ctx.allowConversion && null != value) {
+      result = value.toString();
     }
     if (
       null == result && (ctx.currentRequired() || (null != value && !ctx.allowConversion))
@@ -229,19 +231,23 @@ export class ModelTypeConstraintInvalidRegex extends ModelTypeConstraintOptional
     do {
       match = pattern.exec(value);
       if (match) {
-        matches.push(match[1] || match[0]);
+        let matchVal = match[1] || match[0];
+        if (-1 != matches.indexOf(matchVal)) {
+          matches.push(matchVal);
+        }
       }
     } while (match && this._pattern.global);
 
     if (matches.length > 0) {
+      let invalidRaw = matches.join('');
       matches.sort();
       let invalid = matches.join('');
 
       if (this.isWarningOnly) {
-        ctx.addWarningEx(this._message, 'value-warning-text', { value, pattern, invalid } );
+        ctx.addWarningEx(this._message, 'value-warning-text', { value, pattern, invalid, invalidRaw } );
         result = value;
       } else {
-        ctx.addErrorEx(this._message, 'value-invalid-text', { value, pattern, invalid });
+        ctx.addErrorEx(this._message, 'value-invalid-text', { value, pattern, invalid, invalidRaw });
         result = null;
       }
     }

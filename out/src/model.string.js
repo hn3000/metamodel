@@ -20,6 +20,9 @@ var ModelTypeString = (function (_super) {
         if (typeof value === 'string') {
             result = value;
         }
+        else if (ctx.allowConversion && null != value) {
+            result = value.toString();
+        }
         if (null == result && (ctx.currentRequired() || (null != value && !ctx.allowConversion))) {
             if (value == null) {
                 ctx.addErrorEx('required value is missing', 'required-empty', { value: value });
@@ -213,18 +216,22 @@ var ModelTypeConstraintInvalidRegex = (function (_super) {
         do {
             match = pattern.exec(value);
             if (match) {
-                matches.push(match[1] || match[0]);
+                var matchVal = match[1] || match[0];
+                if (-1 != matches.indexOf(matchVal)) {
+                    matches.push(matchVal);
+                }
             }
         } while (match && this._pattern.global);
         if (matches.length > 0) {
+            var invalidRaw = matches.join('');
             matches.sort();
             var invalid = matches.join('');
             if (this.isWarningOnly) {
-                ctx.addWarningEx(this._message, 'value-warning-text', { value: value, pattern: pattern, invalid: invalid });
+                ctx.addWarningEx(this._message, 'value-warning-text', { value: value, pattern: pattern, invalid: invalid, invalidRaw: invalidRaw });
                 result = value;
             }
             else {
-                ctx.addErrorEx(this._message, 'value-invalid-text', { value: value, pattern: pattern, invalid: invalid });
+                ctx.addErrorEx(this._message, 'value-invalid-text', { value: value, pattern: pattern, invalid: invalid, invalidRaw: invalidRaw });
                 result = null;
             }
         }
