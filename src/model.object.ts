@@ -362,6 +362,7 @@ export class ModelTypeConstraintCompareProperties extends ModelTypeConstraintOpt
 
     let valid = true;
     let comp = this._comparator;
+    
     for (let i = 1, n = values.length; i < n; ++i) {
       if (!comp(values[i-1], values[i])) {
         valid = false;

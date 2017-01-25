@@ -217,7 +217,7 @@ var ModelTypeConstraintInvalidRegex = (function (_super) {
             match = pattern.exec(value);
             if (match) {
                 var matchVal = match[1] || match[0];
-                if (-1 != matches.indexOf(matchVal)) {
+                if (-1 == matches.indexOf(matchVal)) {
                     matches.push(matchVal);
                 }
             }

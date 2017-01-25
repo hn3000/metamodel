@@ -232,7 +232,7 @@ export class ModelTypeConstraintInvalidRegex extends ModelTypeConstraintOptional
       match = pattern.exec(value);
       if (match) {
         let matchVal = match[1] || match[0];
-        if (-1 != matches.indexOf(matchVal)) {
+        if (-1 == matches.indexOf(matchVal)) {
           matches.push(matchVal);
         }
       }
