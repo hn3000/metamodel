@@ -10,7 +10,7 @@ export { ModelTypeString, ModelTypeConstraintPossibleValues, ModelTypeConstraint
 export { ModelTypeBool } from "./model.bool";
 export { ModelTypeArray } from "./model.array";
 export { ModelTypeObject, ModelTypeConstraintConditionalValue, ModelTypeConstraintCompareProperties, ModelTypeConstraintEqualProperties } from "./model.object";
-export { ModelSchemaParser } from "./model.schema";
+export { IModelSchemaParserDefaults, IConstraintFactories, ModelSchemaParser } from "./model.schema";
 export { IModelViewField, IModelViewPage, IModelView, ValidationScope, ModelView } from "./model.view";
 export { JsonPointer, JsonReference, JsonReferenceProcessor } from "@hn3000/json-ref";
 export declare class ModelTypeConstraints {

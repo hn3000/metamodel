@@ -244,7 +244,6 @@ export class ModelObjectTest extends TestClass {
     };
 
     let context = modelTypes.createParseContext(t, model, true, false);
-    debugger;
     let result = model.parse(context);
 
     this.areIdentical(1, context.errors.length);

@@ -96,6 +96,8 @@ export {
 } from "./model.object";
 
 export {
+  IModelSchemaParserDefaults​​,
+  IConstraintFactories,
   ModelSchemaParser
 } from "./model.schema";
 

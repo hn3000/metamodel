@@ -97,6 +97,34 @@ export interface IConstraintFactories {
   universal: IConstraintFactory<any>;
 }
 
+export interface IModelSchemaParserDefaults {
+  numbers?:   {
+    minimum?: number;
+    maximum?: number;
+    minimumExclusive?: boolean;
+    maximumExclusive?: boolean;
+    multipleOf?: number;
+  };
+  strings?:   {
+    minLength?: number;
+    maxLength?: number;
+    pattern?: String | RegExp;
+  };
+  dates?:     {
+    minimum?: Date;
+    maximum?: Date;
+  }
+  booleans?:  {
+
+  };
+  objects?:   {
+
+  };
+  universal?: {
+
+  };
+}
+
 function parseAge(o:any) {
   let result = o.age ? o.age : o.years ? o.years+'y' : '0y';
   return result;
@@ -159,9 +187,10 @@ var constraintFactoriesDefault:IConstraintFactories = {
 const SimpleReRE = /^\^\[([^\]\[]+)\][+*]\$$/;
 
 export class ModelSchemaParser implements IModelTypeRegistry {
-  constructor(constraintFactory?:IModelTypeConstraintFactory) {
+  constructor(constraintFactory?:IModelTypeConstraintFactory, defaultValues?: IModelSchemaParserDefaults) {
     this._constraintFactory = constraintFactory || {};
     this._registry = new ModelTypeRegistry();
+    this._defaults = defaultValues || {};
   }
   
   addSchemaFromURL(url:string):Promise<any> {
@@ -173,7 +202,7 @@ export class ModelSchemaParser implements IModelTypeRegistry {
     });
   }
   
-  addSchemaObject(name:string, schemaObject:any):IModelType<any> {
+  addSchemaObject(name:string, schemaObject:any, defaults?: IModelSchemaParserDefaults):IModelType<any> {
     var type = this.parseSchemaObject(schemaObject, name);
     
      type && this._registry.addType(type);
@@ -233,6 +262,18 @@ export class ModelSchemaParser implements IModelTypeRegistry {
     var minLen = schemaObject['minLength'];
     var maxLen = schemaObject['maxLength'];
     var pattern = schemaObject['pattern'];
+
+    if (this._defaults.strings) {
+      if (minLen === undefined) {
+        minLen = this._defaults.strings.minLength;
+      }
+      if (maxLen === undefined) {
+        maxLen = this._defaults.strings.maxLength;
+      }
+      if (pattern === undefined) {
+        pattern = this._defaults.strings.pattern;
+      }
+    }
     
     var constraints = this._parseConstraints(schemaObject, [ constraintFactoriesDefault.strings, constraintFactoriesDefault.universal ]);
     if (minLen != null || maxLen != null) {
@@ -267,6 +308,25 @@ export class ModelSchemaParser implements IModelTypeRegistry {
     var minOut = schemaObject['minimumExclusive'];
     var maxOut = schemaObject['maximumExclusive'];
     var multipleOf = schemaObject['multipleOf'];
+
+    if (null != this._defaults.numbers) {
+      if (min === undefined) {
+        min = this._defaults.numbers.minimum;
+      }
+      if (minOut === undefined) {
+        minOut = this._defaults.numbers.minimumExclusive;
+      }
+      if (max === undefined) {
+        max = this._defaults.numbers.maximum;
+      }
+      if (maxOut === undefined) {
+        maxOut = this._defaults.numbers.maximumExclusive;
+      }
+      if (multipleOf === undefined) {
+        multipleOf = this._defaults.numbers.multipleOf;
+      }
+    }
+    
     
     if (typeof(min) === "number") {
       if (minOut) {
@@ -419,6 +479,7 @@ export class ModelSchemaParser implements IModelTypeRegistry {
   private _constraintFactory:IModelTypeConstraintFactory;
   private _registry:ModelTypeRegistry;
   private _refProcessor:JsonReferenceProcessor;
+  private _defaults:IModelSchemaParserDefaults;
 }
 
 function anonymousId(prefix?:string) {

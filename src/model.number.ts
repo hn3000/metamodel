@@ -117,11 +117,12 @@ export class ModelTypeConstraintMultipleOf extends ModelTypeConstraintOptional<n
   _id():string { return `mult(${this._modulus})`; }
   checkAndAdjustValue(value:number, ctx:IModelParseContext) {
     let adjusted = Math.floor(value / this._modulus) * this._modulus;
+ debugger;
     if (adjusted !== value) {
       let warn = this.isWarningOnly && ctx.allowConversion;
       let adjust = ctx.allowConversion;
-      let msg = `expected multiple of ${this._modulus}${adjust?', ignoring remainder':''}`
-      ctx.addMessageEx(warn, msg, 'value-adjusted', { value, adjusted });
+      let msg = `expected multiple of ${this._modulus} but got ${value}${adjust?', ignoring remainder':''}`
+      ctx.addMessageEx(!warn, msg, 'value-adjusted', { value, adjusted });
       if (adjust) {
         return adjusted;
       }

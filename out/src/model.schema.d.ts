@@ -16,10 +16,31 @@ export interface IConstraintFactories {
     objects: IConstraintFactory<any>;
     universal: IConstraintFactory<any>;
 }
+export interface IModelSchemaParserDefaults {
+    numbers?: {
+        minimum?: number;
+        maximum?: number;
+        minimumExclusive?: boolean;
+        maximumExclusive?: boolean;
+        multipleOf?: number;
+    };
+    strings?: {
+        minLength?: number;
+        maxLength?: number;
+        pattern?: String | RegExp;
+    };
+    dates?: {
+        minimum?: Date;
+        maximum?: Date;
+    };
+    booleans?: {};
+    objects?: {};
+    universal?: {};
+}
 export declare class ModelSchemaParser implements IModelTypeRegistry {
-    constructor(constraintFactory?: IModelTypeConstraintFactory);
+    constructor(constraintFactory?: IModelTypeConstraintFactory, defaultValues?: IModelSchemaParserDefaults);
     addSchemaFromURL(url: string): Promise<any>;
-    addSchemaObject(name: string, schemaObject: any): IModelType<any>;
+    addSchemaObject(name: string, schemaObject: any, defaults?: IModelSchemaParserDefaults): IModelType<any>;
     parseSchemaObject(schemaObject: any, name?: string): IModelType<any>;
     parseSchemaConstraintEnum<T>(schemaObject: any): ModelTypeConstraintPossibleValues<T>;
     parseSchemaObjectTypeString(schemaObject: any): ModelTypeString;
@@ -37,4 +58,5 @@ export declare class ModelSchemaParser implements IModelTypeRegistry {
     private _constraintFactory;
     private _registry;
     private _refProcessor;
+    private _defaults;
 }

@@ -73,9 +73,10 @@ var constraintFactoriesDefault = {
 };
 var SimpleReRE = /^\^\[([^\]\[]+)\][+*]\$$/;
 var ModelSchemaParser = (function () {
-    function ModelSchemaParser(constraintFactory) {
+    function ModelSchemaParser(constraintFactory, defaultValues) {
         this._constraintFactory = constraintFactory || {};
         this._registry = new model_registry_1.ModelTypeRegistry();
+        this._defaults = defaultValues || {};
     }
     ModelSchemaParser.prototype.addSchemaFromURL = function (url) {
         var _this = this;
@@ -85,7 +86,7 @@ var ModelSchemaParser = (function () {
             return _this.addSchemaObject(url, schema);
         });
     };
-    ModelSchemaParser.prototype.addSchemaObject = function (name, schemaObject) {
+    ModelSchemaParser.prototype.addSchemaObject = function (name, schemaObject, defaults) {
         var type = this.parseSchemaObject(schemaObject, name);
         type && this._registry.addType(type);
         return type;
@@ -137,6 +138,17 @@ var ModelSchemaParser = (function () {
         var minLen = schemaObject['minLength'];
         var maxLen = schemaObject['maxLength'];
         var pattern = schemaObject['pattern'];
+        if (this._defaults.strings) {
+            if (minLen === undefined) {
+                minLen = this._defaults.strings.minLength;
+            }
+            if (maxLen === undefined) {
+                maxLen = this._defaults.strings.maxLength;
+            }
+            if (pattern === undefined) {
+                pattern = this._defaults.strings.pattern;
+            }
+        }
         var constraints = this._parseConstraints(schemaObject, [constraintFactoriesDefault.strings, constraintFactoriesDefault.universal]);
         if (minLen != null || maxLen != null) {
             constraints = constraints.add(new model_string_1.ModelTypeConstraintLength(minLen, maxLen));
@@ -173,6 +185,23 @@ var ModelSchemaParser = (function () {
         var minOut = schemaObject['minimumExclusive'];
         var maxOut = schemaObject['maximumExclusive'];
         var multipleOf = schemaObject['multipleOf'];
+        if (null != this._defaults.numbers) {
+            if (min === undefined) {
+                min = this._defaults.numbers.minimum;
+            }
+            if (minOut === undefined) {
+                minOut = this._defaults.numbers.minimumExclusive;
+            }
+            if (max === undefined) {
+                max = this._defaults.numbers.maximum;
+            }
+            if (maxOut === undefined) {
+                maxOut = this._defaults.numbers.maximumExclusive;
+            }
+            if (multipleOf === undefined) {
+                multipleOf = this._defaults.numbers.multipleOf;
+            }
+        }
         if (typeof (min) === "number") {
             if (minOut) {
                 constraints.push(new model_number_1.ModelTypeConstraintMore(min));

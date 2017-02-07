@@ -114,11 +114,12 @@ var ModelTypeConstraintMultipleOf = (function (_super) {
     ModelTypeConstraintMultipleOf.prototype._id = function () { return "mult(" + this._modulus + ")"; };
     ModelTypeConstraintMultipleOf.prototype.checkAndAdjustValue = function (value, ctx) {
         var adjusted = Math.floor(value / this._modulus) * this._modulus;
+        debugger;
         if (adjusted !== value) {
             var warn = this.isWarningOnly && ctx.allowConversion;
             var adjust = ctx.allowConversion;
-            var msg = "expected multiple of " + this._modulus + (adjust ? ', ignoring remainder' : '');
-            ctx.addMessageEx(warn, msg, 'value-adjusted', { value: value, adjusted: adjusted });
+            var msg = "expected multiple of " + this._modulus + " but got " + value + (adjust ? ', ignoring remainder' : '');
+            ctx.addMessageEx(!warn, msg, 'value-adjusted', { value: value, adjusted: adjusted });
             if (adjust) {
                 return adjusted;
             }

@@ -53,6 +53,52 @@ export class ModelParsingTest extends TestClass {
     this.areIdentical('value does not match /^\\d+$/:', ctx.errors[3].msg);
   }
 
+  testSimpleSchemaWithDefaults() {
+    var parser = new ModelSchemaParser(undefined, {
+      strings: {
+        pattern: "^[aeiou]+$",
+        minLength: 3,
+        maxLength: 5
+      },
+      numbers: {
+        minimum: 3,
+        maximum: 7,
+        multipleOf: 2
+      }
+    });
+    
+    parser.addSchemaObject('ExampleObject', {
+      type: "object",
+      properties: {
+        "text": {
+          type: "string"
+        },
+        "number": {
+          type: "number"
+        },
+        "number2": {
+          type: "number"
+        }
+      }
+    });
+    
+    var type = parser.type('ExampleObject');
+    debugger;
+    var ctx = new ModelParseContext({
+      text: 'aeiou1b',
+      number: 11,
+      number2: 5
+    }, type, true, false); // required=true, allowConversion=false
+
+    type.validate(ctx);
+    this.areIdentical(5, ctx.errors.length);
+    this.areIdentical('length must be between 3 and 5:', ctx.errors[0].msg);
+    this.areIdentical('value should not match /([^aeiou])/g:', ctx.errors[1].msg);
+    this.areIdentical('expected 11 <= 7.', ctx.errors[2].msg);
+    this.areIdentical('expected multiple of 2 but got 11', ctx.errors[3].msg);
+    this.areIdentical('expected multiple of 2 but got 5', ctx.errors[4].msg);
+  }
+
   testSchemaWithValueIfConstraint() {
     var parser = new ModelSchemaParser();
     
