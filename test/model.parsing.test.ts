@@ -83,7 +83,7 @@ export class ModelParsingTest extends TestClass {
     });
     
     var type = parser.type('ExampleObject');
-    debugger;
+
     var ctx = new ModelParseContext({
       text: 'aeiou1b',
       number: 11,

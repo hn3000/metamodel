@@ -114,7 +114,6 @@ var ModelTypeConstraintMultipleOf = (function (_super) {
     ModelTypeConstraintMultipleOf.prototype._id = function () { return "mult(" + this._modulus + ")"; };
     ModelTypeConstraintMultipleOf.prototype.checkAndAdjustValue = function (value, ctx) {
         var adjusted = Math.floor(value / this._modulus) * this._modulus;
-        debugger;
         if (adjusted !== value) {
             var warn = this.isWarningOnly && ctx.allowConversion;
             var adjust = ctx.allowConversion;
