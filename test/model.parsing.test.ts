@@ -99,6 +99,40 @@ export class ModelParsingTest extends TestClass {
     this.areIdentical('expected multiple of 2 but got 5', ctx.errors[4].msg);
   }
 
+  testSimpleSchemaWithPatternDefault() {
+    var parser = new ModelSchemaParser(undefined, {
+      strings: {
+        pattern: /a-z/
+      }
+    });
+    
+    parser.addSchemaObject('ExampleObject', {
+      type: "object",
+      properties: {
+        "text": {
+          type: "string"
+        }
+      }
+    });
+    
+    var type = parser.type('ExampleObject');
+
+    var ctx = new ModelParseContext({
+      text: 'AEI'
+    }, type, true, false); // required=true, allowConversion=false
+
+    type.validate(ctx);
+    this.areIdentical(1, ctx.errors.length);
+    this.areIdentical('value does not match /a-z/:', ctx.errors[0].msg);
+
+    ctx = new ModelParseContext({
+      text: 'XXa-zYY'
+    }, type, true, false); // required=true, allowConversion=false
+
+    type.validate(ctx);
+    this.areIdentical(0, ctx.errors.length);
+  }
+
   testSchemaWithValueIfConstraint() {
     var parser = new ModelSchemaParser();
     
