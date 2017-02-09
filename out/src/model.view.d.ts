@@ -49,7 +49,10 @@ export interface IModelView<T> {
     isPageVisited(aliasOrIndex: string | number): boolean;
     isPageValid(aliasOrIndex?: string | number): boolean;
     isVisitedValid(): boolean;
+    areVisitedPagesValid(): boolean;
+    arePagesUpToCurrentValid(): boolean;
     isValid(): boolean;
+    isFinished(): boolean;
     getStatusMessages(): IStatusMessage[];
     currentPageIndex: number;
     currentPageNo: number;
@@ -141,6 +144,8 @@ export declare class ModelView<T> implements IModelView<T> {
     getPage(aliasOrIndex?: string | number): IModelViewPage;
     getPageMessages(aliasOrIndex?: string | number): IStatusMessage[];
     isPageValid(aliasOrIndex?: string | number): boolean;
+    areVisitedPagesValid(): boolean;
+    arePagesUpToCurrentValid(): boolean;
     isVisitedValid(): boolean;
     isValid(): boolean;
     areFieldsValid(fields: string[]): boolean;
@@ -150,8 +155,10 @@ export declare class ModelView<T> implements IModelView<T> {
     getStatusMessages(): IStatusMessage[];
     readonly currentPageIndex: number;
     readonly currentPageNo: number;
+    isFinished(): boolean;
     changePage(step: number): IModelView<T>;
     gotoPage(index: number, validationScope?: ValidationScope): IModelView<T>;
+    private _visitedPageFields();
     private _viewMeta;
     private _inputModel;
     private _model;

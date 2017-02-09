@@ -7,6 +7,7 @@ var model_date_1 = require("./model.date");
 var model_bool_1 = require("./model.bool");
 var model_array_1 = require("./model.array");
 var model_object_1 = require("./model.object");
+var regex_util_1 = require("./regex-util");
 var json_ref_1 = require("@hn3000/json-ref");
 var fetch = require("isomorphic-fetch");
 function shallowMerge(a, b) {
@@ -71,7 +72,6 @@ var constraintFactoriesDefault = {
         possibleValues: function (o) { return new model_string_1.ModelTypeConstraintPossibleValues(o); },
     }
 };
-var SimpleReRE = /^\^\[([^\]\[]+)\][+*]\$$/;
 var ModelSchemaParser = (function () {
     function ModelSchemaParser(constraintFactory, defaultValues) {
         this._constraintFactory = constraintFactory || {};
@@ -154,16 +154,9 @@ var ModelSchemaParser = (function () {
             constraints = constraints.add(new model_string_1.ModelTypeConstraintLength(minLen, maxLen));
         }
         if (pattern != null) {
-            var simpleReMatch = SimpleReRE.exec(pattern);
-            if (simpleReMatch) {
-                var chars = simpleReMatch[1];
-                if (chars.charAt(0) == '^') {
-                    chars = chars.substring(1);
-                }
-                else {
-                    chars = '^' + chars;
-                }
-                constraints = constraints.add(new model_string_1.ModelTypeConstraintInvalidRegex("([" + chars + "])"));
+            var ire = regex_util_1.invertedRE(pattern);
+            if (ire) {
+                constraints = constraints.add(new model_string_1.ModelTypeConstraintInvalidRegex("(" + ire + ")"));
             }
             else {
                 constraints = constraints.add(new model_string_1.ModelTypeConstraintRegex(pattern, ''));

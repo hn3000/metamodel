@@ -66,6 +66,8 @@ import {
 } from "./model.object"
 
 
+import { invertedRE } from './regex-util';
+
 import { JsonReferenceProcessor } from "@hn3000/json-ref"
 
 import * as fetch from "isomorphic-fetch";
@@ -184,8 +186,6 @@ var constraintFactoriesDefault:IConstraintFactories = {
   }
 };
 
-const SimpleReRE = /^\^\[([^\]\[]+)\][+*]\$$/;
-
 export class ModelSchemaParser implements IModelTypeRegistry {
   constructor(constraintFactory?:IModelTypeConstraintFactory, defaultValues?: IModelSchemaParserDefaults) {
     this._constraintFactory = constraintFactory || {};
@@ -280,15 +280,9 @@ export class ModelSchemaParser implements IModelTypeRegistry {
       constraints = constraints.add(new ModelTypeConstraintLength(minLen, maxLen));
     }
     if (pattern != null) {
-      let simpleReMatch = SimpleReRE.exec(pattern);
-      if (simpleReMatch) {
-        let chars = simpleReMatch[1];
-        if (chars.charAt(0) == '^') {
-          chars = chars.substring(1);
-        } else {
-          chars = '^'+chars;
-        }
-        constraints = constraints.add(new ModelTypeConstraintInvalidRegex(`([${chars}])`));
+      let ire = invertedRE(pattern);
+      if (ire) {
+        constraints = constraints.add(new ModelTypeConstraintInvalidRegex(`(${ire})`));
       } else {
         constraints = constraints.add(new ModelTypeConstraintRegex(pattern, ''));
       }

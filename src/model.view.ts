@@ -67,7 +67,11 @@ export interface IModelView<T> {
   isPageValid(aliasOrIndex?:string|number):boolean;
   
   isVisitedValid():boolean;
+  areVisitedPagesValid():boolean;
+  arePagesUpToCurrentValid():boolean;
   isValid(): boolean;
+
+  isFinished(): boolean;
 
   getStatusMessages():IStatusMessage[];
 
@@ -534,7 +538,14 @@ export class ModelView<T> implements IModelView<T> {
     let page = this.getPage(aliasOrIndex);
     return null == page || this.areFieldsValid(page.fields) && !this.hasStatusError();
   }
-
+  areVisitedPagesValid() {
+    return this.areFieldsValid(this._visitedPageFields())  && !this.hasStatusError();
+  }
+  arePagesUpToCurrentValid() {
+    var pages = this._viewMeta.getPages().slice(0, this._currentPage);
+    var fields = pages.reduce((r,p) => (r.concat(...p.fields)), []);
+    return this.areFieldsValid(fields) && !this.hasStatusError();
+  }
   isVisitedValid() {
     return this.areFieldsValid(Object.keys(this._visitedFields))  && !this.hasStatusError();
   }
@@ -570,6 +581,10 @@ export class ModelView<T> implements IModelView<T> {
     return this._currentPage+1;
   }
 
+  isFinished():boolean {
+    return this._currentPage > this._viewMeta.getPages().length;
+  }
+
   changePage(step:number):IModelView<T> {
     let nextPage = this._currentPage + step;
 
@@ -584,6 +599,14 @@ export class ModelView<T> implements IModelView<T> {
     result._currentPage = index;
     result._validationScope = validationScope;
     return result;
+  }
+
+  private _visitedPageFields() {
+    var pages = this._viewMeta.getPages();
+    var vpages = pages.filter(x => x.fields.some(f => this._visitedFields[f]));
+    var vpagefields = vpages.reduce((r: string[],p) => r.concat(p.fields), []);
+
+    return vpagefields;
   }
 
   private _viewMeta:ModelViewMeta<T>;

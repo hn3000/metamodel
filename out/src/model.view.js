@@ -424,6 +424,14 @@ var ModelView = (function () {
         var page = this.getPage(aliasOrIndex);
         return null == page || this.areFieldsValid(page.fields) && !this.hasStatusError();
     };
+    ModelView.prototype.areVisitedPagesValid = function () {
+        return this.areFieldsValid(this._visitedPageFields()) && !this.hasStatusError();
+    };
+    ModelView.prototype.arePagesUpToCurrentValid = function () {
+        var pages = this._viewMeta.getPages().slice(0, this._currentPage);
+        var fields = pages.reduce(function (r, p) { return (r.concat.apply(r, p.fields)); }, []);
+        return this.areFieldsValid(fields) && !this.hasStatusError();
+    };
     ModelView.prototype.isVisitedValid = function () {
         return this.areFieldsValid(Object.keys(this._visitedFields)) && !this.hasStatusError();
     };
@@ -464,6 +472,9 @@ var ModelView = (function () {
         enumerable: true,
         configurable: true
     });
+    ModelView.prototype.isFinished = function () {
+        return this._currentPage > this._viewMeta.getPages().length;
+    };
     ModelView.prototype.changePage = function (step) {
         var nextPage = this._currentPage + step;
         if (nextPage < 0 || nextPage > this._viewMeta.getPages().length) {
@@ -477,6 +488,13 @@ var ModelView = (function () {
         result._currentPage = index;
         result._validationScope = validationScope;
         return result;
+    };
+    ModelView.prototype._visitedPageFields = function () {
+        var _this = this;
+        var pages = this._viewMeta.getPages();
+        var vpages = pages.filter(function (x) { return x.fields.some(function (f) { return _this._visitedFields[f]; }); });
+        var vpagefields = vpages.reduce(function (r, p) { return r.concat(p.fields); }, []);
+        return vpagefields;
     };
     return ModelView;
 }());
