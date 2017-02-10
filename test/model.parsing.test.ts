@@ -4,7 +4,8 @@ import {
     ModelTypeConstraints,
     ModelSchemaParser,
     ModelTypeRegistry,
-    ModelTypeObject
+    ModelTypeObject,
+    ModelView
 } from "../src/model";
 
 import {
@@ -301,5 +302,43 @@ export class ModelParsingTest extends TestClass {
     slice.validate(ctx);
     this.areIdentical(1, ctx.errors.length);
     this.areIdentical('p', ctx.errors[0].property);
+  }
+  testSchemaWithArrayOfEnum() {
+    var parser = new ModelSchemaParser();
+    
+    var type = parser.addSchemaObject('ExampleObject', {
+      type: "object",
+      properties: {
+        p: {
+          type: "array",
+          items: {
+            type: "string", 
+            enum: [ "a", "b", "c" ],
+            uniqueItems: true
+          }
+        }
+      }
+    });
+    
+    var slice = (type as ModelTypeObject<any>).slice(['p']);
+
+    var ctx = new ModelParseContext({
+      p: [ 'a' ]
+    }, type)
+    slice.validate(ctx);
+    this.areIdentical(0, ctx.errors.length);
+
+    ctx = new ModelParseContext({
+      p: [ 'x', 'y' ]
+    }, type)
+    slice.validate(ctx);
+    this.areIdentical(2, ctx.errors.length);
+    this.areIdentical('p.0', ctx.errors[0].property);
+    this.areIdentical('p.1', ctx.errors[1].property);
+
+    let view = new ModelView​​(slice, ctx.currentValue);
+    view = view.withValidationMessages(ctx.messages);
+
+    this.areIdentical(2, view.getFieldMessages("p").length);
   }
 }
