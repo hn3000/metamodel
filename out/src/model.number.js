@@ -111,7 +111,7 @@ var ModelTypeConstraintMultipleOf = (function (_super) {
         }
         return _this;
     }
-    ModelTypeConstraintMultipleOf.prototype._id = function () { return "mult(" + this._modulus + ")"; };
+    ModelTypeConstraintMultipleOf.prototype._id = function () { return "multipleOf(" + this._modulus + ")"; };
     ModelTypeConstraintMultipleOf.prototype.checkAndAdjustValue = function (value, ctx) {
         var adjusted = Math.floor(value / this._modulus) * this._modulus;
         if (adjusted !== value) {

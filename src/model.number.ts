@@ -114,7 +114,7 @@ export class ModelTypeConstraintMultipleOf extends ModelTypeConstraintOptional<n
       this._modulus = (<this>modulus)._modulus;
     }
   }
-  _id():string { return `mult(${this._modulus})`; }
+  _id():string { return `multipleOf(${this._modulus})`; }
   checkAndAdjustValue(value:number, ctx:IModelParseContext) {
     let adjusted = Math.floor(value / this._modulus) * this._modulus;
     if (adjusted !== value) {

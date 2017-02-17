@@ -42,7 +42,8 @@ import {
   ModelTypeConstraintLess,
   ModelTypeConstraintLessEqual,
   ModelTypeConstraintMore,
-  ModelTypeConstraintMoreEqual
+  ModelTypeConstraintMoreEqual,
+  ModelTypeConstraintMultipleOf
 } from "./model.number";
 
 import {
@@ -70,7 +71,8 @@ export {
     ModelTypeConstraintLess,
     ModelTypeConstraintLessEqual,
     ModelTypeConstraintMore,
-    ModelTypeConstraintMoreEqual
+    ModelTypeConstraintMoreEqual,
+    ModelTypeConstraintMultipleOf
 } from "./model.number";
 
 export {
@@ -96,7 +98,7 @@ export {
 } from "./model.object";
 
 export {
-  IModelSchemaParserDefaults​​,
+  IModelSchemaParserDefaults,
   IConstraintFactories,
   ModelSchemaParser
 } from "./model.schema";
@@ -121,6 +123,7 @@ export class ModelTypeConstraints {
   static lessEqual(v:number) { return new ModelTypeConstraintLessEqual(v); }
   static more(v:number)      { return new ModelTypeConstraintMore(v); }
   static moreEqual(v:number) { return new ModelTypeConstraintMoreEqual(v); }
+  static multipleOf(v:number){ return new ModelTypeConstraintMultipleOf(v); }
 
   static possibleValues(v:string[]) { return new ModelTypeConstraintPossibleValues(v); }
   static recommendedValues(v:string[]) { return new ModelTypeConstraintPossibleValues(v).warnOnly(); }

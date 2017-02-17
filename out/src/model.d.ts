@@ -1,11 +1,11 @@
 export { Primitive, Predicate, IModelObject, MessageSeverity, IMessageProps, IStatusMessage, IPropertyStatusMessage, IModelParseContext, IModelType, IModelTypeConstrainable, IModelTypeItem, IModelTypeEntry, IModelTypeComposite, IModelTypeCompositeBuilder, IModelTypeConstraint, IModelTypeConstraintFactory, IModelTypeRegistry, IClientProps } from "./model.api";
 import { ModelTypeRegistry } from "./model.registry";
 export { ModelTypeConstrainable, ModelTypeItem, ModelConstraints, ModelTypeConstraintOptional, ClientProps } from "./model.base";
-import { ModelTypeConstraintLess, ModelTypeConstraintLessEqual, ModelTypeConstraintMore, ModelTypeConstraintMoreEqual } from "./model.number";
+import { ModelTypeConstraintLess, ModelTypeConstraintLessEqual, ModelTypeConstraintMore, ModelTypeConstraintMoreEqual, ModelTypeConstraintMultipleOf } from "./model.number";
 import { ModelTypeConstraintPossibleValues } from "./model.string";
 export { ModelParseContext, ObjectTraversal } from "./model.infra";
 export { ModelTypeRegistry } from "./model.registry";
-export { ModelTypeNumber, ModelTypeConstraintLess, ModelTypeConstraintLessEqual, ModelTypeConstraintMore, ModelTypeConstraintMoreEqual } from "./model.number";
+export { ModelTypeNumber, ModelTypeConstraintLess, ModelTypeConstraintLessEqual, ModelTypeConstraintMore, ModelTypeConstraintMoreEqual, ModelTypeConstraintMultipleOf } from "./model.number";
 export { ModelTypeString, ModelTypeConstraintPossibleValues, ModelTypeConstraintLength, ModelTypeConstraintRegex } from "./model.string";
 export { ModelTypeBool } from "./model.bool";
 export { ModelTypeArray } from "./model.array";
@@ -18,6 +18,7 @@ export declare class ModelTypeConstraints {
     static lessEqual(v: number): ModelTypeConstraintLessEqual;
     static more(v: number): ModelTypeConstraintMore;
     static moreEqual(v: number): ModelTypeConstraintMoreEqual;
+    static multipleOf(v: number): ModelTypeConstraintMultipleOf;
     static possibleValues(v: string[]): ModelTypeConstraintPossibleValues<string>;
     static recommendedValues(v: string[]): ModelTypeConstraintPossibleValues<string>;
 }

@@ -22,6 +22,7 @@ exports.ModelTypeConstraintLess = model_number_2.ModelTypeConstraintLess;
 exports.ModelTypeConstraintLessEqual = model_number_2.ModelTypeConstraintLessEqual;
 exports.ModelTypeConstraintMore = model_number_2.ModelTypeConstraintMore;
 exports.ModelTypeConstraintMoreEqual = model_number_2.ModelTypeConstraintMoreEqual;
+exports.ModelTypeConstraintMultipleOf = model_number_2.ModelTypeConstraintMultipleOf;
 var model_string_2 = require("./model.string");
 exports.ModelTypeString = model_string_2.ModelTypeString;
 exports.ModelTypeConstraintPossibleValues = model_string_2.ModelTypeConstraintPossibleValues;
@@ -52,6 +53,7 @@ var ModelTypeConstraints = (function () {
     ModelTypeConstraints.lessEqual = function (v) { return new model_number_1.ModelTypeConstraintLessEqual(v); };
     ModelTypeConstraints.more = function (v) { return new model_number_1.ModelTypeConstraintMore(v); };
     ModelTypeConstraints.moreEqual = function (v) { return new model_number_1.ModelTypeConstraintMoreEqual(v); };
+    ModelTypeConstraints.multipleOf = function (v) { return new model_number_1.ModelTypeConstraintMultipleOf(v); };
     ModelTypeConstraints.possibleValues = function (v) { return new model_string_1.ModelTypeConstraintPossibleValues(v); };
     ModelTypeConstraints.recommendedValues = function (v) { return new model_string_1.ModelTypeConstraintPossibleValues(v).warnOnly(); };
     return ModelTypeConstraints;
