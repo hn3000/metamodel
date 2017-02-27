@@ -194,6 +194,10 @@ export class ModelParseContext implements IModelParseContext {
     this._messages.push(message);
   }
 
+  addMessages(msgs: IPropertyStatusMessage[]): void {
+    this._messages.push(...msgs);
+  }
+
   _removeMessages(filter:(m:IPropertyStatusMessage) => boolean) {
     this._messages = this._messages.filter((x) => !filter(x));
   }

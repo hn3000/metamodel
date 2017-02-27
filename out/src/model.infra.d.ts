@@ -54,6 +54,7 @@ export declare class ModelParseContext implements IModelParseContext {
     addErrorEx(msg: string, code: string, props: IMessageProps): void;
     addMessage(severity: MessageSeverity | boolean, msg: string, code: string): void;
     addMessageEx(severity: MessageSeverity | boolean, msg: string, code: string, props: IMessageProps): void;
+    addMessages(msgs: IPropertyStatusMessage[]): void;
     _removeMessages(filter: (m: IPropertyStatusMessage) => boolean): void;
     readonly messages: IPropertyStatusMessage[];
     readonly warnings: IPropertyStatusMessage[];

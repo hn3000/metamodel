@@ -13,6 +13,7 @@ export interface IClientProps {
     propGet(key: string): any;
     propSet(key: string, val: any): void;
     propKeys(): string[];
+    propsCopyFrom(that: IClientProps): void;
 }
 export interface IMessageProps {
     [key: string]: number | string | any;
@@ -48,6 +49,7 @@ export interface IModelParseContext {
     addMessage(severity: MessageSeverity, msg: string, code: string): void;
     addMessageEx(isError: boolean, msg: string, code: string, props: IMessageProps): void;
     addMessageEx(severity: MessageSeverity, msg: string, code: string, props: IMessageProps): void;
+    addMessages(msgs: IPropertyStatusMessage[]): void;
     _removeMessages(filter: (m: IPropertyStatusMessage) => boolean): void;
     hasMessagesForCurrentValue(): boolean;
     messages: IPropertyStatusMessage[];

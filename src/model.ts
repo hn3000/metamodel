@@ -59,7 +59,8 @@ import {
 
 export {
   ModelParseContext,
-  ObjectTraversal
+  ObjectTraversal,
+  ModelParseMessage
 } from "./model.infra";
 
 export {

@@ -56,6 +56,7 @@ export interface IModelView<T> {
   getPossibleFieldValues(keyPath:string|string[]):any[];
 
   getFieldMessages(keyPath:string|string[]):IPropertyStatusMessage[];
+  getValidationMessages(): IPropertyStatusMessage[];
   isFieldVisited(field: string | string[]):boolean;
   isFieldValid(keyPath:string|string[]):boolean;
   areFieldsValid(fields:string[]):boolean;
@@ -503,6 +504,10 @@ export class ModelView<T> implements IModelView<T> {
   getFieldMessages(keyPath:string|string[]):IPropertyStatusMessage[] {
     let path = this._asKeyString(keyPath);
     return this._messagesByField[path] || [];
+  }
+
+  getValidationMessages(): IPropertyStatusMessage[] {
+    return this._messages.slice();
   }
 
   isFieldValid(keyPath:string|string[]):boolean {

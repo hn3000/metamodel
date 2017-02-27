@@ -40,6 +40,7 @@ export interface IModelView<T> {
     getFields(): IModelViewField[];
     getPossibleFieldValues(keyPath: string | string[]): any[];
     getFieldMessages(keyPath: string | string[]): IPropertyStatusMessage[];
+    getValidationMessages(): IPropertyStatusMessage[];
     isFieldVisited(field: string | string[]): boolean;
     isFieldValid(keyPath: string | string[]): boolean;
     areFieldsValid(fields: string[]): boolean;
@@ -139,6 +140,7 @@ export declare class ModelView<T> implements IModelView<T> {
     getPossibleFieldValues(keyPath: string | string[]): any[];
     getFieldType(keyPath: string | string[]): IModelType<any>;
     getFieldMessages(keyPath: string | string[]): IPropertyStatusMessage[];
+    getValidationMessages(): IPropertyStatusMessage[];
     isFieldValid(keyPath: string | string[]): boolean;
     getPages(): ModelViewPage[];
     getPage(aliasOrIndex?: string | number): IModelViewPage;

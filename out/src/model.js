@@ -14,6 +14,7 @@ var model_bool_1 = require("./model.bool");
 var model_infra_1 = require("./model.infra");
 exports.ModelParseContext = model_infra_1.ModelParseContext;
 exports.ObjectTraversal = model_infra_1.ObjectTraversal;
+exports.ModelParseMessage = model_infra_1.ModelParseMessage;
 var model_registry_2 = require("./model.registry");
 exports.ModelTypeRegistry = model_registry_2.ModelTypeRegistry;
 var model_number_2 = require("./model.number");

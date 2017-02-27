@@ -3,7 +3,7 @@ import { ModelTypeRegistry } from "./model.registry";
 export { ModelTypeConstrainable, ModelTypeItem, ModelConstraints, ModelTypeConstraintOptional, ClientProps } from "./model.base";
 import { ModelTypeConstraintLess, ModelTypeConstraintLessEqual, ModelTypeConstraintMore, ModelTypeConstraintMoreEqual, ModelTypeConstraintMultipleOf } from "./model.number";
 import { ModelTypeConstraintPossibleValues } from "./model.string";
-export { ModelParseContext, ObjectTraversal } from "./model.infra";
+export { ModelParseContext, ObjectTraversal, ModelParseMessage } from "./model.infra";
 export { ModelTypeRegistry } from "./model.registry";
 export { ModelTypeNumber, ModelTypeConstraintLess, ModelTypeConstraintLessEqual, ModelTypeConstraintMore, ModelTypeConstraintMoreEqual, ModelTypeConstraintMultipleOf } from "./model.number";
 export { ModelTypeString, ModelTypeConstraintPossibleValues, ModelTypeConstraintLength, ModelTypeConstraintRegex } from "./model.string";

@@ -20,6 +20,12 @@ var ClientProps = (function () {
     ClientProps.prototype.propKeys = function () {
         return Object.keys(this._data);
     };
+    ClientProps.prototype.propsCopyFrom = function (that) {
+        for (var _i = 0, _a = that.propKeys(); _i < _a.length; _i++) {
+            var k = _a[_i];
+            this.propSet(k, that.propGet(k));
+        }
+    };
     return ClientProps;
 }());
 exports.ClientProps = ClientProps;

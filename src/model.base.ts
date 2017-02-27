@@ -25,6 +25,12 @@ export class ClientProps implements IClientProps {
     return Object.keys(this._data);
   }
 
+  propsCopyFrom(that: IClientProps) {
+    for (let k of that.propKeys()) {
+      this.propSet(k, that.propGet(k));
+    }
+  }
+
   private _data:any = {};
 }
 

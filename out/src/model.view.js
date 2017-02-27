@@ -392,6 +392,9 @@ var ModelView = (function () {
         var path = this._asKeyString(keyPath);
         return this._messagesByField[path] || [];
     };
+    ModelView.prototype.getValidationMessages = function () {
+        return this._messages.slice();
+    };
     ModelView.prototype.isFieldValid = function (keyPath) {
         var m = this._messagesByField[this._asKeyString(keyPath)];
         return null == m || 0 == m.length;

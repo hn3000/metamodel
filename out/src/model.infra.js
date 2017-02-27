@@ -199,6 +199,10 @@ var ModelParseContext = (function () {
         var message = new ModelParseMessage(sev, this.currentKeyPath().join('.'), msg, code, props, this.currentType() ? this.currentType().qualifiers || [] : []);
         this._messages.push(message);
     };
+    ModelParseContext.prototype.addMessages = function (msgs) {
+        (_a = this._messages).push.apply(_a, msgs);
+        var _a;
+    };
     ModelParseContext.prototype._removeMessages = function (filter) {
         this._messages = this._messages.filter(function (x) { return !filter(x); });
     };

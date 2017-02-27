@@ -4,6 +4,7 @@ export declare class ClientProps implements IClientProps {
     propGet(key: string): any;
     propSet(key: string, val: any): void;
     propKeys(): string[];
+    propsCopyFrom(that: IClientProps): void;
     private _data;
 }
 export declare class ModelConstraints<T> implements IModelTypeConstraint<T> {
