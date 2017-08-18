@@ -17,8 +17,8 @@ import {
 
 export class ModelTypeString extends ModelTypeItem<string> {
 
-  constructor(c?:ModelConstraints<string>) {
-    super('string', c);
+  constructor(name:string = 'string', c?:ModelConstraints<string>) {
+    super(name, c);
   }
 
   lowerBound(): IModelTypeConstraint<string> { return null; };
@@ -119,9 +119,9 @@ export class ModelTypeConstraintLength extends ModelTypeConstraintOptional<strin
 
 
   protected _id():string {
-    let from = this._minLength != null ? `${this._minLength} <= `:''; 
-    let to   = this._maxLength != null ? `<= ${this._maxLength}`:''; 
-    return `${from}length${to}`; 
+    let from = this._minLength != null ? `${this._minLength} <= `:'';
+    let to   = this._maxLength != null ? `<= ${this._maxLength}`:'';
+    return `${from}length${to}`;
   }
 
   checkAndAdjustValue(value:string, ctx:IModelParseContext):string {
@@ -169,7 +169,7 @@ export class ModelTypeConstraintLength extends ModelTypeConstraintOptional<strin
 export class ModelTypeConstraintRegex extends ModelTypeConstraintOptional<string> {
   constructor(pattern:string|RegExp, flags?:string, message?:string) {
     super();
-    
+
     var patternSource = (<RegExp>pattern).source || pattern.toString();
     this._pattern = new RegExp(patternSource, flags||'');
     if (null != message) {
@@ -207,7 +207,7 @@ export class ModelTypeConstraintRegex extends ModelTypeConstraintOptional<string
 export class ModelTypeConstraintInvalidRegex extends ModelTypeConstraintOptional<string> {
   constructor(pattern:string|RegExp, flags?:string, message?:string) {
     super();
-    
+
     var patternSource = (<RegExp>pattern).source || pattern.toString();
     this._pattern = new RegExp(patternSource, flags||'g');
     if (null != message) {

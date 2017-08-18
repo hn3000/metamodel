@@ -16,8 +16,8 @@ import {
 } from "./model.base"
 
 export class ModelTypeDate extends ModelTypeItem<Date> {
-  constructor(c?:ModelConstraints<Date>) {
-    super('number', c);
+  constructor(name: string = 'date', c?:ModelConstraints<Date>) {
+    super(name, c);
   }
 
   lowerBound():IModelTypeConstraint<Date> {
@@ -139,7 +139,7 @@ export abstract class ModelTypeConstraintDateBase<D> extends ModelTypeConstraint
         let msg = `expected ${val} ${this._op()} ${this._val()}.`;
         ctx.addMessageEx(!this.isWarningOnly, msg, this._code(), { value, limit, op: this._op(), date: checkVal });
         if (!this.isWarningOnly && ctx.allowConversion) {
-          
+
           // does not make sense without improved date-format handling
           //result = comparisonVal as any;
 
@@ -162,7 +162,7 @@ export abstract class ModelTypeConstraintDateFixed<D> extends ModelTypeConstrain
   _val() { return this._value; }
   _limit() { return this._value; }
   private _value: Date;
-} 
+}
 
 export class ModelTypeConstraintBefore<D> extends ModelTypeConstraintDateFixed<D> {
   constructor(val:Date|string) { super(val); }
@@ -198,8 +198,8 @@ export class TimeSpan {
     }
   }
 
-  toString():string { 
-    return `${this._amount} ${this._unitNormalized}${this._amount != 1 ? 's':''}`; 
+  toString():string {
+    return `${this._amount} ${this._unitNormalized}${this._amount != 1 ? 's':''}`;
   }
 
   get amount() { return this._amount; }
@@ -224,14 +224,14 @@ export class TimeSpan {
 }
 
 export class ModelTypeConstraintOlder<D> extends ModelTypeConstraintDateBase<D> {
-  constructor(timespan:string) { 
-    super(); 
+  constructor(timespan:string) {
+    super();
     this._timespan = new TimeSpan(timespan);
   }
   protected _op() { return "<"; }
   protected _compare(a:Date, b:Date):boolean { return a < b; }
   protected _limit() { return this._timespan; }
-  protected _val() { 
+  protected _val() {
     var date:Date = new Date();
     this._timespan.moveBack(date);
     return date;

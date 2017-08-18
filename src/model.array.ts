@@ -12,8 +12,8 @@ import {
 } from "./model.base"
 
 export class ModelTypeArray<T> extends ModelTypeConstrainable<T[]> implements IModelTypeComposite<T[]> {
-  constructor(elementType:IModelType<T>, constraints?:ModelConstraints<T[]>) {
-    super(elementType.name+"[]", constraints);
+  constructor(elementType:IModelType<T>, name?: string, constraints?:ModelConstraints<T[]>) {
+    super(name || (elementType.name+"[]"), constraints);
     this._elementType = elementType;
   }
   parse(ctx:IModelParseContext):T[] {
@@ -71,7 +71,7 @@ export class ModelTypeArray<T> extends ModelTypeConstrainable<T[]> implements IM
 export interface IArraySizeConstraintOptions {
   minLength: number;
   maxLength: number;
-  
+
 }
 
 export class ModelTypeArraySizeConstraint<T> extends ModelTypeConstraintOptional<T[]> {
@@ -86,7 +86,7 @@ export class ModelTypeArraySizeConstraint<T> extends ModelTypeConstraintOptional
 
   _id():string {
     let { minLength, maxLength } = this._settings;
-    
+
     return `${minLength ? minLength +' <= ' : ''}size${maxLength ? ' <= ' + maxLength  : ''}`;
   }
 
@@ -96,14 +96,14 @@ export class ModelTypeArraySizeConstraint<T> extends ModelTypeConstraintOptional
     if (null != length) {
       let { minLength, maxLength } = this._settings;
       if (null != minLength) {
-        valid = valid &&  (length >= minLength); 
+        valid = valid &&  (length >= minLength);
       }
       if (null != maxLength) {
-        valid = valid &&  (length <= maxLength); 
+        valid = valid &&  (length <= maxLength);
       }
     }
     return v;
-  }  
+  }
 
 
   private _settings:IArraySizeConstraintOptions;

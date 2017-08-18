@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var model_api_1 = require("./model.api");
 var ModelParseMessage = (function () {
     function ModelParseMessage(severity, property, msg, code, props, qualifiers) {

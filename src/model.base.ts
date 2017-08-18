@@ -63,7 +63,7 @@ export class ModelConstraints<T> implements IModelTypeConstraint<T> {
     let nn = names as string[];
     let innames = (n:string) => -1 != nn.indexOf(n);
     let predicate = (x:IModelTypeConstraint<T>) => {
-      return x && (!x.usedItems || !x.usedItems() || x.usedItems().every(innames)); 
+      return x && (!x.usedItems || !x.usedItems() || x.usedItems().every(innames));
     }
 
     return new ModelConstraints<T>(this.filter(predicate));
@@ -76,9 +76,9 @@ export class ModelConstraints<T> implements IModelTypeConstraint<T> {
   private _constraints: IModelTypeConstraint<T>[];
 }
 
-export abstract class ModelTypeConstrainable<T> 
+export abstract class ModelTypeConstrainable<T>
   extends ClientProps
-  implements IModelTypeConstrainable<T> 
+  implements IModelTypeConstrainable<T>
 {
   constructor(name:string, constraints:ModelConstraints<T> = null) {
     super();
@@ -136,7 +136,7 @@ export abstract class ModelTypeConstrainable<T>
     }
   }
   protected _clone(constraints:ModelConstraints<T>):this {
-      return new (<any>this.constructor)(constraints);
+      return new (<any>this.constructor)(null, constraints);
   }
   protected _checkAndAdjustValue(val:T, ctx:IModelParseContext):T {
     return this._constraints.checkAndAdjustValue(val, ctx);

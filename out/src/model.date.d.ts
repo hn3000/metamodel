@@ -1,7 +1,7 @@
 import { IModelParseContext, IModelTypeConstraint } from "./model.api";
 import { ModelConstraints, ModelTypeConstraintOptional, ModelTypeItem } from "./model.base";
 export declare class ModelTypeDate extends ModelTypeItem<Date> {
-    constructor(c?: ModelConstraints<Date>);
+    constructor(name?: string, c?: ModelConstraints<Date>);
     lowerBound(): IModelTypeConstraint<Date>;
     upperBound(): IModelTypeConstraint<Date>;
     parse(ctx: IModelParseContext): Date;

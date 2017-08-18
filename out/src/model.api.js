@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var MessageSeverity;
 (function (MessageSeverity) {
     MessageSeverity[MessageSeverity["NOTE"] = 0] = "NOTE";

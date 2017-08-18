@@ -1,7 +1,7 @@
 import { IModelType, IModelParseContext, IModelTypeComposite, IModelTypeEntry } from "./model.api";
 import { ModelTypeConstrainable, ModelConstraints, ModelTypeConstraintOptional } from "./model.base";
 export declare class ModelTypeArray<T> extends ModelTypeConstrainable<T[]> implements IModelTypeComposite<T[]> {
-    constructor(elementType: IModelType<T>, constraints?: ModelConstraints<T[]>);
+    constructor(elementType: IModelType<T>, name?: string, constraints?: ModelConstraints<T[]>);
     parse(ctx: IModelParseContext): T[];
     validate(ctx: IModelParseContext): void;
     unparse(val: T[]): any;

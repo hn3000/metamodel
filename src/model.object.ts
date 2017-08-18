@@ -76,7 +76,7 @@ export class ModelTypeAny
 
 }
 
-export class ModelTypeObject<T> 
+export class ModelTypeObject<T>
   extends ModelTypeConstrainable<T>
   implements IModelTypeCompositeBuilder<T>
 {
@@ -135,7 +135,7 @@ export class ModelTypeObject<T>
 
   itemType(name:string|number) {
     if (typeof name === 'string' || typeof name === 'number') {
-      let entry = this._entriesByName[name]; 
+      let entry = this._entriesByName[name];
       return entry && entry.type;
     }
 
@@ -214,7 +214,7 @@ export class ModelTypeObject<T>
     return this._constructFun ? this._constructFun() : <T><any>{};
   }
 
-  // null -> no list of allowed values (no known restrictions) 
+  // null -> no list of allowed values (no known restrictions)
   // empty array -> no values possible
   possibleValuesForContextData(name:string|number, data:any):any[] {
     let result: any[] = null;
@@ -222,7 +222,7 @@ export class ModelTypeObject<T>
     let fieldType = this.itemType(name).asItemType();
     if (fieldType) {
       result = fieldType.possibleValues();
-    } 
+    }
 
     let cx = this.findConstraints((c) => null != c.possibleValuesForContextData);
 
@@ -355,14 +355,14 @@ export class ModelTypeConstraintCompareProperties extends ModelTypeConstraintOpt
 
   checkAndAdjustValue(val:any, ctx:IModelParseContext):any {
     let fields = this._fields;
-    let values = fields.reduce((acc,k) => { 
-      acc.push(val[k]); 
-      return acc; 
+    let values = fields.reduce((acc,k) => {
+      acc.push(val[k]);
+      return acc;
     }, []);
 
     let valid = true;
     let comp = this._comparator;
-    
+
     for (let i = 1, n = values.length; i < n; ++i) {
       if (!comp(values[i-1], values[i])) {
         valid = false;
@@ -378,22 +378,22 @@ export class ModelTypeConstraintCompareProperties extends ModelTypeConstraintOpt
           case '=':
           case '==':
             ctx.addErrorEx(
-              `expected fields to be equal: ${fields.join(',')}.`, 
-              'properties-different', 
+              `expected fields to be equal: ${fields.join(',')}.`,
+              'properties-different',
               { value: val, values: values, fields: fields.join(',') }
             );
             break;
           case '!=':
             ctx.addErrorEx(
-              `expected fields to be different: ${fields.join(',')}.`, 
-              'properties-equal', 
+              `expected fields to be different: ${fields.join(',')}.`,
+              'properties-equal',
               { value: val, values: values, fields: fields.join(',') }
             );
             break;
           default:
             ctx.addErrorEx(
-              `expected fields to be ordered (${this._op}): ${fields.join(',')}.`, 
-              'properties-wrong-order-' + (ComparisonOp_Names[this._op] || this._op), 
+              `expected fields to be ordered (${this._op}): ${fields.join(',')}.`,
+              'properties-wrong-order-' + (ComparisonOp_Names[this._op] || this._op),
               { value: val, values: values, fields: fields.join(',') }
             );
             break;
@@ -434,11 +434,11 @@ export class ModelTypeConstraintEqualProperties extends ModelTypeConstraintOptio
 
   checkAndAdjustValue(val:any, ctx:IModelParseContext):any {
     let fields = this._fields;
-    let values = fields.reduce((acc,k) => { 
+    let values = fields.reduce((acc,k) => {
       if (-1 == acc.indexOf(val[k])) {
-        acc.push(val[k]); 
+        acc.push(val[k]);
       }
-      return acc; 
+      return acc;
     }, []);
 
     let result = val;
@@ -446,8 +446,8 @@ export class ModelTypeConstraintEqualProperties extends ModelTypeConstraintOptio
       for (var f of fields) {
         ctx.pushItem(f, !this.warnOnly(), null);
         ctx.addErrorEx(
-          `expected fields to be equal: ${fields.join(',')}.`, 
-          'properties-different', 
+          `expected fields to be equal: ${fields.join(',')}.`,
+          'properties-different',
           { value: val, values: values, fields: fields.join(',') }
         );
         ctx.popItem();
@@ -474,11 +474,17 @@ function createPredicateEquals(property:string, value:any, invert:boolean): Pred
 
     return (x:any) => {
       let p = x[property];
+      if (Array.isArray(p)) {
+        return p.some(x => (-1 != valueArray.indexOf(x)) == !invert);
+      }
       return (p !== undefined) && (-1 != valueArray.indexOf(p)) == !invert;
     }
   }
   return function(x:any): boolean {
     let p = x[property];
+    if (Array.isArray(p)) {
+      return ((-1 != p.indexOf(value)) == !invert);
+    }
     return (p !== undefined) && (value === p) == !invert;
   }
 }
@@ -521,7 +527,7 @@ function createValuePredicate(possibleValues:string[]|number[]): (x:string|numbe
 export interface IConditionalValueConstraintOptions {
   condition: IConditionOptions;
 
-  // properties to require (may be just single item)  
+  // properties to require (may be just single item)
   properties: string|string[];
   // if properties is a single string, this is allowed:
   possibleValue?: string|number|string[]|number[];
@@ -545,7 +551,7 @@ export class ModelTypeConstraintConditionalValue extends ModelTypeConstraintOpti
 
     if (options.condition && options.properties) {
       let { condition, properties, possibleValue } = options;
-      let multiple = Array.isArray(properties) && properties.length > 1; 
+      let multiple = Array.isArray(properties) && properties.length > 1;
       if (multiple && null != possibleValue && !Array.isArray(possibleValue)) {
         throw new Error("must not combine list of required fields with single possibleValue");
       }
@@ -633,7 +639,7 @@ export class ModelTypePropertyConstraint extends ModelTypeConstraintOptional<any
   }
 
   _id():string {
-    return `${this._constraint.id}@${this._property}`; 
+    return `${this._constraint.id}@${this._property}`;
   }
 
   checkAndAdjustValue(val:any, ctx:IModelParseContext):any {
@@ -648,7 +654,7 @@ export class ModelTypePropertyConstraint extends ModelTypeConstraintOptional<any
     return val;
   }
 
-  usedItems():string[] { return [ this._property ]; }  
+  usedItems():string[] { return [ this._property ]; }
 
   private _property:string;
   private _constraint:IModelTypeConstraint<any>

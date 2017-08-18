@@ -16,8 +16,8 @@ import {
 } from "./model.base"
 
 export class ModelTypeNumber extends ModelTypeItem<number> {
-  constructor(c?:ModelConstraints<number>) {
-    super('number', c);
+  constructor(name:string = 'number', c?:ModelConstraints<number>) {
+    super(name, c);
   }
 
   lowerBound():IModelTypeConstraint<number> {
@@ -128,11 +128,11 @@ export class ModelTypeConstraintMultipleOf extends ModelTypeConstraintOptional<n
     }
     return value;
   }
-  
+
   get modulus():number {
     return this._modulus;
   }
-  
+
   private _modulus:number;
 }
 

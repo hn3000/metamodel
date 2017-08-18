@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
     "target": "es5",
+    "lib": [
+      "es2015",
+      "dom"
+    ],
     "module": "commonjs",
     "moduleResolution": "node",
     "sourceMap": true,
@@ -15,6 +19,8 @@
     "src/model.ts",
     "src/model.api.ts",
     "test/allTests.ts",
-    "test/model.test.ts"
+    "test/model.test.ts",
+    "node_modules/tsunit.external/tsUnit.ts",
+    "node_modules/tsunit.external/tsUnitAsync.ts"
   ]
 }

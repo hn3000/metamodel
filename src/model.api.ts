@@ -21,8 +21,8 @@ export interface IClientProps {
   propsCopyFrom(that: IClientProps):void;
 }
 
-export interface IMessageProps { 
-  [key:string]:number|string|any; 
+export interface IMessageProps {
+  [key:string]:number|string|any;
 }
 
 export enum MessageSeverity {
@@ -125,10 +125,10 @@ export interface IModelTypeComposite<C> extends IModelTypeConstrainable<C> {
   itemType(name:string|number):IModelType<any>;
   slice(name:string[]|number[]):IModelTypeComposite<C>;
   /**
-   * return: null -> no list of allowed values, 
+   * return: null -> no list of allowed values,
    *         empty array -> no values possible
    */
-  possibleValuesForContextData(name:string|number, data:any):any[]; 
+  possibleValuesForContextData(name:string|number, data:any):any[];
 }
 
 export interface IModelTypeCompositeBuilder<C> extends IModelTypeComposite<C> {

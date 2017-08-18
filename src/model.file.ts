@@ -22,7 +22,7 @@ export class ModelTypeFile extends ModelTypeConstrainable<IFile> implements IMod
 
   _kind(): string { return 'file'; }
 
-  create() {
+  create(): IFile {
     return ({
       file: null,
       name: null
@@ -36,7 +36,7 @@ export class ModelTypeFile extends ModelTypeConstrainable<IFile> implements IMod
       return null;
     }
 
-    let result = {
+    let result: IFile = {
       file: null,
       name: null
     };

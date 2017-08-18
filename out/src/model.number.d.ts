@@ -1,7 +1,7 @@
 import { IModelParseContext, IModelTypeConstraint } from "./model.api";
 import { ModelConstraints, ModelTypeConstraintOptional, ModelTypeItem } from "./model.base";
 export declare class ModelTypeNumber extends ModelTypeItem<number> {
-    constructor(c?: ModelConstraints<number>);
+    constructor(name?: string, c?: ModelConstraints<number>);
     lowerBound(): IModelTypeConstraint<number>;
     upperBound(): IModelTypeConstraint<number>;
     parse(ctx: IModelParseContext): number;

@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var model_api_1 = require("./model.api");
 exports.MessageSeverity = model_api_1.MessageSeverity;
 var model_registry_1 = require("./model.registry");

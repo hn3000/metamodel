@@ -1,7 +1,7 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var model_api_1 = require("./model.api");
 var model_infra_1 = require("./model.infra");
-var es6_promise_1 = require("es6-promise");
 var ValidationScope;
 (function (ValidationScope) {
     ValidationScope[ValidationScope["VISITED"] = 0] = "VISITED";
@@ -100,6 +100,9 @@ var ModelViewMeta = (function () {
                 return new ModelViewPage(alias, model);
             });
             this._pages = pages;
+        }
+        else {
+            this._pages = [new ModelViewPage('default', type)];
         }
         //TODO: construct fields
     }
@@ -285,7 +288,7 @@ var ModelView = (function () {
     ModelView.prototype._validateSlice = function (modelSlice, kind) {
         var _this = this;
         if (!this._validations[kind]) {
-            this._validations[kind] = es6_promise_1.Promise.resolve(null).then(function () {
+            this._validations[kind] = Promise.resolve(null).then(function () {
                 var ctx = new model_infra_1.ModelParseContext(_this._inputModel, modelSlice);
                 modelSlice.validate(ctx);
                 var messages = ctx.errors.concat(ctx.warnings);

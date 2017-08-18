@@ -49,7 +49,7 @@ import {
 } from "./model.date"
 
 import {
-    ModelTypeBool
+  ModelTypeBool
 } from "./model.bool"
 
 import {
@@ -71,7 +71,6 @@ import { invertedRE } from './regex-util';
 import { JsonReferenceProcessor } from "@hn3000/json-ref"
 
 import * as fetch from "isomorphic-fetch";
-import { Promise } from "es6-promise";
 
 function shallowMerge(a:any, b:any):any {
   let result:any = {};
@@ -79,7 +78,7 @@ function shallowMerge(a:any, b:any):any {
   Object.keys(a).forEach((x) => tmp[x]=x);
   Object.keys(b).forEach((x) => tmp[x]=x);
   let keys = Object.keys(tmp);
-  
+
   for (var k of keys) {
     result[k] = null != b[k] ? b[k] : a[k];
   }
@@ -141,7 +140,7 @@ var constraintFactoriesDefault:IConstraintFactories = {
     moreEqual(o:any)   { return new ModelTypeConstraintMoreEqual(o.value); }
     */
   },
-  strings: { 
+  strings: {
     minAge(o:any)      { return new ModelTypeConstraintOlder<string>(parseAge(o)); },
     before(o:any)      { return new ModelTypeConstraintBefore<string>(o.date); },
     after(o:any)       { return new ModelTypeConstraintAfter<string>(o.date); }
@@ -164,16 +163,16 @@ var constraintFactoriesDefault:IConstraintFactories = {
     },
     equalProperties(o:any) { return new ModelTypeConstraintEqualProperties(o); },
     compareProperties(o:any) { return new ModelTypeConstraintCompareProperties(o); },
-    requiredIf(o:any) { 
+    requiredIf(o:any) {
       return new ModelTypeConstraintConditionalValue({
         condition: o.condition,
         clearOtherwise: o.clearOtherwise,
         properties: o.properties
-      }); 
+      });
     },
-    valueIf(o:any) { 
+    valueIf(o:any) {
       return new ModelTypeConstraintConditionalValue({
-        condition: o.condition, 
+        condition: o.condition,
         clearOtherwise: false,
         properties: o.valueProperty,
         possibleValue: o.possibleValue
@@ -192,7 +191,7 @@ export class ModelSchemaParser implements IModelTypeRegistry {
     this._registry = new ModelTypeRegistry();
     this._defaults = defaultValues || {};
   }
-  
+
   addSchemaFromURL(url:string):Promise<any> {
     this._ensureRefProcessor();
     var p = this._refProcessor.expandRef(url);
@@ -201,15 +200,23 @@ export class ModelSchemaParser implements IModelTypeRegistry {
       return this.addSchemaObject(url, schema);
     });
   }
-  
+
+  /**
+   * Parses a schema object and adds the resulting model type to the internal
+   * registry.
+   *
+   * @param name of the type
+   * @param schemaObject schema definition / description of the type
+   * @param defaults can be used to override defaults
+   */
   addSchemaObject(name:string, schemaObject:any, defaults?: IModelSchemaParserDefaults):IModelType<any> {
     var type = this.parseSchemaObject(schemaObject, name);
-    
+console.log(`parsed type for name ${name}: ${type.name} / ${type.kind}`);
      type && this._registry.addType(type);
-     
+
      return type;
   }
-  
+
   parseSchemaObject(schemaObject:any, name?:string):IModelType<any> {
     var schemaType = schemaObject['type'];
     var result:IModelTypeConstrainable<any> = null;
@@ -219,30 +226,30 @@ export class ModelSchemaParser implements IModelTypeRegistry {
         result = this.parseSchemaObjectTypeObject(schemaObject, name);
         break;
       case 'array':
-        result = this.parseSchemaObjectTypeArray(schemaObject);
+        result = this.parseSchemaObjectTypeArray(schemaObject, name);
         break;
       case 'string':
-        result = this.parseSchemaObjectTypeString(schemaObject);
+        result = this.parseSchemaObjectTypeString(schemaObject, name);
         break;
       case 'number':
-        result = this.parseSchemaObjectTypeNumber(schemaObject);
+        result = this.parseSchemaObjectTypeNumber(schemaObject, name);
         break;
       case 'integer':
-        result = this.parseSchemaObjectTypeNumber(schemaObject, new ModelTypeConstraintInteger());
+        result = this.parseSchemaObjectTypeNumber(schemaObject, name, new ModelTypeConstraintInteger());
         break;
       case 'boolean':
-        result = this.parseSchemaObjectTypeBool(schemaObject);
+        result = this.parseSchemaObjectTypeBoolean(schemaObject, name);
         break;
       case 'bool':
         console.log("warning: non-standard type 'bool' found in schema");
-        result = this.parseSchemaObjectTypeString(schemaObject);
+        result = this.parseSchemaObjectTypeBoolean(schemaObject, name);
         break;
       default:
-        result = this.parseSchemaObjectUntyped(schemaObject);
+        result = this.parseSchemaObjectUntyped(schemaObject, name);
         //console.log(`don't know how to handle type ${schemaType} in`, schemaObject);
         break;
     }
-    
+
     if (result != null) {
       result.propSet("schema", schemaObject);
     }
@@ -257,8 +264,8 @@ export class ModelSchemaParser implements IModelTypeRegistry {
     }
     return null;
   }
-  
-  parseSchemaObjectTypeString(schemaObject:any) {
+
+  parseSchemaObjectTypeString(schemaObject:any, name?: string) {
     var minLen = schemaObject['minLength'];
     var maxLen = schemaObject['maxLength'];
     var pattern = schemaObject['pattern'];
@@ -274,7 +281,7 @@ export class ModelSchemaParser implements IModelTypeRegistry {
         pattern = this._defaults.strings.pattern;
       }
     }
-    
+
     var constraints = this._parseConstraints(schemaObject, [ constraintFactoriesDefault.strings, constraintFactoriesDefault.universal ]);
     if (minLen != null || maxLen != null) {
       constraints = constraints.add(new ModelTypeConstraintLength(minLen, maxLen));
@@ -293,10 +300,10 @@ export class ModelSchemaParser implements IModelTypeRegistry {
       constraints = constraints.add(enumConstraint);
     }
 
-    return new ModelTypeString(constraints);
+    return new ModelTypeString(name, constraints);
   }
-  
-  parseSchemaObjectTypeNumber(schemaObject:any, ...constraints:IModelTypeConstraint<number>[]) {
+
+  parseSchemaObjectTypeNumber(schemaObject:any, name?: string, ...constraints:IModelTypeConstraint<number>[]) {
     var min = schemaObject['minimum'];
     var max = schemaObject['maximum'];
     var minOut = schemaObject['minimumExclusive'];
@@ -320,8 +327,8 @@ export class ModelSchemaParser implements IModelTypeRegistry {
         multipleOf = this._defaults.numbers.multipleOf;
       }
     }
-    
-    
+
+
     if (typeof(min) === "number") {
       if (minOut) {
         constraints.push(new ModelTypeConstraintMore(min));
@@ -336,7 +343,7 @@ export class ModelSchemaParser implements IModelTypeRegistry {
         constraints.push(new ModelTypeConstraintLessEqual(max));
       }
     }
-    
+
     if (typeof(multipleOf) === "number") {
       constraints.push(new ModelTypeConstraintMultipleOf(multipleOf));
     }
@@ -345,19 +352,19 @@ export class ModelSchemaParser implements IModelTypeRegistry {
       constraints.push(enumConstraint);
     }
 
-    return new ModelTypeNumber(new ModelConstraints(constraints));
+    return new ModelTypeNumber(name, new ModelConstraints(constraints));
   }
-  
-  parseSchemaObjectTypeBool(schemaObject:any) {
+
+  parseSchemaObjectTypeBoolean(schemaObject:any, name?: string) {
     let constraints:ModelConstraints<boolean> = null;
     let enumConstraint = this.parseSchemaConstraintEnum<boolean>(schemaObject);
     if (null != enumConstraint) {
       constraints = new ModelConstraints([enumConstraint]);
     }
-    
-    return new ModelTypeBool(constraints);
+
+    return new ModelTypeBool(name, constraints);
   }
-  
+
   parseSchemaObjectTypeObject(schemaObject:any, name?:string): IModelTypeConstrainable<any> {
     let id = name || schemaObject.id || anonymousId();
     let constraints = this._parseConstraints(schemaObject, [constraintFactoriesDefault.objects,constraintFactoriesDefault.universal]);
@@ -412,20 +419,21 @@ export class ModelSchemaParser implements IModelTypeRegistry {
 
     return type;
   }
-  
+
   parseSchemaObjectTypeArray(schemaObject:any, name?:string) {
     var elementType:IModelType<any> = null;
     if (Array.isArray(schemaObject.items)) {
       console.log('metamodel unhandled schema construct: array items property is array');
-    } else {
+    } else if (null != schemaObject.items) {
       elementType = this.parseSchemaObject(schemaObject.items);
     }
 
     if (null == elementType) {
+      console.warn('metamodel found untyped array');
       elementType = new ModelTypeAny("any");
     }
-    var type = new ModelTypeArray(elementType);
-    
+    var type = new ModelTypeArray(elementType, name);
+
     return type;
   }
 
@@ -433,12 +441,14 @@ export class ModelSchemaParser implements IModelTypeRegistry {
     if (schemaObject.properties || schemaObject.allOf) {
       return this.parseSchemaObjectTypeObject(schemaObject, name);
     }
-    console.log(`no implementation for schema type ${schemaObject.type} in ${JSON.stringify(schemaObject)}`);
+    if (null != schemaObject.type) {
+      console.log(`no implementation for schema type ${schemaObject.type} (${name}) in ${JSON.stringify(schemaObject)}`);
+    }
     return new ModelTypeAny(name);
   }
 
   _parseConstraints(
-    schemaObject:any, 
+    schemaObject:any,
     factories:IConstraintFactory<any>[]
   ):ModelConstraints<any> {
     var constraints = schemaObject.constraints as any[];
@@ -454,16 +464,16 @@ export class ModelSchemaParser implements IModelTypeRegistry {
         }
         return factory && factory(c);
       }).filter((x) => x != null);
-      return new ModelConstraints<any>(cc); 
+      return new ModelConstraints<any>(cc);
     }
     return new ModelConstraints<any>([]);
   }
-  
+
   type(name:string) { return this._registry.type(name); }
   itemType(name:string) { return this._registry.itemType(name); }
   addType(type:IModelType<any>) { this._registry.addType(type); }
   getRegisteredNames() { return this._registry.getRegisteredNames(); }
-  
+
   private _ensureRefProcessor() {
     if (!this._refProcessor) {
       this._refProcessor = new JsonReferenceProcessor(fetchFetcher);
@@ -483,7 +493,7 @@ function anonymousId(prefix?:string) {
 
 function fetchFetcher(url:string):Promise<string> {
   var p = fetch(url);
-  
+
   return p.then(function (r:any) {
     if (r.status < 300) {
       var x = r.text();

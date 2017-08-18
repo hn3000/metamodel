@@ -10,7 +10,7 @@ import {
 
 import {
   TestClass
-} from "@hn3000/tsunit-async";
+} from "tsunit.external/tsUnitAsync";
 
 export class ModelObjectTest extends TestClass {
 
@@ -173,7 +173,7 @@ export class ModelObjectTest extends TestClass {
     let t:any = {
       p: '12',
       q: '13',
-      r: null 
+      r: null
     };
 
     let context = modelTypes.createParseContext(t, model);
@@ -255,4 +255,47 @@ export class ModelObjectTest extends TestClass {
     this.areIdentical(undefined, result.q);
     this.areIdentical(undefined, result.r);
   }
-}
+
+  testConstraintConditionalValueOnArrayRequiresCorrectValues() {
+    var model:ModelTypeObject<any> = this.model.slice(['p']) as ModelTypeObject<any>;
+    model = model.withConstraints(new ModelTypeConstraintConditionalValue({
+        condition: { property: 'p', value: '12' },
+        properties:  ['q','r','s'],
+        clearOtherwise: false
+    }));
+
+    let t:any = {
+      p: ['11','12','13'],
+      q: '13',
+      r: null
+    };
+
+    let context = modelTypes.createParseContext(t, model);
+    model.validate(context);
+
+    this.areIdentical(2, context.errors.length);
+    this.areIdentical('r', context.errors[0].property);
+    this.areIdentical('s', context.errors[1].property);
+  }
+
+  testConstraintConditionalValueArrayOnArrayRequiresCorrectValues() {
+    var model:ModelTypeObject<any> = this.model.slice(['p']) as ModelTypeObject<any>;
+    model = model.withConstraints(new ModelTypeConstraintConditionalValue({
+        condition: { property: 'p', operator: "=", value: ['6', '12', '24'] },
+        properties:  ['q','r','s'],
+        clearOtherwise: false
+    }));
+
+    let t:any = {
+      p: ['11','12','13'],
+      q: '13',
+      r: null
+    };
+
+    let context = modelTypes.createParseContext(t, model);
+    model.validate(context);
+
+    this.areIdentical(2, context.errors.length);
+    this.areIdentical('r', context.errors[0].property);
+    this.areIdentical('s', context.errors[1].property);
+  }}

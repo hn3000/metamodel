@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var model_registry_1 = require("./model.registry");
 var model_base_1 = require("./model.base");
 var model_number_1 = require("./model.number");
@@ -86,8 +87,17 @@ var ModelSchemaParser = (function () {
             return _this.addSchemaObject(url, schema);
         });
     };
+    /**
+     * Parses a schema object and adds the resulting model type to the internal
+     * registry.
+     *
+     * @param name of the type
+     * @param schemaObject schema definition / description of the type
+     * @param defaults can be used to override defaults
+     */
     ModelSchemaParser.prototype.addSchemaObject = function (name, schemaObject, defaults) {
         var type = this.parseSchemaObject(schemaObject, name);
+        console.log("parsed type for name " + name + ": " + type.name + " / " + type.kind);
         type && this._registry.addType(type);
         return type;
     };
@@ -99,26 +109,26 @@ var ModelSchemaParser = (function () {
                 result = this.parseSchemaObjectTypeObject(schemaObject, name);
                 break;
             case 'array':
-                result = this.parseSchemaObjectTypeArray(schemaObject);
+                result = this.parseSchemaObjectTypeArray(schemaObject, name);
                 break;
             case 'string':
-                result = this.parseSchemaObjectTypeString(schemaObject);
+                result = this.parseSchemaObjectTypeString(schemaObject, name);
                 break;
             case 'number':
-                result = this.parseSchemaObjectTypeNumber(schemaObject);
+                result = this.parseSchemaObjectTypeNumber(schemaObject, name);
                 break;
             case 'integer':
-                result = this.parseSchemaObjectTypeNumber(schemaObject, new model_number_1.ModelTypeConstraintInteger());
+                result = this.parseSchemaObjectTypeNumber(schemaObject, name, new model_number_1.ModelTypeConstraintInteger());
                 break;
             case 'boolean':
-                result = this.parseSchemaObjectTypeBool(schemaObject);
+                result = this.parseSchemaObjectTypeBoolean(schemaObject, name);
                 break;
             case 'bool':
                 console.log("warning: non-standard type 'bool' found in schema");
-                result = this.parseSchemaObjectTypeString(schemaObject);
+                result = this.parseSchemaObjectTypeBoolean(schemaObject, name);
                 break;
             default:
-                result = this.parseSchemaObjectUntyped(schemaObject);
+                result = this.parseSchemaObjectUntyped(schemaObject, name);
                 //console.log(`don't know how to handle type ${schemaType} in`, schemaObject);
                 break;
         }
@@ -134,7 +144,7 @@ var ModelSchemaParser = (function () {
         }
         return null;
     };
-    ModelSchemaParser.prototype.parseSchemaObjectTypeString = function (schemaObject) {
+    ModelSchemaParser.prototype.parseSchemaObjectTypeString = function (schemaObject, name) {
         var minLen = schemaObject['minLength'];
         var maxLen = schemaObject['maxLength'];
         var pattern = schemaObject['pattern'];
@@ -166,12 +176,12 @@ var ModelSchemaParser = (function () {
         if (null != enumConstraint) {
             constraints = constraints.add(enumConstraint);
         }
-        return new model_string_1.ModelTypeString(constraints);
+        return new model_string_1.ModelTypeString(name, constraints);
     };
-    ModelSchemaParser.prototype.parseSchemaObjectTypeNumber = function (schemaObject) {
+    ModelSchemaParser.prototype.parseSchemaObjectTypeNumber = function (schemaObject, name) {
         var constraints = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            constraints[_i - 1] = arguments[_i];
+        for (var _i = 2; _i < arguments.length; _i++) {
+            constraints[_i - 2] = arguments[_i];
         }
         var min = schemaObject['minimum'];
         var max = schemaObject['maximum'];
@@ -218,15 +228,15 @@ var ModelSchemaParser = (function () {
         if (null != enumConstraint) {
             constraints.push(enumConstraint);
         }
-        return new model_number_1.ModelTypeNumber(new model_base_1.ModelConstraints(constraints));
+        return new model_number_1.ModelTypeNumber(name, new model_base_1.ModelConstraints(constraints));
     };
-    ModelSchemaParser.prototype.parseSchemaObjectTypeBool = function (schemaObject) {
+    ModelSchemaParser.prototype.parseSchemaObjectTypeBoolean = function (schemaObject, name) {
         var constraints = null;
         var enumConstraint = this.parseSchemaConstraintEnum(schemaObject);
         if (null != enumConstraint) {
             constraints = new model_base_1.ModelConstraints([enumConstraint]);
         }
-        return new model_bool_1.ModelTypeBool(constraints);
+        return new model_bool_1.ModelTypeBool(name, constraints);
     };
     ModelSchemaParser.prototype.parseSchemaObjectTypeObject = function (schemaObject, name) {
         var id = name || schemaObject.id || anonymousId();
@@ -284,20 +294,23 @@ var ModelSchemaParser = (function () {
         if (Array.isArray(schemaObject.items)) {
             console.log('metamodel unhandled schema construct: array items property is array');
         }
-        else {
+        else if (null != schemaObject.items) {
             elementType = this.parseSchemaObject(schemaObject.items);
         }
         if (null == elementType) {
+            console.warn('metamodel found untyped array');
             elementType = new model_object_1.ModelTypeAny("any");
         }
-        var type = new model_array_1.ModelTypeArray(elementType);
+        var type = new model_array_1.ModelTypeArray(elementType, name);
         return type;
     };
     ModelSchemaParser.prototype.parseSchemaObjectUntyped = function (schemaObject, name) {
         if (schemaObject.properties || schemaObject.allOf) {
             return this.parseSchemaObjectTypeObject(schemaObject, name);
         }
-        console.log("no implementation for schema type " + schemaObject.type + " in " + JSON.stringify(schemaObject));
+        if (null != schemaObject.type) {
+            console.log("no implementation for schema type " + schemaObject.type + " (" + name + ") in " + JSON.stringify(schemaObject));
+        }
         return new model_object_1.ModelTypeAny(name);
     };
     ModelSchemaParser.prototype._parseConstraints = function (schemaObject, factories) {

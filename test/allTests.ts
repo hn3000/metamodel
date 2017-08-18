@@ -8,7 +8,7 @@ import { TestRegexUtil } from "./regex-util.test"
 import {
   TestAsync,
   TestDescription
-} from "@hn3000/tsunit-async";
+} from "tsunit.external/tsUnitAsync";
 
 function parmNum(t:TestDescription) {
   return (null != t.parameterSetNumber) ? `[${t.parameterSetNumber}]` : '';

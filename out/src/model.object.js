@@ -1,9 +1,15 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
 var model_base_1 = require("./model.base");
 function constructionNotAllowed() {
     throw new Error('can not use subtype for construction');
@@ -177,7 +183,7 @@ var ModelTypeObject = (function (_super) {
     ModelTypeObject.prototype.create = function () {
         return this._constructFun ? this._constructFun() : {};
     };
-    // null -> no list of allowed values (no known restrictions) 
+    // null -> no list of allowed values (no known restrictions)
     // empty array -> no values possible
     ModelTypeObject.prototype.possibleValuesForContextData = function (name, data) {
         var result = null;
@@ -378,11 +384,17 @@ function createPredicateEquals(property, value, invert) {
         var valueArray_1 = value.slice();
         return function (x) {
             var p = x[property];
+            if (Array.isArray(p)) {
+                return p.some(function (x) { return (-1 != valueArray_1.indexOf(x)) == !invert; });
+            }
             return (p !== undefined) && (-1 != valueArray_1.indexOf(p)) == !invert;
         };
     }
     return function (x) {
         var p = x[property];
+        if (Array.isArray(p)) {
+            return ((-1 != p.indexOf(value)) == !invert);
+        }
         return (p !== undefined) && (value === p) == !invert;
     };
 }

@@ -12,8 +12,6 @@ import {
   ModelParseContext
 } from "./model.infra";
 
-import { Promise } from 'es6-promise';
-
 export interface IModelViewField {
   keypath:string[];   // ["a","b","c"]
   pointer:string;     // "/a/b/c"
@@ -33,9 +31,9 @@ export enum ValidationScope {
 }
 
 /**
- * Provides an immutable facade for a model, adding IModelType 
+ * Provides an immutable facade for a model, adding IModelType
  * based validation and support for copy-on-write mutation.
- * 
+ *
  */
 export interface IModelView<T> {
   getModelType():IModelType<T>;
@@ -66,7 +64,7 @@ export interface IModelView<T> {
   getPageMessages(aliasOrIndex?:string|number):IStatusMessage[];
   isPageVisited(aliasOrIndex: string | number):boolean;
   isPageValid(aliasOrIndex?:string|number):boolean;
-  
+
   isVisitedValid():boolean;
   areVisitedPagesValid():boolean;
   arePagesUpToCurrentValid():boolean;
@@ -98,7 +96,7 @@ export interface IPropertyStatusMessage extends IPropertyStatusMessage {
 
 export interface IValidationResult {
   messages: IPropertyStatusMessage[];
-} 
+}
 
 export interface IValidator {
     (oldModel:any, newModel:any):Promise<IValidationResult>;
@@ -117,7 +115,7 @@ export class ModelViewField implements IModelViewField {
   }
   get key():string {           // "a.b.c"
     return this._keyString;
-  } 
+  }
   get pointer():string {     // "/a/b/c"
     return '/'+this._keyPath.join('/');
   }
@@ -125,7 +123,7 @@ export class ModelViewField implements IModelViewField {
   get type():IModelType<any> {
     return this._type;
   }
-  
+
   validate(val:any):IPropertyStatusMessage[] {
     let ctx = new ModelParseContext(val, this._type);
     this._type.validate(ctx);
@@ -154,7 +152,7 @@ export class ModelViewPage {
   }
 
   private _alias: string;
-  private _type: IModelTypeComposite<any>; 
+  private _type: IModelTypeComposite<any>;
 }
 
 export class ModelViewMeta<T> {
@@ -167,7 +165,7 @@ export class ModelViewMeta<T> {
       let pages = schema.pages.map((p:any, index:number) => {
         let alias = p.alias || ''+index;
         var properties:string[] = null;
-        
+
         if (null != p.schema) {
           properties = Object.keys(p.schema.properties);
         }
@@ -181,6 +179,8 @@ export class ModelViewMeta<T> {
         return new ModelViewPage(alias, model);
       });
       this._pages = pages;
+    } else {
+      this._pages = [ new ModelViewPage('default', type) ];
     }
     //TODO: construct fields
   }
@@ -219,7 +219,7 @@ export class ModelViewMeta<T> {
 
     if (keyPath.length == 1) {
       value = newValue;
-      
+
       if (null != entryType) {
         let parseCtx = new ModelParseContext(newValue, entryType);
         let modelValue = entryType.parse(parseCtx);
@@ -251,9 +251,9 @@ export class ModelViewMeta<T> {
 }
 
 /**
- * Provides an immutable facade for a model, adding IModelType 
+ * Provides an immutable facade for a model, adding IModelType
  * based validation and support for copy-on-write mutation.
- * 
+ *
  */
 export class ModelView<T> implements IModelView<T> {
   constructor(modelTypeOrSelf:IModelTypeComposite<T> | ModelView<T>, modelData?:any, initialPage:number=0) {
@@ -298,7 +298,7 @@ export class ModelView<T> implements IModelView<T> {
   getModel():T {
     // TODO: create a read-only view of underlying data?
     return this._model;
-  } 
+  }
 
   withValidationMessages(messages:IPropertyStatusMessage[]):ModelView<T> {
     let result = new ModelView(this, this._inputModel);
@@ -355,12 +355,12 @@ export class ModelView<T> implements IModelView<T> {
   validateDefault():Promise<IModelView<T>> {
     switch (this._validationScope) {
       case ValidationScope.VISITED:
-      default: 
+      default:
         return this.validateVisited();
 
-      case ValidationScope.PAGE: 
+      case ValidationScope.PAGE:
         return this.validatePage();
-      case ValidationScope.FULL: 
+      case ValidationScope.FULL:
         return this.validateFull();
     }
   }
@@ -437,8 +437,8 @@ export class ModelView<T> implements IModelView<T> {
     if (newValue === this.getFieldValue(path)) {
       return this;
     }
-    
-    var newModel = this._viewMeta._updatedModel(this._inputModel, path, newValue) as T; 
+
+    var newModel = this._viewMeta._updatedModel(this._inputModel, path, newValue) as T;
     let result = new ModelView<T>(this, newModel);
 
     result._visitedFields[keyString] = true;
@@ -536,7 +536,7 @@ export class ModelView<T> implements IModelView<T> {
     let result:IStatusMessage[] = [];
     page.fields.forEach((x) => result.push(...this.getFieldMessages(x)));
     result.push(...this._statusMessages);
-    return result;    
+    return result;
   }
 
   isPageValid(aliasOrIndex?:string|number) {

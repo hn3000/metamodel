@@ -37,7 +37,7 @@ export class ModelTypeRegistry {
     let name = type.name;
     let oldType = this._types[name];
     if (oldType && oldType != type) {
-      console.warn(`redefining type ${name}`, type);
+      console.warn(`redefining type ${name}`, type, JSON.stringify(type, null, 2));
     }
 
     this._types[name] = type;
@@ -67,7 +67,7 @@ export class ModelTypeRegistry {
   itemType(name:string) : IModelTypeItem<any> {
     return this._itemTypes[name];
   }
-  
+
   getRegisteredNames() {
     return Object.keys(this._types);
   }

@@ -13,8 +13,8 @@ import {
 } from "./model.base"
 
 export class ModelTypeBool extends ModelTypeItem<boolean> {
-  constructor(c?:ModelConstraints<boolean>) {
-    super('boolean', c);
+  constructor(name: string = 'boolean', c?:ModelConstraints<boolean>) {
+    super(name, c);
   }
 
   lowerBound(): IModelTypeConstraint<boolean> { return null; };

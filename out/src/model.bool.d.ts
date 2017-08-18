@@ -1,7 +1,7 @@
 import { IModelParseContext, IModelTypeConstraint } from "./model.api";
 import { ModelConstraints, ModelTypeItem } from "./model.base";
 export declare class ModelTypeBool extends ModelTypeItem<boolean> {
-    constructor(c?: ModelConstraints<boolean>);
+    constructor(name?: string, c?: ModelConstraints<boolean>);
     lowerBound(): IModelTypeConstraint<boolean>;
     upperBound(): IModelTypeConstraint<boolean>;
     parse(ctx: IModelParseContext): boolean;

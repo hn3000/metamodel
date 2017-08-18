@@ -1,15 +1,22 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
 var model_infra_1 = require("./model.infra");
 var model_base_1 = require("./model.base");
 var ModelTypeDate = (function (_super) {
     __extends(ModelTypeDate, _super);
-    function ModelTypeDate(c) {
-        return _super.call(this, 'number', c) || this;
+    function ModelTypeDate(name, c) {
+        if (name === void 0) { name = 'date'; }
+        return _super.call(this, name, c) || this;
     }
     ModelTypeDate.prototype.lowerBound = function () {
         var lower = this.findConstraints(function (x) {
@@ -127,6 +134,8 @@ var ModelTypeConstraintDateBase = (function (_super) {
                 var msg = "expected " + val + " " + this._op() + " " + this._val() + ".";
                 ctx.addMessageEx(!this.isWarningOnly, msg, this._code(), { value: value, limit: limit, op: this._op(), date: checkVal });
                 if (!this.isWarningOnly && ctx.allowConversion) {
+                    // does not make sense without improved date-format handling
+                    //result = comparisonVal as any;
                 }
             }
         }
@@ -215,9 +224,9 @@ var TimeSpan = (function () {
                 break;
         }
     };
+    TimeSpan.REGEX = /([0-9]+(?:\.[0.9]+)?)\s*([a-z]+)/;
     return TimeSpan;
 }());
-TimeSpan.REGEX = /([0-9]+(?:\.[0.9]+)?)\s*([a-z]+)/;
 exports.TimeSpan = TimeSpan;
 var ModelTypeConstraintOlder = (function (_super) {
     __extends(ModelTypeConstraintOlder, _super);

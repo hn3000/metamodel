@@ -1,4 +1,3 @@
-/// <reference types="es6-promise" />
 import { IModelType, IModelTypeItem, IModelTypeConstraint, IModelTypeConstrainable, IModelTypeConstraintFactory, IModelTypeRegistry } from "./model.api";
 import { ModelConstraints } from "./model.base";
 import { ModelTypeNumber } from "./model.number";
@@ -40,12 +39,20 @@ export interface IModelSchemaParserDefaults {
 export declare class ModelSchemaParser implements IModelTypeRegistry {
     constructor(constraintFactory?: IModelTypeConstraintFactory, defaultValues?: IModelSchemaParserDefaults);
     addSchemaFromURL(url: string): Promise<any>;
+    /**
+     * Parses a schema object and adds the resulting model type to the internal
+     * registry.
+     *
+     * @param name of the type
+     * @param schemaObject schema definition / description of the type
+     * @param defaults can be used to override defaults
+     */
     addSchemaObject(name: string, schemaObject: any, defaults?: IModelSchemaParserDefaults): IModelType<any>;
     parseSchemaObject(schemaObject: any, name?: string): IModelType<any>;
     parseSchemaConstraintEnum<T>(schemaObject: any): ModelTypeConstraintPossibleValues<T>;
-    parseSchemaObjectTypeString(schemaObject: any): ModelTypeString;
-    parseSchemaObjectTypeNumber(schemaObject: any, ...constraints: IModelTypeConstraint<number>[]): ModelTypeNumber;
-    parseSchemaObjectTypeBool(schemaObject: any): ModelTypeBool;
+    parseSchemaObjectTypeString(schemaObject: any, name?: string): ModelTypeString;
+    parseSchemaObjectTypeNumber(schemaObject: any, name?: string, ...constraints: IModelTypeConstraint<number>[]): ModelTypeNumber;
+    parseSchemaObjectTypeBoolean(schemaObject: any, name?: string): ModelTypeBool;
     parseSchemaObjectTypeObject(schemaObject: any, name?: string): IModelTypeConstrainable<any>;
     parseSchemaObjectTypeArray(schemaObject: any, name?: string): ModelTypeArray<any>;
     parseSchemaObjectUntyped(schemaObject: any, name?: string): IModelTypeConstrainable<any>;

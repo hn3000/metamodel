@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var model_infra_1 = require("./model.infra");
 var model_array_1 = require("./model.array");
 var model_object_1 = require("./model.object");
@@ -24,7 +25,7 @@ var ModelTypeRegistry = (function () {
         var name = type.name;
         var oldType = this._types[name];
         if (oldType && oldType != type) {
-            console.warn("redefining type " + name, type);
+            console.warn("redefining type " + name, type, JSON.stringify(type, null, 2));
         }
         this._types[name] = type;
         var itemType = this.asItemType(type);
