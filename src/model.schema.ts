@@ -211,7 +211,7 @@ export class ModelSchemaParser implements IModelTypeRegistry {
    */
   addSchemaObject(name:string, schemaObject:any, defaults?: IModelSchemaParserDefaults):IModelType<any> {
     var type = this.parseSchemaObject(schemaObject, name);
-console.log(`parsed type for name ${name}: ${type.name} / ${type.kind}`);
+//console.log(`parsed type for name ${name}: ${type.name} / ${type.kind}`);
      type && this._registry.addType(type);
 
      return type;
