@@ -1,16 +1,16 @@
 {
-	"version": "0.1.0",
+	"version": "2.0.0",
 	"command": "npm",
-	"isShellCommand": true,
-	"showOutput": "silent",
 	"args": ["run"],
 
 	"tasks": [
 		{
-			"isBuildCommand": true,
 			"taskName": "test",
-			"disabled-problemMatcher": "$tsc",
-			"problemMatcher": { 
+			"group": {
+				"kind": "test",
+				"isDefault": true
+			},
+			"problemMatcher": {
 				// The problem is owned by the typescript language service. Ensure that the problems
 				// are merged with problems produced by Visual Studio's language service.
 				"owner": "typescript",
@@ -33,11 +33,15 @@
 				}
 			}
 		},
-		
+
 		{ // used as pre-launch for running the unit tests in debugger
 			"taskName": "tsc",
-			"disabled-problemMatcher": "$tsc",
-			"problemMatcher": { 
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"label": "tsc",
+			"problemMatcher": {
 				// The problem is owned by the typescript language service. Ensure that the problems
 				// are merged with problems produced by Visual Studio's language service.
 				"owner": "typescript",

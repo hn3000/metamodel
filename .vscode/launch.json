@@ -10,16 +10,15 @@
 			"args": [],
 			"cwd": "${workspaceRoot}",
 			"preLaunchTask": "tsc",
-			"runtimeExecutable": null,
+			"runtimeExecutable": "node",
 			"runtimeArgs": [
 				"--nolazy"
 			],
 			"env": {
 				"NODE_ENV": "development"
 			},
-			"externalConsole": false,
-			"sourceMaps": true,
-			"outDir": "${workspaceRoot}/out"
+			"console": "integratedTerminal",
+			"sourceMaps": true
 		},
 		{
 			"name": "Attach",
@@ -29,7 +28,6 @@
 			"address": "localhost",
 			"restart": false,
 			"sourceMaps": true,
-			"outDir": "${workspaceRoot}/out",
 			"localRoot": "${workspaceRoot}",
 			"remoteRoot": null
 		}
