@@ -97,7 +97,7 @@ var ModelSchemaParser = (function () {
      */
     ModelSchemaParser.prototype.addSchemaObject = function (name, schemaObject, defaults) {
         var type = this.parseSchemaObject(schemaObject, name);
-        console.log("parsed type for name " + name + ": " + type.name + " / " + type.kind);
+        //console.log(`parsed type for name ${name}: ${type.name} / ${type.kind}`);
         type && this._registry.addType(type);
         return type;
     };

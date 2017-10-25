@@ -8,6 +8,7 @@ var ValidationScope;
     ValidationScope[ValidationScope["PAGE"] = 1] = "PAGE";
     ValidationScope[ValidationScope["FULL"] = 2] = "FULL";
 })(ValidationScope = exports.ValidationScope || (exports.ValidationScope = {}));
+var ARRAY_EMPTY = [];
 var ModelViewField = (function () {
     function ModelViewField(key, type) {
         this._keyString = key;
@@ -94,7 +95,7 @@ var ModelViewMeta = (function () {
                     properties = p.properties || p.fields;
                 }
                 if (null == properties) {
-                    properties = [];
+                    properties = ARRAY_EMPTY;
                 }
                 var model = type.slice(properties);
                 return new ModelViewPage(alias, model);
@@ -393,7 +394,7 @@ var ModelView = (function () {
     };
     ModelView.prototype.getFieldMessages = function (keyPath) {
         var path = this._asKeyString(keyPath);
-        return this._messagesByField[path] || [];
+        return this._messagesByField[path] || ARRAY_EMPTY;
     };
     ModelView.prototype.getValidationMessages = function () {
         return this._messages.slice();
