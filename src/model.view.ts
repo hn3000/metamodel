@@ -30,6 +30,8 @@ export enum ValidationScope {
   VISITED, PAGE, FULL
 }
 
+const ARRAY_EMPTY: any[] = [];
+
 /**
  * Provides an immutable facade for a model, adding IModelType
  * based validation and support for copy-on-write mutation.
@@ -173,7 +175,7 @@ export class ModelViewMeta<T> {
           properties = p.properties || p.fields;
         }
         if (null == properties) {
-          properties = [];
+          properties = ARRAY_EMPTY;
         }
         let model = type.slice(properties);
         return new ModelViewPage(alias, model);
@@ -503,7 +505,7 @@ export class ModelView<T> implements IModelView<T> {
 
   getFieldMessages(keyPath:string|string[]):IPropertyStatusMessage[] {
     let path = this._asKeyString(keyPath);
-    return this._messagesByField[path] || [];
+    return this._messagesByField[path] || ARRAY_EMPTY;
   }
 
   getValidationMessages(): IPropertyStatusMessage[] {
