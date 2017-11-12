@@ -8,6 +8,7 @@
     "tsc:w": "tsc -w",
     "pretest": "tsc",
     "precover": "tsc",
+    "prepare": "tsc",
     "test": "node out/test/allTests.js",
     "cover": "istanbul cover out/test/allTests.js"
   },
