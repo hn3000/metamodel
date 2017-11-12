@@ -12,7 +12,7 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var model_infra_1 = require("./model.infra");
 var model_base_1 = require("./model.base");
-var ModelTypeNumber = (function (_super) {
+var ModelTypeNumber = /** @class */ (function (_super) {
     __extends(ModelTypeNumber, _super);
     function ModelTypeNumber(name, c) {
         if (name === void 0) { name = 'number'; }
@@ -85,7 +85,7 @@ var ModelTypeNumber = (function (_super) {
     return ModelTypeNumber;
 }(model_base_1.ModelTypeItem));
 exports.ModelTypeNumber = ModelTypeNumber;
-var ModelTypeConstraintInteger = (function () {
+var ModelTypeConstraintInteger = /** @class */ (function () {
     function ModelTypeConstraintInteger() {
     }
     Object.defineProperty(ModelTypeConstraintInteger.prototype, "id", {
@@ -106,7 +106,7 @@ var ModelTypeConstraintInteger = (function () {
     return ModelTypeConstraintInteger;
 }());
 exports.ModelTypeConstraintInteger = ModelTypeConstraintInteger;
-var ModelTypeConstraintMultipleOf = (function (_super) {
+var ModelTypeConstraintMultipleOf = /** @class */ (function (_super) {
     __extends(ModelTypeConstraintMultipleOf, _super);
     function ModelTypeConstraintMultipleOf(modulus) {
         var _this = _super.call(this) || this;
@@ -142,7 +142,7 @@ var ModelTypeConstraintMultipleOf = (function (_super) {
     return ModelTypeConstraintMultipleOf;
 }(model_base_1.ModelTypeConstraintOptional));
 exports.ModelTypeConstraintMultipleOf = ModelTypeConstraintMultipleOf;
-var ModelTypeConstraintComparison = (function (_super) {
+var ModelTypeConstraintComparison = /** @class */ (function (_super) {
     __extends(ModelTypeConstraintComparison, _super);
     function ModelTypeConstraintComparison(val) {
         var _this = _super.call(this) || this;
@@ -190,7 +190,7 @@ var ModelTypeConstraintComparison = (function (_super) {
     return ModelTypeConstraintComparison;
 }(model_base_1.ModelTypeConstraintOptional));
 exports.ModelTypeConstraintComparison = ModelTypeConstraintComparison;
-var ModelTypeConstraintLess = (function (_super) {
+var ModelTypeConstraintLess = /** @class */ (function (_super) {
     __extends(ModelTypeConstraintLess, _super);
     function ModelTypeConstraintLess(val) {
         return _super.call(this, val) || this;
@@ -201,7 +201,7 @@ var ModelTypeConstraintLess = (function (_super) {
     return ModelTypeConstraintLess;
 }(ModelTypeConstraintComparison));
 exports.ModelTypeConstraintLess = ModelTypeConstraintLess;
-var ModelTypeConstraintLessEqual = (function (_super) {
+var ModelTypeConstraintLessEqual = /** @class */ (function (_super) {
     __extends(ModelTypeConstraintLessEqual, _super);
     function ModelTypeConstraintLessEqual(val) {
         return _super.call(this, val) || this;
@@ -212,7 +212,7 @@ var ModelTypeConstraintLessEqual = (function (_super) {
     return ModelTypeConstraintLessEqual;
 }(ModelTypeConstraintComparison));
 exports.ModelTypeConstraintLessEqual = ModelTypeConstraintLessEqual;
-var ModelTypeConstraintMore = (function (_super) {
+var ModelTypeConstraintMore = /** @class */ (function (_super) {
     __extends(ModelTypeConstraintMore, _super);
     function ModelTypeConstraintMore(val) {
         return _super.call(this, val) || this;
@@ -223,7 +223,7 @@ var ModelTypeConstraintMore = (function (_super) {
     return ModelTypeConstraintMore;
 }(ModelTypeConstraintComparison));
 exports.ModelTypeConstraintMore = ModelTypeConstraintMore;
-var ModelTypeConstraintMoreEqual = (function (_super) {
+var ModelTypeConstraintMoreEqual = /** @class */ (function (_super) {
     __extends(ModelTypeConstraintMoreEqual, _super);
     function ModelTypeConstraintMoreEqual(val) {
         return _super.call(this, val) || this;

@@ -21,10 +21,10 @@
   "author": "Harald Niesche",
   "license": "MIT",
   "devDependencies": {
-    "tsunit.external": "^2.0.11",
-    "typescript": "^2.4.0",
     "@types/isomorphic-fetch": "0.0.34",
-    "@types/node": "^6.0.78"
+    "@types/node": "^6.0.78",
+    "tsunit.external": "^2.0.11",
+    "typescript": "^2.6.1"
   },
   "dependencies": {
     "@hn3000/json-ref": "^0.9.1"

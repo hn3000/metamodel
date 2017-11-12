@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var model_base_1 = require("./model.base");
-var ModelTypeArray = (function (_super) {
+var ModelTypeArray = /** @class */ (function (_super) {
     __extends(ModelTypeArray, _super);
     function ModelTypeArray(elementType, name, constraints) {
         var _this = _super.call(this, name || (elementType.name + "[]"), constraints) || this;
@@ -68,7 +68,7 @@ var ModelTypeArray = (function (_super) {
     return ModelTypeArray;
 }(model_base_1.ModelTypeConstrainable));
 exports.ModelTypeArray = ModelTypeArray;
-var ModelTypeArraySizeConstraint = (function (_super) {
+var ModelTypeArraySizeConstraint = /** @class */ (function (_super) {
     __extends(ModelTypeArraySizeConstraint, _super);
     function ModelTypeArraySizeConstraint(options) {
         var _this = _super.call(this) || this;
@@ -101,7 +101,7 @@ var ModelTypeArraySizeConstraint = (function (_super) {
     return ModelTypeArraySizeConstraint;
 }(model_base_1.ModelTypeConstraintOptional));
 exports.ModelTypeArraySizeConstraint = ModelTypeArraySizeConstraint;
-var ModelTypeArrayUniqueElementsConstraint = (function (_super) {
+var ModelTypeArrayUniqueElementsConstraint = /** @class */ (function (_super) {
     __extends(ModelTypeArrayUniqueElementsConstraint, _super);
     function ModelTypeArrayUniqueElementsConstraint() {
         return _super.call(this) || this;

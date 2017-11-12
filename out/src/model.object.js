@@ -14,7 +14,7 @@ var model_base_1 = require("./model.base");
 function constructionNotAllowed() {
     throw new Error('can not use subtype for construction');
 }
-var ModelTypeAny = (function (_super) {
+var ModelTypeAny = /** @class */ (function (_super) {
     __extends(ModelTypeAny, _super);
     function ModelTypeAny(name, construct, constraints) {
         var _this = _super.call(this, name, constraints) || this;
@@ -56,7 +56,7 @@ var ModelTypeAny = (function (_super) {
     return ModelTypeAny;
 }(model_base_1.ModelTypeConstrainable));
 exports.ModelTypeAny = ModelTypeAny;
-var ModelTypeObject = (function (_super) {
+var ModelTypeObject = /** @class */ (function (_super) {
     __extends(ModelTypeObject, _super);
     function ModelTypeObject(name, construct, constraints) {
         var _this = _super.call(this, name, constraints) || this;
@@ -268,7 +268,7 @@ var ComparisonOp_Comparator = {
     ">=": inverse(comparisonLess),
     "!=": inverse(comparisonEquals)
 };
-var ModelTypeConstraintCompareProperties = (function (_super) {
+var ModelTypeConstraintCompareProperties = /** @class */ (function (_super) {
     __extends(ModelTypeConstraintCompareProperties, _super);
     function ModelTypeConstraintCompareProperties(fieldsOrSelf, op) {
         var _this = _super.call(this) || this;
@@ -337,7 +337,7 @@ var ModelTypeConstraintCompareProperties = (function (_super) {
     return ModelTypeConstraintCompareProperties;
 }(model_base_1.ModelTypeConstraintOptional));
 exports.ModelTypeConstraintCompareProperties = ModelTypeConstraintCompareProperties;
-var ModelTypeConstraintEqualProperties = (function (_super) {
+var ModelTypeConstraintEqualProperties = /** @class */ (function (_super) {
     __extends(ModelTypeConstraintEqualProperties, _super);
     function ModelTypeConstraintEqualProperties(fieldsOrSelf) {
         var _this = _super.call(this) || this;
@@ -430,7 +430,7 @@ function createValuePredicate(possibleValues) {
         return function (x) { return null == x || -1 != valArray_1.indexOf(x); };
     }
 }
-var ModelTypeConstraintConditionalValue = (function (_super) {
+var ModelTypeConstraintConditionalValue = /** @class */ (function (_super) {
     __extends(ModelTypeConstraintConditionalValue, _super);
     function ModelTypeConstraintConditionalValue(optionsOrSelf) {
         var _this = _super.call(this) || this;
@@ -512,7 +512,7 @@ exports.ModelTypeConstraintConditionalValue = ModelTypeConstraintConditionalValu
 /**
  * can be used for validation, only, not for value modification
  */
-var ModelTypePropertyConstraint = (function (_super) {
+var ModelTypePropertyConstraint = /** @class */ (function (_super) {
     __extends(ModelTypePropertyConstraint, _super);
     function ModelTypePropertyConstraint(property, constraint) {
         var _this = _super.call(this) || this;

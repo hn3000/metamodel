@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var model_api_1 = require("./model.api");
-var ModelParseMessage = (function () {
+var ModelParseMessage = /** @class */ (function () {
     function ModelParseMessage(severity, property, msg, code, props, qualifiers) {
         this._severity = severity;
         this._property = property;
@@ -48,7 +48,7 @@ var ModelParseMessage = (function () {
     return ModelParseMessage;
 }());
 exports.ModelParseMessage = ModelParseMessage;
-var ObjectTraversal = (function () {
+var ObjectTraversal = /** @class */ (function () {
     function ObjectTraversal(obj) {
         this._top = obj;
         this._stack = [];
@@ -76,7 +76,7 @@ var ObjectTraversal = (function () {
     return ObjectTraversal;
 }());
 exports.ObjectTraversal = ObjectTraversal;
-var ParallelTraversal = (function () {
+var ParallelTraversal = /** @class */ (function () {
     function ParallelTraversal(obj) {
         this._updateTop(obj || []);
         this._stack = [];
@@ -120,7 +120,7 @@ var ParallelTraversal = (function () {
     return ParallelTraversal;
 }());
 exports.ParallelTraversal = ParallelTraversal;
-var ModelParseContext = (function () {
+var ModelParseContext = /** @class */ (function () {
     function ModelParseContext(value, type, required, allowConversion) {
         if (allowConversion === void 0) { allowConversion = true; }
         this._valueTraversal = new ObjectTraversal(value);

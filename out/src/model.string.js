@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var model_base_1 = require("./model.base");
-var ModelTypeString = (function (_super) {
+var ModelTypeString = /** @class */ (function (_super) {
     __extends(ModelTypeString, _super);
     function ModelTypeString(name, c) {
         if (name === void 0) { name = 'string'; }
@@ -56,7 +56,7 @@ var ModelTypeString = (function (_super) {
     return ModelTypeString;
 }(model_base_1.ModelTypeItem));
 exports.ModelTypeString = ModelTypeString;
-var ModelTypeConstraintPossibleValues = (function (_super) {
+var ModelTypeConstraintPossibleValues = /** @class */ (function (_super) {
     __extends(ModelTypeConstraintPossibleValues, _super);
     function ModelTypeConstraintPossibleValues(values) {
         var _this = _super.call(this) || this;
@@ -91,7 +91,7 @@ var ModelTypeConstraintPossibleValues = (function (_super) {
     return ModelTypeConstraintPossibleValues;
 }(model_base_1.ModelTypeConstraintOptional));
 exports.ModelTypeConstraintPossibleValues = ModelTypeConstraintPossibleValues;
-var ModelTypeConstraintLength = (function (_super) {
+var ModelTypeConstraintLength = /** @class */ (function (_super) {
     __extends(ModelTypeConstraintLength, _super);
     function ModelTypeConstraintLength(minLen, maxLen, message) {
         var _this = _super.call(this) || this;
@@ -161,7 +161,7 @@ var ModelTypeConstraintLength = (function (_super) {
     return ModelTypeConstraintLength;
 }(model_base_1.ModelTypeConstraintOptional));
 exports.ModelTypeConstraintLength = ModelTypeConstraintLength;
-var ModelTypeConstraintRegex = (function (_super) {
+var ModelTypeConstraintRegex = /** @class */ (function (_super) {
     __extends(ModelTypeConstraintRegex, _super);
     function ModelTypeConstraintRegex(pattern, flags, message) {
         var _this = _super.call(this) || this;
@@ -197,7 +197,7 @@ var ModelTypeConstraintRegex = (function (_super) {
     return ModelTypeConstraintRegex;
 }(model_base_1.ModelTypeConstraintOptional));
 exports.ModelTypeConstraintRegex = ModelTypeConstraintRegex;
-var ModelTypeConstraintInvalidRegex = (function (_super) {
+var ModelTypeConstraintInvalidRegex = /** @class */ (function (_super) {
     __extends(ModelTypeConstraintInvalidRegex, _super);
     function ModelTypeConstraintInvalidRegex(pattern, flags, message) {
         var _this = _super.call(this) || this;

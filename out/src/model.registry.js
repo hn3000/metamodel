@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var model_infra_1 = require("./model.infra");
 var model_array_1 = require("./model.array");
 var model_object_1 = require("./model.object");
-var ModelTypeRegistry = (function () {
+var ModelTypeRegistry = /** @class */ (function () {
     function ModelTypeRegistry() {
         this._types = {};
         this._itemTypes = {};

@@ -48,7 +48,7 @@ var json_ref_1 = require("@hn3000/json-ref");
 exports.JsonPointer = json_ref_1.JsonPointer;
 exports.JsonReference = json_ref_1.JsonReference;
 exports.JsonReferenceProcessor = json_ref_1.JsonReferenceProcessor;
-var ModelTypeConstraints = (function () {
+var ModelTypeConstraints = /** @class */ (function () {
     function ModelTypeConstraints() {
     }
     ModelTypeConstraints.less = function (v) { return new model_number_1.ModelTypeConstraintLess(v); };

@@ -10,7 +10,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var ClientProps = (function () {
+var ClientProps = /** @class */ (function () {
     function ClientProps() {
         this._data = {};
     }
@@ -35,7 +35,7 @@ var ClientProps = (function () {
     return ClientProps;
 }());
 exports.ClientProps = ClientProps;
-var ModelConstraints = (function () {
+var ModelConstraints = /** @class */ (function () {
     function ModelConstraints(constraints) {
         if (Array.isArray(constraints)) {
             this._constraints = constraints.slice();
@@ -80,7 +80,7 @@ var ModelConstraints = (function () {
     return ModelConstraints;
 }());
 exports.ModelConstraints = ModelConstraints;
-var ModelTypeConstrainable = (function (_super) {
+var ModelTypeConstrainable = /** @class */ (function (_super) {
     __extends(ModelTypeConstrainable, _super);
     function ModelTypeConstrainable(name, constraints) {
         if (constraints === void 0) { constraints = null; }
@@ -156,7 +156,7 @@ var ModelTypeConstrainable = (function (_super) {
     return ModelTypeConstrainable;
 }(ClientProps));
 exports.ModelTypeConstrainable = ModelTypeConstrainable;
-var ModelTypeItem = (function (_super) {
+var ModelTypeItem = /** @class */ (function (_super) {
     __extends(ModelTypeItem, _super);
     function ModelTypeItem() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -190,7 +190,7 @@ function intersectArrays(a, b) {
     return result;
 }
 exports.intersectArrays = intersectArrays;
-var ModelTypeConstraintOptional = (function () {
+var ModelTypeConstraintOptional = /** @class */ (function () {
     function ModelTypeConstraintOptional() {
         this._onlyWarn = false;
     }

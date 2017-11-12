@@ -12,7 +12,7 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var model_infra_1 = require("./model.infra");
 var model_base_1 = require("./model.base");
-var ModelTypeDate = (function (_super) {
+var ModelTypeDate = /** @class */ (function (_super) {
     __extends(ModelTypeDate, _super);
     function ModelTypeDate(name, c) {
         if (name === void 0) { name = 'date'; }
@@ -96,7 +96,7 @@ var ModelTypeDate = (function (_super) {
     return ModelTypeDate;
 }(model_base_1.ModelTypeItem));
 exports.ModelTypeDate = ModelTypeDate;
-var ModelTypeConstraintDateBase = (function (_super) {
+var ModelTypeConstraintDateBase = /** @class */ (function (_super) {
     __extends(ModelTypeConstraintDateBase, _super);
     function ModelTypeConstraintDateBase() {
         return _super.call(this) || this;
@@ -144,7 +144,7 @@ var ModelTypeConstraintDateBase = (function (_super) {
     return ModelTypeConstraintDateBase;
 }(model_base_1.ModelTypeConstraintOptional));
 exports.ModelTypeConstraintDateBase = ModelTypeConstraintDateBase;
-var ModelTypeConstraintDateFixed = (function (_super) {
+var ModelTypeConstraintDateFixed = /** @class */ (function (_super) {
     __extends(ModelTypeConstraintDateFixed, _super);
     function ModelTypeConstraintDateFixed(val) {
         var _this = _super.call(this) || this;
@@ -161,7 +161,7 @@ var ModelTypeConstraintDateFixed = (function (_super) {
     return ModelTypeConstraintDateFixed;
 }(ModelTypeConstraintDateBase));
 exports.ModelTypeConstraintDateFixed = ModelTypeConstraintDateFixed;
-var ModelTypeConstraintBefore = (function (_super) {
+var ModelTypeConstraintBefore = /** @class */ (function (_super) {
     __extends(ModelTypeConstraintBefore, _super);
     function ModelTypeConstraintBefore(val) {
         return _super.call(this, val) || this;
@@ -172,7 +172,7 @@ var ModelTypeConstraintBefore = (function (_super) {
     return ModelTypeConstraintBefore;
 }(ModelTypeConstraintDateFixed));
 exports.ModelTypeConstraintBefore = ModelTypeConstraintBefore;
-var ModelTypeConstraintAfter = (function (_super) {
+var ModelTypeConstraintAfter = /** @class */ (function (_super) {
     __extends(ModelTypeConstraintAfter, _super);
     function ModelTypeConstraintAfter(val) {
         return _super.call(this, val) || this;
@@ -183,7 +183,7 @@ var ModelTypeConstraintAfter = (function (_super) {
     return ModelTypeConstraintAfter;
 }(ModelTypeConstraintDateFixed));
 exports.ModelTypeConstraintAfter = ModelTypeConstraintAfter;
-var TimeSpan = (function () {
+var TimeSpan = /** @class */ (function () {
     function TimeSpan(timespan) {
         var match = TimeSpan.REGEX.exec(timespan);
         this._amount = parseFloat(match[1]);
@@ -228,7 +228,7 @@ var TimeSpan = (function () {
     return TimeSpan;
 }());
 exports.TimeSpan = TimeSpan;
-var ModelTypeConstraintOlder = (function (_super) {
+var ModelTypeConstraintOlder = /** @class */ (function (_super) {
     __extends(ModelTypeConstraintOlder, _super);
     function ModelTypeConstraintOlder(timespan) {
         var _this = _super.call(this) || this;

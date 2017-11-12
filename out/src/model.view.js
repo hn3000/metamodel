@@ -9,7 +9,7 @@ var ValidationScope;
     ValidationScope[ValidationScope["FULL"] = 2] = "FULL";
 })(ValidationScope = exports.ValidationScope || (exports.ValidationScope = {}));
 var ARRAY_EMPTY = [];
-var ModelViewField = (function () {
+var ModelViewField = /** @class */ (function () {
     function ModelViewField(key, type) {
         this._keyString = key;
         this._keyPath = key.split('.');
@@ -51,7 +51,7 @@ var ModelViewField = (function () {
     return ModelViewField;
 }());
 exports.ModelViewField = ModelViewField;
-var ModelViewPage = (function () {
+var ModelViewPage = /** @class */ (function () {
     function ModelViewPage(alias, pageType) {
         this._alias = alias;
         this._type = pageType;
@@ -80,7 +80,7 @@ var ModelViewPage = (function () {
     return ModelViewPage;
 }());
 exports.ModelViewPage = ModelViewPage;
-var ModelViewMeta = (function () {
+var ModelViewMeta = /** @class */ (function () {
     function ModelViewMeta(type) {
         this._modelType = type;
         var schema = type.propGet('schema');
@@ -166,7 +166,7 @@ exports.ModelViewMeta = ModelViewMeta;
  * based validation and support for copy-on-write mutation.
  *
  */
-var ModelView = (function () {
+var ModelView = /** @class */ (function () {
     function ModelView(modelTypeOrSelf, modelData, initialPage) {
         if (initialPage === void 0) { initialPage = 0; }
         if (modelTypeOrSelf instanceof ModelView) {

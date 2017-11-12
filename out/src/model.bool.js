@@ -12,7 +12,7 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var model_infra_1 = require("./model.infra");
 var model_base_1 = require("./model.base");
-var ModelTypeBool = (function (_super) {
+var ModelTypeBool = /** @class */ (function (_super) {
     __extends(ModelTypeBool, _super);
     function ModelTypeBool(name, c) {
         if (name === void 0) { name = 'boolean'; }

@@ -73,7 +73,7 @@ var constraintFactoriesDefault = {
         possibleValues: function (o) { return new model_string_1.ModelTypeConstraintPossibleValues(o); },
     }
 };
-var ModelSchemaParser = (function () {
+var ModelSchemaParser = /** @class */ (function () {
     function ModelSchemaParser(constraintFactory, defaultValues) {
         this._constraintFactory = constraintFactory || {};
         this._registry = new model_registry_1.ModelTypeRegistry();
