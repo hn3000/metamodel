@@ -27,7 +27,7 @@
     "typescript": "^2.6.1"
   },
   "dependencies": {
-    "@hn3000/json-ref": "^0.9.1"
+    "@hn3000/json-ref": "^0.11.0"
   },
   "optionalDependencies": {
     "isomorphic-fetch": "^2.2.1"
