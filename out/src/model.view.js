@@ -213,6 +213,10 @@ var ModelView = /** @class */ (function () {
         return this._model;
     };
     ModelView.prototype.withValidationMessages = function (messages) {
+        if (0 === messages.length && 0 === this._messages.length) {
+            // avoid bogus changes
+            return this;
+        }
         var result = new ModelView(this, this._inputModel);
         var byField = {};
         var newMessages = messages.slice();
@@ -242,16 +246,27 @@ var ModelView = /** @class */ (function () {
         return result;
     };
     ModelView.prototype.withStatusMessages = function (messages) {
+        if (0 === messages.length && 0 === this._statusMessages.length) {
+            return this;
+        }
         var result = new ModelView(this, this._inputModel);
         result._statusMessages = messages.slice();
         return result;
     };
     ModelView.prototype.withClearedVisitedFlags = function () {
+        var _this = this;
+        var visited = Object.keys(this._visitedFields);
+        if (0 == visited.length || visited.every(function (x) { return !_this._visitedFields[x]; })) {
+            return this;
+        }
         var result = new ModelView(this, this._inputModel);
         result._visitedFields = {};
         return result;
     };
     ModelView.prototype.withAddedVisitedFlags = function (fields) {
+        if (!fields || 0 === fields.length) {
+            return this;
+        }
         var result = new ModelView(this, this._inputModel);
         for (var _i = 0, fields_1 = fields; _i < fields_1.length; _i++) {
             var f = fields_1[_i];
