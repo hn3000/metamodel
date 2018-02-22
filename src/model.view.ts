@@ -303,6 +303,11 @@ export class ModelView<T> implements IModelView<T> {
   }
 
   withValidationMessages(messages:IPropertyStatusMessage[]):ModelView<T> {
+    if (0 === messages.length && 0 === this._messages.length) {
+      // avoid bogus changes
+      return this;
+    }
+
     let result = new ModelView(this, this._inputModel);
     let byField: { [keypath:string]:IPropertyStatusMessage[]; } = {};
 
@@ -332,17 +337,29 @@ export class ModelView<T> implements IModelView<T> {
   }
 
   withStatusMessages(messages:IStatusMessage[]):ModelView<T> {
+    if (0 === messages.length && 0 === this._statusMessages.length) {
+      return this;
+    }
     let result = new ModelView(this, this._inputModel);
     result._statusMessages = messages.slice();
     return result;
   }
 
   withClearedVisitedFlags(): IModelView<any> {
+    const visited = Object.keys(this._visitedFields);
+    if (0 == visited.length || visited.every(x => !this._visitedFields[x])) {
+      return this;
+    }
+
     let result = new ModelView(this, this._inputModel);
     result._visitedFields = {};
     return result;
   }
   withAddedVisitedFlags(fields:string[]): IModelView<any> {
+    if (!fields || 0 === fields.length) {
+      return this;
+    }
+
     let result = new ModelView(this, this._inputModel);
     for (let f of fields) {
       this._visitedFields[f] = true;
