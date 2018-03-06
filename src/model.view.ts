@@ -216,8 +216,8 @@ export class ModelViewMeta<T> {
 
     var name = keyPath[0];
     var value:any;
-
-    let entryType = type && (type as IModelTypeComposite<any>).itemType(name);
+    const compType = (type as IModelTypeComposite<any>);
+    let entryType = type && compType.itemType && compType.itemType(name);
 
     if (keyPath.length == 1) {
       value = newValue;
