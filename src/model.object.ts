@@ -489,7 +489,16 @@ function createPredicateEquals(property:string, value:any, invert:boolean): Pred
   }
 }
 
-function createPredicate(condition: IConditionOptions): Predicate<any> {
+function createPredicate(condition: IConditionOptions|IConditionOptions[]): Predicate<any> {
+  if (Array.isArray(condition)) {
+    let predicates = condition.map(c => createSinglePredicate(c));
+    return (x: any) => predicates.every(t => t(x));
+  } else {
+    return createSinglePredicate(condition);
+  }
+}
+
+function createSinglePredicate(condition: IConditionOptions): Predicate<any> {
   let { property, value, op, invert } = condition;
 
   switch (op) {
@@ -525,7 +534,7 @@ function createValuePredicate(possibleValues:string[]|number[]): (x:string|numbe
 }
 
 export interface IConditionalValueConstraintOptions {
-  condition: IConditionOptions;
+  condition: IConditionOptions|IConditionOptions[];
 
   // properties to require (may be just single item)
   properties: string|string[];
@@ -561,8 +570,8 @@ export class ModelTypeConstraintConditionalValue extends ModelTypeConstraintOpti
 
       let id_p = props.join(',');
       let id_v = allowed ? ` == [${allowed.join(',')}]` : ""
-      let id = `conditionalValue(${condition.property} ${condition.invert?'!=':'=='} ${condition.value} -> ${id_p}${id_v})`;
-
+      //let id = `conditionalValue(${condition.property} ${condition.invert?'!=':'=='} ${condition.value} -> ${id_p}${id_v})`;
+      let id = `conditionalValue()`;
 
       this._settings = {
         predicate: createPredicate(condition),

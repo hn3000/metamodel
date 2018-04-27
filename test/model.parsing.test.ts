@@ -15,7 +15,7 @@ import {
 export class ModelParsingTest extends TestClass {
   testSimpleSchema() {
     var parser = new ModelSchemaParser();
-    
+
     parser.addSchemaObject('ExampleObject', {
       type: "object",
       properties: {
@@ -38,7 +38,7 @@ export class ModelParsingTest extends TestClass {
         }
       }
     });
-    
+
     var type = parser.type('ExampleObject');
     var ctx = new ModelParseContext({
       blah: '123a',
@@ -67,7 +67,7 @@ export class ModelParsingTest extends TestClass {
         multipleOf: 2
       }
     });
-    
+
     parser.addSchemaObject('ExampleObject', {
       type: "object",
       properties: {
@@ -82,7 +82,7 @@ export class ModelParsingTest extends TestClass {
         }
       }
     });
-    
+
     var type = parser.type('ExampleObject');
 
     var ctx = new ModelParseContext({
@@ -106,7 +106,7 @@ export class ModelParsingTest extends TestClass {
         pattern: /a-z/
       }
     });
-    
+
     parser.addSchemaObject('ExampleObject', {
       type: "object",
       properties: {
@@ -115,7 +115,7 @@ export class ModelParsingTest extends TestClass {
         }
       }
     });
-    
+
     var type = parser.type('ExampleObject');
 
     var ctx = new ModelParseContext({
@@ -136,7 +136,7 @@ export class ModelParsingTest extends TestClass {
 
   testSchemaWithValueIfConstraint() {
     var parser = new ModelSchemaParser();
-    
+
     var type = parser.addSchemaObject('ExampleObject', {
       type: "object",
       properties: {
@@ -146,15 +146,15 @@ export class ModelParsingTest extends TestClass {
         "s": { type: "string", pattern: /^\d+$/ }
       },
       constraints: [
-        { 
-          constraint: 'valueIf', 
+        {
+          constraint: 'valueIf',
           condition: { property: 'p', value: '12'},
           valueProperty: 'q',
-          possibleValue: '13'  
+          possibleValue: '13'
         }
       ]
     });
-    
+
     var ctx = new ModelParseContext({
       p: '12',
       q: '14'
@@ -177,26 +177,123 @@ export class ModelParsingTest extends TestClass {
     type.validate(ctx);
     this.areIdentical(0, ctx.errors.length);
   }
-  
-  testSchemaWithMinAge18YearsConstraintFails() {
+  testSchemaWithValueIfAllConstraint() {
     var parser = new ModelSchemaParser();
-    
+
     var type = parser.addSchemaObject('ExampleObject', {
       type: "object",
       properties: {
-        "p": { 
-          type: "string", 
+        "p": { type: "number" },
+        "q": { type: "integer" },
+        "r": { type: "string", pattern: /^\d+$/ },
+        "s": { type: "string", pattern: /^\d+$/ }
+      },
+      constraints: [
+        {
+          constraint: 'valueIfAll',
+          condition: [
+            { property: 'p', value: '12'},
+            { property: 'q', value: '12'}
+          ],
+          valueProperty: 'r',
+          possibleValue: '13'
+        }
+      ]
+    });
+
+    var ctx = new ModelParseContext({
+      p: '12',
+      q: '12',
+      r: '11'
+    }, type)
+    type.validate(ctx);
+    this.areIdentical(1, ctx.errors.length);
+    this.areIdentical('r', ctx.errors[0].property);
+
+    ctx = new ModelParseContext({
+      p: '12',
+      q: '11',
+      r: '11'
+    }, type)
+    type.validate(ctx);
+    this.areIdentical(0, ctx.errors.length);
+
+    ctx = new ModelParseContext({
+      p: '12',
+      q: '12',
+      r: '13'
+    }, type)
+    type.validate(ctx);
+    this.areIdentical(0, ctx.errors.length);
+  }
+
+  testSchemaWithRequiredIfAllConstraint() {
+    var parser = new ModelSchemaParser();
+
+    var type = parser.addSchemaObject('ExampleObject', {
+      type: "object",
+      properties: {
+        "p": { type: "number" },
+        "q": { type: "integer" },
+        "r": { type: "string", pattern: /^\d+$/ },
+        "s": { type: "string", pattern: /^\d+$/ }
+      },
+      constraints: [
+        {
+          constraint: 'requiredIfAll',
+          condition: [
+            { property: 'p', value: '12'},
+            { property: 'q', value: '12'}
+          ],
+          properties: 'r'
+        }
+      ]
+    });
+
+    var ctx = new ModelParseContext({
+      p: '12',
+      q: '12',
+      r: null
+    }, type)
+    type.validate(ctx);
+    this.areIdentical(1, ctx.errors.length);
+    this.areIdentical('r', ctx.errors[0].property);
+
+    ctx = new ModelParseContext({
+      p: '12',
+      q: '11',
+      r: undefined
+    }, type)
+    type.validate(ctx);
+    this.areIdentical(0, ctx.errors.length);
+
+    ctx = new ModelParseContext({
+      p: '12',
+      q: '12',
+      r: '13'
+    }, type)
+    type.validate(ctx);
+    this.areIdentical(0, ctx.errors.length);
+  }
+  testSchemaWithMinAge18YearsConstraintFails() {
+    var parser = new ModelSchemaParser();
+
+    var type = parser.addSchemaObject('ExampleObject', {
+      type: "object",
+      properties: {
+        "p": {
+          type: "string",
           pattern: /^\d{4}-\d{2}-\d{2}$/,
           constraints: [
-            { 
-              constraint: 'minAge', 
-              age: "18y"  
+            {
+              constraint: 'minAge',
+              age: "18y"
             }
           ]
         }
       },
     });
-    
+
     var ctx = new ModelParseContext({
       p: '2016-01-01'
     }, type)
@@ -207,23 +304,23 @@ export class ModelParsingTest extends TestClass {
 
   testSchemaWithMinAge18YearsConstraintSucceeds() {
     var parser = new ModelSchemaParser();
-    
+
     var type = parser.addSchemaObject('ExampleObject', {
       type: "object",
       properties: {
-        "p": { 
-          type: "string", 
+        "p": {
+          type: "string",
           pattern: /^\d{4}-\d{2}-\d{2}$/,
           constraints: [
-            { 
-              constraint: 'minAge', 
-              age: "18y"  
+            {
+              constraint: 'minAge',
+              age: "18y"
             }
           ]
         }
       }
     });
-    
+
     var ctx = new ModelParseContext({
       p: '1998-01-01'
     }, type)
@@ -232,24 +329,24 @@ export class ModelParsingTest extends TestClass {
   }
   testSchemaWithMinAge18OnObject() {
     var parser = new ModelSchemaParser();
-    
+
     var type = parser.addSchemaObject('ExampleObject', {
       type: "object",
       properties: {
-        "p": { 
-          type: "string", 
+        "p": {
+          type: "string",
           pattern: /^\d{4}-\d{2}-\d{2}$/
         }
       },
       constraints: [
-        { 
-          constraint: 'minAge', 
+        {
+          constraint: 'minAge',
           property: 'p',
-          years: "18"  
+          years: "18"
         }
       ]
     });
-    
+
     var ctx = new ModelParseContext({
       p: '1998-01-01'
     }, type)
@@ -265,29 +362,29 @@ export class ModelParsingTest extends TestClass {
   }
   testSchemaWithMinAge18OnSlicedObject() {
     var parser = new ModelSchemaParser();
-    
+
     var type = parser.addSchemaObject('ExampleObject', {
       type: "object",
       properties: {
-        "p": { 
-          type: "string", 
+        "p": {
+          type: "string",
           pattern: /^\d{4}-\d{2}-\d{2}$/
         }
       },
       constraints: [
-        { 
-          constraint: 'minAge', 
+        {
+          constraint: 'minAge',
           property: 'p',
-          years: "18"  
+          years: "18"
         },
-        { 
-          constraint: 'minAge', 
+        {
+          constraint: 'minAge',
           property: 'q',
-          years: "18"  
+          years: "18"
         }
       ]
     });
-    
+
     var slice = (type as ModelTypeObject<any>).slice(['p']);
 
     var ctx = new ModelParseContext({
@@ -305,21 +402,21 @@ export class ModelParsingTest extends TestClass {
   }
   testSchemaWithArrayOfEnum() {
     var parser = new ModelSchemaParser();
-    
+
     var type = parser.addSchemaObject('ExampleObject', {
       type: "object",
       properties: {
         p: {
           type: "array",
           items: {
-            type: "string", 
+            type: "string",
             enum: [ "a", "b", "c" ],
             uniqueItems: true
           }
         }
       }
     });
-    
+
     var slice = (type as ModelTypeObject<any>).slice(['p']);
 
     var ctx = new ModelParseContext({

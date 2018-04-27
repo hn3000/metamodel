@@ -170,9 +170,24 @@ var constraintFactoriesDefault:IConstraintFactories = {
         properties: o.properties
       });
     },
+    requiredIfAll(o:any) {
+      return new ModelTypeConstraintConditionalValue({
+        condition: o.condition||o.conditions,
+        clearOtherwise: o.clearOtherwise,
+        properties: o.properties
+      });
+    },
     valueIf(o:any) {
       return new ModelTypeConstraintConditionalValue({
         condition: o.condition,
+        clearOtherwise: false,
+        properties: o.valueProperty,
+        possibleValue: o.possibleValue
+      });
+    },
+    valueIfAll(o:any) {
+      return new ModelTypeConstraintConditionalValue({
+        condition: o.condition||o.conditions,
         clearOtherwise: false,
         properties: o.valueProperty,
         possibleValue: o.possibleValue
