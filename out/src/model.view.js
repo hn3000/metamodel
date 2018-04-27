@@ -130,7 +130,8 @@ var ModelViewMeta = /** @class */ (function () {
         var result = (null != type && type.create) ? type.create() : {};
         var name = keyPath[0];
         var value;
-        var entryType = type && type.itemType(name);
+        var compType = type;
+        var entryType = type && compType.itemType && compType.itemType(name);
         if (keyPath.length == 1) {
             value = newValue;
             if (null != entryType) {

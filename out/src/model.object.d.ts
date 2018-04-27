@@ -68,7 +68,7 @@ export interface IConditionOptions {
     invert?: boolean;
 }
 export interface IConditionalValueConstraintOptions {
-    condition: IConditionOptions;
+    condition: IConditionOptions | IConditionOptions[];
     properties: string | string[];
     possibleValue?: string | number | string[] | number[];
     clearOtherwise: boolean;

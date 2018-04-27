@@ -59,9 +59,24 @@ var constraintFactoriesDefault = {
                 properties: o.properties
             });
         },
+        requiredIfAll: function (o) {
+            return new model_object_1.ModelTypeConstraintConditionalValue({
+                condition: o.condition || o.conditions,
+                clearOtherwise: o.clearOtherwise,
+                properties: o.properties
+            });
+        },
         valueIf: function (o) {
             return new model_object_1.ModelTypeConstraintConditionalValue({
                 condition: o.condition,
+                clearOtherwise: false,
+                properties: o.valueProperty,
+                possibleValue: o.possibleValue
+            });
+        },
+        valueIfAll: function (o) {
+            return new model_object_1.ModelTypeConstraintConditionalValue({
+                condition: o.condition || o.conditions,
                 clearOtherwise: false,
                 properties: o.valueProperty,
                 possibleValue: o.possibleValue

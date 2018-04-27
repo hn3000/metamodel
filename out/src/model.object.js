@@ -399,6 +399,15 @@ function createPredicateEquals(property, value, invert) {
     };
 }
 function createPredicate(condition) {
+    if (Array.isArray(condition)) {
+        var predicates_1 = condition.map(function (c) { return createSinglePredicate(c); });
+        return function (x) { return predicates_1.every(function (t) { return t(x); }); };
+    }
+    else {
+        return createSinglePredicate(condition);
+    }
+}
+function createSinglePredicate(condition) {
     var property = condition.property, value = condition.value, op = condition.op, invert = condition.invert;
     switch (op) {
         case undefined:
@@ -445,7 +454,8 @@ var ModelTypeConstraintConditionalValue = /** @class */ (function (_super) {
             var allowed = safeArray(possibleValue);
             var id_p = props.join(',');
             var id_v = allowed ? " == [" + allowed.join(',') + "]" : "";
-            var id = "conditionalValue(" + condition.property + " " + (condition.invert ? '!=' : '==') + " " + condition.value + " -> " + id_p + id_v + ")";
+            //let id = `conditionalValue(${condition.property} ${condition.invert?'!=':'=='} ${condition.value} -> ${id_p}${id_v})`;
+            var id = "conditionalValue()";
             _this._settings = {
                 predicate: createPredicate(condition),
                 valueCheck: createValuePredicate(allowed),
