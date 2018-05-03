@@ -185,8 +185,8 @@ export class ModelParsingTest extends TestClass {
       properties: {
         "p": { type: "number" },
         "q": { type: "integer" },
-        "r": { type: "string", pattern: /^\d+$/ },
-        "s": { type: "string", pattern: /^\d+$/ }
+        "r": { type: "string", /*pattern: /^\d+$/*/ },
+        "s": { type: "string", /*pattern: /^\d+$/*/ }
       },
       constraints: [
         {
@@ -212,8 +212,19 @@ export class ModelParsingTest extends TestClass {
 
     ctx = new ModelParseContext({
       p: '12',
+      q: '12',
+      r: '',
+      s: ''
+    }, type)
+    type.validate(ctx);
+    this.areIdentical(1, ctx.errors.length);
+    this.areIdentical('r', ctx.errors[0].property);
+
+    ctx = new ModelParseContext({
+      p: '12',
       q: '11',
-      r: '11'
+      r: '11',
+      s: ''
     }, type)
     type.validate(ctx);
     this.areIdentical(0, ctx.errors.length);
