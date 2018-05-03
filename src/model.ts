@@ -92,6 +92,7 @@ export {
 } from "./model.array";
 
 export {
+  ModelTypeAny,
   ModelTypeObject,
   ModelTypeConstraintConditionalValue,
   ModelTypeConstraintCompareProperties,
