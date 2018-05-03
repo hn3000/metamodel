@@ -9,7 +9,7 @@ export { ModelTypeNumber, ModelTypeConstraintLess, ModelTypeConstraintLessEqual,
 export { ModelTypeString, ModelTypeConstraintPossibleValues, ModelTypeConstraintLength, ModelTypeConstraintRegex } from "./model.string";
 export { ModelTypeBool } from "./model.bool";
 export { ModelTypeArray } from "./model.array";
-export { ModelTypeObject, ModelTypeConstraintConditionalValue, ModelTypeConstraintCompareProperties, ModelTypeConstraintEqualProperties } from "./model.object";
+export { ModelTypeAny, ModelTypeObject, ModelTypeConstraintConditionalValue, ModelTypeConstraintCompareProperties, ModelTypeConstraintEqualProperties } from "./model.object";
 export { IModelSchemaParserDefaults, IConstraintFactories, ModelSchemaParser } from "./model.schema";
 export { IModelViewField, IModelViewPage, IModelView, ValidationScope, ModelView } from "./model.view";
 export { JsonPointer, JsonReference, JsonReferenceProcessor } from "@hn3000/json-ref";

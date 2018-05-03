@@ -35,6 +35,7 @@ exports.ModelTypeBool = model_bool_2.ModelTypeBool;
 var model_array_1 = require("./model.array");
 exports.ModelTypeArray = model_array_1.ModelTypeArray;
 var model_object_1 = require("./model.object");
+exports.ModelTypeAny = model_object_1.ModelTypeAny;
 exports.ModelTypeObject = model_object_1.ModelTypeObject;
 exports.ModelTypeConstraintConditionalValue = model_object_1.ModelTypeConstraintConditionalValue;
 exports.ModelTypeConstraintCompareProperties = model_object_1.ModelTypeConstraintCompareProperties;
