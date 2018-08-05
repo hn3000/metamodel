@@ -55,7 +55,7 @@ export interface IEqualPropertiesConstraintOptions {
 }
 export declare class ModelTypeConstraintEqualProperties extends ModelTypeConstraintOptional<any> {
     constructor(fieldsOrSelf: string[] | IEqualPropertiesConstraintOptions | ModelTypeConstraintEqualProperties);
-    private _isConstraintEqualFields();
+    private _isConstraintEqualFields;
     protected _id(): string;
     checkAndAdjustValue(val: any, ctx: IModelParseContext): any;
     usedItems(): string[];
@@ -83,7 +83,7 @@ export interface IConditionalValueConstraintSettings {
 }
 export declare class ModelTypeConstraintConditionalValue extends ModelTypeConstraintOptional<any> {
     constructor(optionsOrSelf: IConditionalValueConstraintOptions | ModelTypeConstraintConditionalValue);
-    private _isConstraintConditionalValue();
+    private _isConstraintConditionalValue;
     protected _id(): string;
     checkAndAdjustValue(val: any, ctx: IModelParseContext): Date;
     possibleValuesForContextData?(name: string | number, data: any): any[];

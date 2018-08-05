@@ -22,7 +22,7 @@ export declare enum MessageSeverity {
     NOTE = 0,
     SUCCESS = 1,
     WARNING = 2,
-    ERROR = 3,
+    ERROR = 3
 }
 export interface IStatusMessage {
     msg: string;

@@ -1,8 +1,11 @@
 "use strict";
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -123,12 +126,12 @@ var ModelTypeConstrainable = /** @class */ (function (_super) {
         for (var _i = 0; _i < arguments.length; _i++) {
             c[_i] = arguments[_i];
         }
+        var _a;
         var result = this._clone((_a = this._constraints).add.apply(_a, c));
         if (this.kind != 'object') {
             result._setName(this.name + '/' + result._constraints.id);
         }
         return result;
-        var _a;
     };
     ModelTypeConstrainable.prototype.findConstraints = function (p) {
         var result = this._constraints.filter(p);

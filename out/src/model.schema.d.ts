@@ -61,7 +61,7 @@ export declare class ModelSchemaParser implements IModelTypeRegistry {
     itemType(name: string): IModelTypeItem<any>;
     addType(type: IModelType<any>): void;
     getRegisteredNames(): string[];
-    private _ensureRefProcessor();
+    private _ensureRefProcessor;
     private _constraintFactory;
     private _registry;
     private _refProcessor;

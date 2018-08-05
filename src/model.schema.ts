@@ -472,7 +472,7 @@ export class ModelSchemaParser implements IModelTypeRegistry {
         var factory:(o:any) => IModelTypeConstraint<any>;
         factory = this._constraintFactory[c.constraint];
         if (!factory) {
-          factory = findfirst(factories, c.constraint);
+          factory = findFirst(factories, c.constraint);
         }
         if (!factory) {
           console.log("unrecognized constraint", c.constraint, c);
@@ -518,7 +518,7 @@ function fetchFetcher(url:string):Promise<string> {
   });
 }
 
-function findfirst<T>(tt:{[k:string]:T}[], name:string):T {
+function findFirst<T>(tt:{[k:string]:T}[], name:string):T {
   for (var t of tt) {
     if (t[name]) return t[name];
   }

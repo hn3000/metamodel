@@ -28,7 +28,14 @@ function parseAge(o) {
     return result;
 }
 var constraintFactoriesDefault = {
-    numbers: {},
+    numbers: {
+    /* unnecessary: available via minimum / maximum
+    less(o:any)        { return new ModelTypeConstraintLess(o.value); },
+    more(o:any)        { return new ModelTypeConstraintMore(o.value); },
+    lessEqual(o:any)   { return new ModelTypeConstraintLessEqual(o.value); },
+    moreEqual(o:any)   { return new ModelTypeConstraintMoreEqual(o.value); }
+    */
+    },
     strings: {
         minAge: function (o) { return new model_date_1.ModelTypeConstraintOlder(parseAge(o)); },
         before: function (o) { return new model_date_1.ModelTypeConstraintBefore(o.date); },
@@ -336,7 +343,7 @@ var ModelSchemaParser = /** @class */ (function () {
                 var factory;
                 factory = _this._constraintFactory[c.constraint];
                 if (!factory) {
-                    factory = findfirst(factories, c.constraint);
+                    factory = findFirst(factories, c.constraint);
                 }
                 if (!factory) {
                     console.log("unrecognized constraint", c.constraint, c);
@@ -373,7 +380,7 @@ function fetchFetcher(url) {
         return null;
     });
 }
-function findfirst(tt, name) {
+function findFirst(tt, name) {
     for (var _i = 0, tt_1 = tt; _i < tt_1.length; _i++) {
         var t = tt_1[_i];
         if (t[name])

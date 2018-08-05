@@ -111,6 +111,9 @@ export {
   IModelViewPage,
   IModelView,
   ValidationScope,
+} from "./model.view.api";
+
+export {
   ModelView
 } from "./model.view";
 

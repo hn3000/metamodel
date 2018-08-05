@@ -11,7 +11,8 @@ export { ModelTypeBool } from "./model.bool";
 export { ModelTypeArray } from "./model.array";
 export { ModelTypeAny, ModelTypeObject, ModelTypeConstraintConditionalValue, ModelTypeConstraintCompareProperties, ModelTypeConstraintEqualProperties } from "./model.object";
 export { IModelSchemaParserDefaults, IConstraintFactories, ModelSchemaParser } from "./model.schema";
-export { IModelViewField, IModelViewPage, IModelView, ValidationScope, ModelView } from "./model.view";
+export { IModelViewField, IModelViewPage, IModelView, ValidationScope, } from "./model.view.api";
+export { ModelView } from "./model.view";
 export { JsonPointer, JsonReference, JsonReferenceProcessor } from "@hn3000/json-ref";
 export declare class ModelTypeConstraints {
     static less(v: number): ModelTypeConstraintLess;

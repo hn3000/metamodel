@@ -2,12 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var model_api_1 = require("./model.api");
 var model_infra_1 = require("./model.infra");
-var ValidationScope;
-(function (ValidationScope) {
-    ValidationScope[ValidationScope["VISITED"] = 0] = "VISITED";
-    ValidationScope[ValidationScope["PAGE"] = 1] = "PAGE";
-    ValidationScope[ValidationScope["FULL"] = 2] = "FULL";
-})(ValidationScope = exports.ValidationScope || (exports.ValidationScope = {}));
+var model_view_api_1 = require("./model.view.api");
+// constant, to make sure empty array is always the same instance
+// should be unmodifiable, to be sure
 var ARRAY_EMPTY = [];
 var ModelViewField = /** @class */ (function () {
     function ModelViewField(key, type) {
@@ -236,8 +233,8 @@ var ModelView = /** @class */ (function () {
                     else {
                         byField[mp].push(m);
                     }
-                    var dotpos = mp.lastIndexOf('.');
-                    mp = mp.substring(0, dotpos);
+                    var dotPos = mp.lastIndexOf('.');
+                    mp = mp.substring(0, dotPos);
                 } while (mp !== '');
             }
         }
@@ -280,27 +277,27 @@ var ModelView = /** @class */ (function () {
     };
     ModelView.prototype.validateDefault = function () {
         switch (this._validationScope) {
-            case ValidationScope.VISITED:
+            case model_view_api_1.ValidationScope.VISITED:
             default:
                 return this.validateVisited();
-            case ValidationScope.PAGE:
+            case model_view_api_1.ValidationScope.PAGE:
                 return this.validatePage();
-            case ValidationScope.FULL:
+            case model_view_api_1.ValidationScope.FULL:
                 return this.validateFull();
         }
     };
     ModelView.prototype.validateVisited = function () {
         var fields = Object.keys(this._visitedFields);
         var modelSlice = this._viewMeta.getModelType().slice(fields);
-        return this._validateSlice(modelSlice, ValidationScope.VISITED);
+        return this._validateSlice(modelSlice, model_view_api_1.ValidationScope.VISITED);
     };
     ModelView.prototype.validatePage = function () {
         var modelSlice = this.getPage().type;
-        return this._validateSlice(modelSlice, ValidationScope.PAGE);
+        return this._validateSlice(modelSlice, model_view_api_1.ValidationScope.PAGE);
     };
     ModelView.prototype.validateFull = function () {
         var modelSlice = this._viewMeta.getModelType();
-        return this._validateSlice(modelSlice, ValidationScope.FULL);
+        return this._validateSlice(modelSlice, model_view_api_1.ValidationScope.FULL);
     };
     ModelView.prototype._validateSlice = function (modelSlice, kind) {
         var _this = this;
@@ -503,10 +500,10 @@ var ModelView = /** @class */ (function () {
         if (nextPage < 0 || nextPage > this._viewMeta.getPages().length) {
             return this;
         }
-        return this.gotoPage(nextPage, ValidationScope.VISITED);
+        return this.gotoPage(nextPage, model_view_api_1.ValidationScope.VISITED);
     };
     ModelView.prototype.gotoPage = function (index, validationScope) {
-        if (validationScope === void 0) { validationScope = ValidationScope.VISITED; }
+        if (validationScope === void 0) { validationScope = model_view_api_1.ValidationScope.VISITED; }
         var result = new ModelView(this, this._inputModel);
         result._currentPage = index;
         result._validationScope = validationScope;

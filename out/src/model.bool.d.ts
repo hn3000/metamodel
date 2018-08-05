@@ -12,5 +12,5 @@ export declare class ModelTypeBool extends ModelTypeItem<boolean> {
     fromString(val: string): boolean;
     asString(val: boolean): string;
     protected _kind(): string;
-    private _parseString(val);
+    private _parseString;
 }

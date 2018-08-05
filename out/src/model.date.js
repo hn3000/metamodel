@@ -1,8 +1,11 @@
 "use strict";
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -199,6 +202,7 @@ var TimeSpan = /** @class */ (function () {
             case "months":
                 this._unitNormalized = 'month';
                 break;
+            // TODO: other durations?
         }
     }
     TimeSpan.prototype.toString = function () {
@@ -222,6 +226,7 @@ var TimeSpan = /** @class */ (function () {
             case "month":
                 date.setMonth(date.getMonth() - this._amount);
                 break;
+            // TODO: other durations?
         }
     };
     TimeSpan.REGEX = /([0-9]+(?:\.[0.9]+)?)\s*([a-z]+)/;
