@@ -55,10 +55,17 @@ export class ModelViewField implements IModelViewField {
   private _type: IModelType<any>;
 }
 
-export class ModelViewPage {
-  constructor(alias:string, pageType:IModelTypeComposite<any>) {
+export class ModelViewPage implements IModelViewPage {
+  constructor(
+    alias:string, 
+    pageType:IModelTypeComposite<any>, 
+    pages: IModelViewPage[]=[],
+    extraInfo?: any
+  ) {
     this._alias = alias;
     this._type = pageType;
+    this._pages = pages;
+    this._extraInfo = extraInfo;
   }
 
   get alias(): string {
@@ -71,8 +78,62 @@ export class ModelViewPage {
     return this._type.items.map((x) => x.key);
   }
 
+  get pages(): IModelViewPage[] {
+    return this._pages;
+  }
+  get extraInfo(): string {
+    return this._extraInfo;
+  }
+
   private _alias: string;
   private _type: IModelTypeComposite<any>;
+  private _pages: IModelViewPage[];
+  private _extraInfo: any;
+}
+
+function createPageObjects<T>(
+  options: {
+    type: IModelTypeComposite<T>;
+    pageArray: any[]|undefined;
+    parentAlias?: string;
+  }
+): ModelViewPage[] {
+
+  let { type, pageArray, parentAlias } = options;
+
+  if (null == pageArray || 0 == pageArray.length) {
+    return [];
+  }
+  
+  return pageArray.map((thisPage:any, index:number) => {
+    var properties:string[] = null;
+
+    if (null != thisPage.schema) {
+      properties = Object.keys(thisPage.schema.properties);
+    }
+    if (null == properties) {
+      properties = thisPage.properties || thisPage.fields;
+    }
+    if (null == properties) {
+      properties = ARRAY_EMPTY;
+    }
+
+    let alias = makeAlias({
+      alias: thisPage.alias,
+      fieldNames: properties,
+      parentAlias,
+      index
+    });
+
+    let model = type.slice(properties);
+    let pagesHost = (null != thisPage.schema) ? thisPage.schema : thisPage;
+    let pages = createPageObjects({
+      type,
+      pageArray: pagesHost.sections || pagesHost.pages,
+      parentAlias: alias
+    });
+    return new ModelViewPage(alias, model, pages, thisPage.extraInfo);
+  });
 }
 
 export class ModelViewMeta<T> {
@@ -82,27 +143,12 @@ export class ModelViewMeta<T> {
 
     let schema = type.propGet('schema');
     if (schema && schema.pages) {
-      let pages = schema.pages.map((p:any, index:number) => {
-        let alias = p.alias || ''+index;
-        var properties:string[] = null;
-
-        if (null != p.schema) {
-          properties = Object.keys(p.schema.properties);
-        }
-        if (null == properties) {
-          properties = p.properties || p.fields;
-        }
-        if (null == properties) {
-          properties = ARRAY_EMPTY;
-        }
-        let model = type.slice(properties);
-        return new ModelViewPage(alias, model);
-      });
+      let pages = createPageObjects({ pageArray: schema.pages, type });
       this._pages = pages;
     } else {
       this._pages = [ new ModelViewPage('default', type) ];
     }
-    //TODO: construct fields
+    //TODO: construct fields (we haven't needed them, yet)
   }
 
   getPages():ModelViewPage[] {
@@ -184,6 +230,7 @@ export class ModelView<T> implements IModelView<T> {
       this._visitedFields = shallowCopy(that._visitedFields);
       this._readonlyFields = shallowCopy(that._readonlyFields);
       this._currentPage = that._currentPage;
+      this._focusedPage = that._focusedPage;
       this._validationScope = that._validationScope;
       this._statusMessages = that._statusMessages;
       this._messages = that._messages;
@@ -452,19 +499,68 @@ export class ModelView<T> implements IModelView<T> {
     return null == m || 0 == m.length;
   }
 
+  withFocusedPage(page: string|number|IModelViewPage): IModelView<any> {
+    let thePage: IModelViewPage;
+    if (typeof page == 'string' || typeof page == 'number') {
+      thePage = this.getPage(page);
+    } else {
+      thePage = page;
+    }
+    if (thePage == this._focusedPage) {
+      return this;
+    }
+    let result = new ModelView(this);
+    result._focusedPage = thePage;
+    result._currentPage = 0;
+    return result;
+  }
+
+  withAllPages() {
+    return this.withFocusedPage(null);
+  }
+
+  getFocusedPage() {
+    return this._focusedPage;
+  }
+  
   getPages() {
+    if (null != this._focusedPage) {
+      return this._focusedPage.pages;
+    }
     return this._viewMeta.getPages();
   }
 
   getPage(aliasOrIndex?:string|number):IModelViewPage {
-    var page:IModelViewPage = null;
+    let page:IModelViewPage = null;
+    let index = null;
+
     if (null == aliasOrIndex) {
-      page = this.getPages()[this.currentPageIndex];
+      index = this.currentPageIndex;
     } else if (typeof aliasOrIndex == 'string') {
-      throw new Error("not implemented, yet -- do we need it?");
+      let parsed = Number.parseInt(aliasOrIndex);
+      if (''+parsed == aliasOrIndex) {
+        index = parsed;
+      } else {
+        index = aliasOrIndex;
+      }
     } else {
-      page = this.getPages()[aliasOrIndex as number];
+      index = +aliasOrIndex;
     }
+
+    if (null == page) {
+      if (typeof index === 'string') {
+        let pages = this.getPages();
+        for (let p of pages) {
+          if (p.alias === aliasOrIndex) {
+            page = p;
+            break;
+          }
+        }
+      } else {
+        page = this.getPages()[index as number];
+      }
+    }
+
     return page;
   }
 
@@ -484,7 +580,7 @@ export class ModelView<T> implements IModelView<T> {
     return this.areFieldsValid(this._visitedPageFields())  && !this.hasStatusError();
   }
   arePagesUpToCurrentValid() {
-    var pages = this._viewMeta.getPages().slice(0, this._currentPage);
+    var pages = this.getPages().slice(0, this._currentPage);
     var fields = pages.reduce((r,p) => (r.concat(...p.fields)), []);
     return this.areFieldsValid(fields) && !this.hasStatusError();
   }
@@ -524,13 +620,13 @@ export class ModelView<T> implements IModelView<T> {
   }
 
   isFinished():boolean {
-    return this._currentPage > this._viewMeta.getPages().length;
+    return this._currentPage > this.getPages().length;
   }
 
   changePage(step:number):IModelView<T> {
     let nextPage = this._currentPage + step;
 
-    if (nextPage < 0 || nextPage > this._viewMeta.getPages().length) {
+    if (nextPage < 0 || nextPage > this.getPages().length) {
       return this;
     }
     return this.gotoPage(nextPage, ValidationScope.VISITED);
@@ -544,7 +640,7 @@ export class ModelView<T> implements IModelView<T> {
   }
 
   private _visitedPageFields() {
-    var pages = this._viewMeta.getPages();
+    var pages = this.getPages();
     var vpages = pages.filter(x => x.fields.some(f => this._visitedFields[f]));
     var vpagefields = vpages.reduce((r: string[],p) => r.concat(p.fields), []);
 
@@ -558,6 +654,8 @@ export class ModelView<T> implements IModelView<T> {
   private _readonlyFields: {[keypath:string]:boolean};
 
   private _currentPage:number;
+
+  private _focusedPage: IModelViewPage;
 
   private _validationScope:ValidationScope;
   private _validations:{[kind:number]:Promise<ModelView<T>>};
@@ -578,4 +676,33 @@ function shallowCopy(x:any) {
     result[k] = x[k];
   }
   return result;
+}
+
+function makeAlias(options: {
+  alias?: string;
+  parentAlias?: string;
+  fieldNames: string[];
+  index: number;
+}) {
+  if (options.alias != null) {
+    if (options.alias.startsWith('-')) {
+      return options.parentAlias + options.alias;
+    }
+    return options.alias;
+  }
+  if (null != options.parentAlias) {
+    if (null != options.fieldNames && null != options.fieldNames[0]) {
+      let field1 = toKebapCase(options.fieldNames[0]);
+      return options.parentAlias +'-'+ field1;
+    } else {
+      return options.parentAlias +'-'+ options.index;
+    }
+  } else {
+    return 'page-'+options.index;
+  }
+}
+
+let humpRE = /([a-z0-9])([A-Z])/g;
+function toKebapCase(x: string) {
+  return x.replace(humpRE, (m) => `${m[0]}-${m[1].toLowerCase()}`);
 }

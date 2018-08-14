@@ -21,6 +21,8 @@ export interface IModelViewPage {
   alias:string;
   type:IModelTypeComposite<any>;
   fields:string[];
+  pages: IModelViewPage[];
+  extraInfo?: any;
 }
 
 export enum ValidationScope {
@@ -34,28 +36,34 @@ export enum ValidationScope {
  */
 export interface IModelView<T> {
   getModelType():IModelType<T>;
-  getModel():T; // might actually be a read-only view of underlying data
-
-  withFieldEditableFlag(keyPath:string|string[], flag:boolean):IModelView<T>;
-  withFieldEditableFlags(flags:{ [keyPath:string]:boolean; }):IModelView<T>;
-  isFieldEditable(keyPath:string|string[]):boolean;
-  withClearedVisitedFlags(): IModelView<any>;
-  withAddedVisitedFlags(fields:string[]): IModelView<any>;
+  getModel():Readonly<T>; // might actually be a read-only view of underlying data
 
   withChangedField(keyPath:string|string[], newValue:Primitive|any[]):IModelView<T>;
   withAddedData(obj:any):IModelView<T>;
+  withFieldEditableFlag(keyPath:string|string[], flag:boolean):IModelView<T>;
+  withFieldEditableFlags(flags:{ [keyPath:string]:boolean; }):IModelView<T>;
+  withClearedVisitedFlags(): IModelView<any>;
+  withAddedVisitedFlags(fields:string[]): IModelView<any>;
+
+  isFieldEditable(keyPath:string|string[]):boolean;
+
   getFieldValue(keyPath:string|string[]):any;
   getFieldType(keyPath:string|string[]):IModelType<any>;
+
   getField(keyPath:string|string[]):IModelViewField;
-  getFields():IModelViewField[];
+  getFields(fields?:string[]):IModelViewField[];
   getPossibleFieldValues(keyPath:string|string[]):any[];
 
   getFieldMessages(keyPath:string|string[]):IPropertyStatusMessage[];
   getValidationMessages(): IPropertyStatusMessage[];
+
   isFieldVisited(field: string | string[]):boolean;
   isFieldValid(keyPath:string|string[]):boolean;
   areFieldsValid(fields:string[]):boolean;
 
+  withFocusedPage(page: string|number|IModelViewPage): IModelView<any>;
+  withAllPages(): IModelView<any>;
+  getFocusedPage(): undefined|IModelViewPage;
   getPages():IModelViewPage[];
   getPage(aliasOrIndex?:string|number):IModelViewPage;
   getPageMessages(aliasOrIndex?:string|number):IStatusMessage[];
