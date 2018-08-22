@@ -134,6 +134,7 @@ export interface IModelTypeComposite<C> extends IModelTypeConstrainable<C> {
 export interface IModelTypeCompositeBuilder<C> extends IModelTypeComposite<C> {
   extend<X>(type:IModelTypeComposite<X>):IModelTypeCompositeBuilder<C>;
   addItem<T>(key:string, type:IModelType<T>, required?:boolean):IModelTypeCompositeBuilder<C>;
+  findItem(key: string): IModelTypeEntry;
 }
 
 export interface IModelTypeRegistry {

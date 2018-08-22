@@ -281,6 +281,8 @@ export class ModelSchemaParser implements IModelTypeRegistry {
   }
 
   parseSchemaObjectTypeString(schemaObject:any, name?: string) {
+
+    //var format = schemaObject['format'];
     var minLen = schemaObject['minLength'];
     var maxLen = schemaObject['maxLength'];
     var pattern = schemaObject['pattern'];
@@ -427,6 +429,15 @@ export class ModelSchemaParser implements IModelTypeRegistry {
         ++index;
       }
     }
+
+    required.forEach((req) => {
+      const entry = type.findItem(req);
+      if (null != entry) {
+        entry.required = true;
+      } else {
+        type.addItem(req, new ModelTypeAny(req), true);
+      }
+    });
 
     if (0 == type.items.length) {
       return new ModelTypeAny(id, null, constraints);

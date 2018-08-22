@@ -119,6 +119,10 @@ export class ModelTypeObject<T>
     return this;
   }
 
+  findItem(key:string) {
+    return this._entriesByName[key]; 
+  }
+
   extend<X>(type:IModelTypeComposite<X>):IModelTypeCompositeBuilder<T> {
     let constraints:IModelTypeConstraint<any>[] = type.findConstraints(()=>true);
     let result = this.withConstraints(...constraints);
