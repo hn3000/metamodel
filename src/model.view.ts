@@ -549,11 +549,15 @@ export class ModelView<T> implements IModelView<T> {
 
     if (null == page) {
       if (typeof index === 'string') {
-        let pages = this.getPages();
-        for (let p of pages) {
+        let pages = [ ... this.getPages() ];
+        while (pages.length) {
+          let p = pages.shift();
           if (p.alias === aliasOrIndex) {
             page = p;
             break;
+          }
+          if (p.pages) {
+            pages.push(...p.pages);
           }
         }
       } else {
