@@ -578,7 +578,10 @@ export class ModelView<T> implements IModelView<T> {
 
   isPageValid(aliasOrIndex?:string|number) {
     let page = this.getPage(aliasOrIndex);
-    return null == page || this.areFieldsValid(page.fields) && !this.hasStatusError();
+    if (null == page && aliasOrIndex == this.getPages().length) {
+      return true;
+    }
+    return null != page && this.areFieldsValid(page.fields) && !this.hasStatusError();
   }
   areVisitedPagesValid() {
     return this.areFieldsValid(this._visitedPageFields())  && !this.hasStatusError();

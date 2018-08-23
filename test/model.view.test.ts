@@ -26,15 +26,21 @@ export class ModelViewTest extends TestClass {
       },
       pages: [
         {
-          name: 'a',
-          properties: [ 'aa', 'ab' ]
+          alias: 'a',
+          properties: [ 'aa', 'ab' ],
+          pages: [
+            { properties: [ 'aa' ] }
+          ]
         },
         {
-          name: 'b',
-          properties: [ 'ba', 'bb' ]
+          alias: 'b',
+          properties: [ 'ba', 'bb' ],
+          pages: [
+            { properties: [ 'ba' ] }
+          ]
         },
         {
-          name: 'c',
+          alias: 'c',
           properties: [ 'ca', 'cb' ]
         }
       ]
@@ -62,9 +68,12 @@ export class ModelViewTest extends TestClass {
     view = await view.validateFull();
 
     this.isTrue(view.isPageValid(0), 'page 0 should be valid');
+    this.isTrue(view.isPageValid('a-aa'), 'page a-aa should be valid');
     this.isFalse(view.isPageValid(1), 'page 1 should be invalid');
+    this.isFalse(view.isPageValid('b-ba'), 'page b-ba should not be valid');
+    this.isFalse(view.isPageValid('c-cc'), 'page c-cc does not exist, should not be valid');
 
-    this.isTrue(view.arePagesUpToCurrentValid(), 'visited pages should be invalid');
+    this.isTrue(view.arePagesUpToCurrentValid(), 'visited pages should be valid');
     this.isFalse(view.areVisitedPagesValid(), 'visited pages should be invalid');
 
     view = view.withAddedData({
@@ -75,5 +84,8 @@ export class ModelViewTest extends TestClass {
 
     this.isTrue(view.isPageValid(0), 'page 0 should be valid');
     this.isTrue(view.isPageValid(1), 'page 1 should be valid');
+    this.isTrue(view.isPageValid('a-aa'), 'page a-aa should be valid');
+    this.isTrue(view.isPageValid('b-ba'), 'page b-ba should be valid');
+    this.isFalse(view.isPageValid('c-cc'), 'page c-cc still does not exist, should not be valid');
   }
 }
