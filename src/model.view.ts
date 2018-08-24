@@ -578,8 +578,12 @@ export class ModelView<T> implements IModelView<T> {
 
   isPageValid(aliasOrIndex?:string|number) {
     let page = this.getPage(aliasOrIndex);
-    if (null == page && aliasOrIndex == this.getPages().length) {
-      return true;
+    if (null == page) {
+      let actualIndex = null == aliasOrIndex ? this.currentPageIndex : aliasOrIndex;
+      if (actualIndex == -1 || actualIndex == this.getPages().length) {
+        // pages before first and after last are always valid
+        return true;
+      }
     }
     return null != page && this.areFieldsValid(page.fields) && !this.hasStatusError();
   }
