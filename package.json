@@ -1,15 +1,17 @@
 {
   "name": "@hn3000/metamodel",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Meta Model for TypeScript and EcmaScript apps, to help with JSON schema processing and UI construction.",
   "repository": "git@github.com:hn3000/metamodel",
   "scripts": {
     "tsc": "tsc",
     "tsc:w": "tsc -w",
-    "pretest": "tsc",
-    "precover": "tsc",
     "prepare": "tsc",
+    "pretest": "tsc",
     "test": "node out/test/allTests.js",
+    "pretest-debug": "tsc",
+    "test-debug": "node --inspect-brk out/test/allTests.js",
+    "precover": "tsc",
     "cover": "istanbul cover out/test/allTests.js"
   },
   "main": "out/src/model.js",
