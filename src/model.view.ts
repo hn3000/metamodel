@@ -18,6 +18,8 @@ import {
   IModelViewPage,
   ValidationScope
 } from "./model.view.api";
+import { modelTypes } from "./model";
+import { ModelTypeAny } from "./model.object";
 
 // constant, to make sure empty array is always the same instance
 // should be unmodifiable, to be sure
@@ -356,7 +358,15 @@ export class ModelView<T> implements IModelView<T> {
   }
 
   validatePage():Promise<IModelView<T>> {
-    let modelSlice = this.getPage().type;
+    const page = this.getPage();
+    let modelSlice: IModelTypeComposite<any>;
+    if (null != page) {
+      modelSlice = page.type;
+    } else if (this.currentPageIndex == 0) {
+      modelSlice = this._viewMeta.getModelType().slice([]);
+    } else {
+      modelSlice = this._viewMeta.getModelType();
+    }
     return this._validateSlice(modelSlice, ValidationScope.PAGE);
   }
 
@@ -569,9 +579,10 @@ export class ModelView<T> implements IModelView<T> {
   }
 
   getPageMessages(aliasOrIndex?:string|number):IStatusMessage[] {
-    let page = this.getPage(aliasOrIndex);
     let result:IStatusMessage[] = [];
-    page.fields.forEach((x) => result.push(...this.getFieldMessages(x)));
+    const page = this.getPage(aliasOrIndex);
+    const fields = page && page.fields || [];
+    fields.forEach((x) => result.push(...this.getFieldMessages(x)));
     result.push(...this._statusMessages);
     return result;
   }
@@ -599,7 +610,9 @@ export class ModelView<T> implements IModelView<T> {
     return this.areFieldsValid(Object.keys(this._visitedFields))  && !this.hasStatusError();
   }
   isValid() {
-    return !this._messages.some(isNonSuccess) && !this._statusMessages.some(isNonSuccess);
+    const hasFieldMessage = this._messages.some(isNonSuccess);
+    const hasStatusMessage = this._statusMessages.some(isNonSuccess);
+    return !hasFieldMessage && !hasStatusMessage;
   }
 
   areFieldsValid(fields:string[]) {
@@ -610,7 +623,7 @@ export class ModelView<T> implements IModelView<T> {
     return null != this._visitedFields[fieldPath];
   }
   isPageVisited(aliasOrIndex: string | number):boolean {
-    let page = this.getPage(aliasOrIndex);
+    let page = this.getPage(aliasOrIndex) || { fields: [] as string[] };
     let visited = page.fields.some(f => this.isFieldVisited(f));
     return visited;
   }
