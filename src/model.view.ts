@@ -513,8 +513,11 @@ export class ModelView<T> implements IModelView<T> {
     let thePage: IModelViewPage;
     if (typeof page == 'string' || typeof page == 'number') {
       thePage = this.getPage(page);
-    } else {
+    } else if (!Array.isArray(page) && this._isPage(page)) {
       thePage = page;
+    } else {
+      console.warn('invalid page to be focused', page);
+      thePage = null;
     }
     if (thePage == this._focusedPage) {
       return this;
@@ -533,6 +536,20 @@ export class ModelView<T> implements IModelView<T> {
     return this._focusedPage;
   }
   
+  _isPage(page: IModelViewPage) {
+    let pages = [ ... this.getPages() ];
+    while (pages.length) {
+      let p = pages.shift();
+      if (p === page) {
+        return true;
+      }
+      if (p.pages) {
+        pages.push(...p.pages);
+      }
+    }
+    return false;
+  }
+
   getPages() {
     if (null != this._focusedPage) {
       return this._focusedPage.pages;
