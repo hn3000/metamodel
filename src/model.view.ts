@@ -129,6 +129,9 @@ function createPageObjects<T>(
 
     let model = type.slice(properties);
     let pagesHost = (null != thisPage.schema) ? thisPage.schema : thisPage;
+    if (pagesHost != thisPage && ("pages" in thisPage || "sections" in thisPage)) {
+      console.log(`ignoring ${"pages" in thisPage ? "pages" : "sections"} in page "${alias}"; expected them in it's schema`);
+    }
     let pages = createPageObjects({
       type,
       pageArray: pagesHost.sections || pagesHost.pages,
@@ -233,6 +236,7 @@ export class ModelView<T> implements IModelView<T> {
       this._readonlyFields = shallowCopy(that._readonlyFields);
       this._currentPage = that._currentPage;
       this._focusedPage = that._focusedPage;
+      this._focusedSubPages = that._focusedSubPages;
       this._validationScope = that._validationScope;
       this._statusMessages = that._statusMessages;
       this._messages = that._messages;
@@ -524,6 +528,8 @@ export class ModelView<T> implements IModelView<T> {
     }
     let result = new ModelView(this);
     result._focusedPage = thePage;
+    const hasPages = (thePage && thePage.pages.length > 0);
+    result._focusedSubPages = hasPages ? thePage.pages : [ thePage ];
     result._currentPage = 0;
     return result;
   }
@@ -552,7 +558,7 @@ export class ModelView<T> implements IModelView<T> {
 
   getPages() {
     if (null != this._focusedPage) {
-      return this._focusedPage.pages;
+      return this._focusedSubPages;
     }
     return this._viewMeta.getPages();
   }
@@ -660,6 +666,15 @@ export class ModelView<T> implements IModelView<T> {
     return this._currentPage+1;
   }
 
+  get currentPageAlias(): string {
+    const pageCount = this.getPages().length;
+    if (this.currentPageIndex === pageCount) {
+      return 'conclusion';
+    }
+    const thePage = this.getPage();
+    return null != thePage ? thePage.alias : null;
+  }
+
   isFinished():boolean {
     return this._currentPage > this.getPages().length;
   }
@@ -697,6 +712,7 @@ export class ModelView<T> implements IModelView<T> {
   private _currentPage:number;
 
   private _focusedPage: IModelViewPage;
+  private _focusedSubPages: IModelViewPage[];
 
   private _validationScope:ValidationScope;
   private _validations:{[kind:number]:Promise<ModelView<T>>};
@@ -725,21 +741,25 @@ function makeAlias(options: {
   fieldNames: string[];
   index: number;
 }) {
-  if (options.alias != null) {
+  if (options.alias != null && options.alias !== '-') {
     if (options.alias.startsWith('-')) {
       return options.parentAlias + options.alias;
     }
     return options.alias;
   }
-  if (null != options.parentAlias) {
-    if (null != options.fieldNames && null != options.fieldNames[0]) {
-      let field1 = toKebapCase(options.fieldNames[0]);
-      return options.parentAlias +'-'+ field1;
-    } else {
-      return options.parentAlias +'-'+ options.index;
+  let prefix = '';
+  if (options.alias === '-') {
+    if (null != options.parentAlias) {
+      prefix = options.parentAlias+'-';
     }
+  }
+  options.alias === '-' ? options.parentAlias +'-' : '';
+
+  if (null != options.fieldNames && null != options.fieldNames[0]) {
+    let field1 = toKebapCase(options.fieldNames[0]);
+    return prefix + field1;
   } else {
-    return 'page-'+options.index;
+    return prefix + options.index;
   }
 }
 

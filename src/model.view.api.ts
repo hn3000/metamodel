@@ -81,6 +81,7 @@ export interface IModelView<T> {
 
   currentPageIndex:number; // 0 based
   currentPageNo:number;    // 1 based
+  currentPageAlias: string;
   changePage(step:number):IModelView<T>;
   gotoPage(index:number, validationScope?:ValidationScope):IModelView<T>;
 
