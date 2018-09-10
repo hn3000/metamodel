@@ -496,7 +496,7 @@ export class ModelView<T> implements IModelView<T> {
 
   getFieldType(keyPath:string|string[]):IModelType<any> {
     let path = this._asKeyArray(keyPath);
-    return path.reduce((o:IModelTypeComposite<any>,k:string):any => (o && o.itemType(k)), this._viewMeta.getModelType());
+    return path.reduce((o:IModelTypeComposite<any>,k:string):any => (o && o.itemType && o.itemType(k)), this._viewMeta.getModelType());
   }
 
   getFieldMessages(keyPath:string|string[]):IPropertyStatusMessage[] {
@@ -529,6 +529,9 @@ export class ModelView<T> implements IModelView<T> {
     let result = new ModelView(this);
     result._focusedPage = thePage;
     const hasPages = (thePage && thePage.pages.length > 0);
+    if (!hasPages) {
+      console.warn('page to be focused has no pages or sections', page);
+    }
     result._focusedSubPages = hasPages ? thePage.pages : [ thePage ];
     result._currentPage = 0;
     return result;
