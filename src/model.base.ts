@@ -59,14 +59,20 @@ export class ModelConstraints<T> implements IModelTypeConstraint<T> {
     return this._constraints.filter(p);
   }
 
-  slice(names:string[]|number[]) {
+  slice(names:string[]|number[]): ModelConstraints<T> {
     let nn = names as string[];
     let innames = (n:string) => -1 != nn.indexOf(n);
     let predicate = (x:IModelTypeConstraint<T>) => {
       return x && (!x.usedItems || !x.usedItems() || x.usedItems().every(innames));
     }
+    let slicer = (x:IModelTypeConstraint<T>) => {
+      return (x && ('slice' in x)) ? x.slice(names) : x;
+    }
 
-    return new ModelConstraints<T>(this.filter(predicate));
+    let sliced = this._constraints.map(slicer);   
+    sliced = sliced.filter(predicate);
+
+    return new ModelConstraints<T>(sliced);
   }
 
   toString() {

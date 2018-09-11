@@ -99,6 +99,8 @@ export interface IModelTypeConstraint<T> {
 
   appliesTo?(kind:string):boolean;
   possibleValuesForContextData?(name:string|number, data:T):any[];
+
+  slice?(fields: string[]|number[]): IModelTypeConstraint<T>;
 }
 
 export interface IModelTypeConstraintFactory {
