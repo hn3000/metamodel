@@ -534,7 +534,7 @@ export class ModelView<T> implements IModelView<T> {
     result._focusedPage = thePage;
     const hasPages = (thePage && thePage.pages.length > 0);
     if (!hasPages) {
-      console.warn('page to be focused has no pages or sections', page);
+      console.warn('page to be focused has no pages or sections, will use whole page', page);
     }
     result._focusedSubPages = hasPages ? thePage.pages : [ thePage ];
     result._currentPage = 0;
