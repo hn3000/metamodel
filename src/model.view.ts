@@ -376,6 +376,10 @@ export class ModelView<T> implements IModelView<T> {
 
   validateFull():Promise<IModelView<T>> {
     let modelSlice = this._viewMeta.getModelType();
+    if (null != this.getFocusedPage()) {
+      let focusedPage = this.getFocusedPage();
+      modelSlice = modelSlice.slice(focusedPage.fields);
+    }
     return this._validateSlice(modelSlice, ValidationScope.FULL);
   }
 
