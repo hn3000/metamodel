@@ -555,6 +555,7 @@ export interface IConditionalValueConstraintSettings {
   properties: string[];
   possibleValues: any[];
   clearOtherwise: boolean;
+  condition: IConditionOptions|IConditionOptions[];
 }
 
 export class ModelTypeConstraintConditionalValue extends ModelTypeConstraintOptional<any> {
@@ -578,6 +579,7 @@ export class ModelTypeConstraintConditionalValue extends ModelTypeConstraintOpti
       let id = `conditionalValue()`;
 
       this._settings = {
+        condition,
         predicate: createPredicate(condition),
         valueCheck: createValuePredicate(allowed),
         properties: props,
@@ -637,6 +639,21 @@ export class ModelTypeConstraintConditionalValue extends ModelTypeConstraintOpti
 
   usedItems():string[] { return this._settings.properties; }
 
+  slice(fields: string[]|number[]) {
+    let fany = fields as any[];
+    let slicedProperties = this._settings.properties.filter(x => -1 != fany.indexOf(x));
+    if (0 == slicedProperties.length) {
+      return null;
+    }
+
+    let { clearOtherwise, possibleValues, condition } = this._settings;
+    return new ModelTypeConstraintConditionalValue({
+      properties: slicedProperties,
+      clearOtherwise,
+      condition,
+      possibleValue: possibleValues
+    });
+  }
 
   private _settings:IConditionalValueConstraintSettings;
 }
