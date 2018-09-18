@@ -5,6 +5,7 @@ import {
   IStatusMessage,
   IPropertyStatusMessage,
   MessageSeverity,
+  Predicate,
   Primitive
 } from "./model.api";
 
@@ -19,7 +20,7 @@ import {
   ValidationScope
 } from "./model.view.api";
 import { modelTypes } from "./model";
-import { ModelTypeAny } from "./model.object";
+import { ModelTypeAny, createPredicateOrOfAnd, IConditionOptions } from "./model.object";
 
 // constant, to make sure empty array is always the same instance
 // should be unmodifiable, to be sure
@@ -62,12 +63,14 @@ export class ModelViewPage implements IModelViewPage {
     alias:string, 
     pageType:IModelTypeComposite<any>, 
     pages: IModelViewPage[]=[],
-    extraInfo?: any
+    extraInfo?: any,
+    skipCondition?: IConditionOptions|IConditionOptions[]
   ) {
     this._alias = alias;
     this._type = pageType;
     this._pages = pages;
     this._extraInfo = extraInfo;
+    this._skipPredicate = skipCondition != null ? createPredicateOrOfAnd(skipCondition) : null;
   }
 
   get alias(): string {
@@ -87,10 +90,15 @@ export class ModelViewPage implements IModelViewPage {
     return this._extraInfo;
   }
 
+  get skipPredicate(): Predicate<any> {
+    return this._skipPredicate;
+  }
+
   private _alias: string;
   private _type: IModelTypeComposite<any>;
   private _pages: IModelViewPage[];
   private _extraInfo: any;
+  private _skipPredicate: Predicate<any>;
 }
 
 function createPageObjects<T>(
@@ -137,7 +145,18 @@ function createPageObjects<T>(
       pageArray: pagesHost.sections || pagesHost.pages,
       parentAlias: alias
     });
-    return new ModelViewPage(alias, model, pages, thisPage.extraInfo);
+
+    const conditionFields = ['x-skipIfAny', 'x-skipIf', 'skipIfAny', 'skipIf'];
+    const actualConditions = conditionFields.reduce((r,x) => (x in thisPage) ? r.concat(x): r, []);
+    let skipCondition = null;
+    if (actualConditions.length > 0) {
+      if (actualConditions.length > 1) {
+        console.warn(`multiple skip conditions specified on page ${alias} : ${actualConditions.join(',')}, using ${actualConditions[0]} only`);
+      }
+      skipCondition = thisPage[actualConditions[0]];
+    }
+
+    return new ModelViewPage(alias, model, pages, thisPage.extraInfo, skipCondition);
   });
 }
 
@@ -692,6 +711,13 @@ export class ModelView<T> implements IModelView<T> {
     if (nextPage < 0 || nextPage > this.getPages().length) {
       return this;
     }
+
+    let thePage = this.getPage(nextPage);
+    while (this.shouldSkip(thePage)) {
+      nextPage += step > 0 ? 1 : -1;
+      thePage = this.getPage(nextPage);
+    }
+
     return this.gotoPage(nextPage, ValidationScope.VISITED);
   }
 
@@ -700,6 +726,13 @@ export class ModelView<T> implements IModelView<T> {
     result._currentPage = index;
     result._validationScope = validationScope;
     return result;
+  }
+
+  shouldSkip(page: IModelViewPage) {
+    if (null != page && null != page.skipPredicate) {
+      return page.skipPredicate(this._inputModel);
+    }
+    return false;
   }
 
   private _visitedPageFields() {

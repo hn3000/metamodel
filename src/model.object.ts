@@ -493,7 +493,10 @@ function createPredicateEquals(property:string, value:any, invert:boolean): Pred
   }
 }
 
-function createPredicate(condition: IConditionOptions|IConditionOptions[]): Predicate<any> {
+/**
+ * Creates a predicate for a conjunction of conditions.
+ */
+export function createPredicateAnd(condition: IConditionOptions|IConditionOptions[]): Predicate<any> {
   if (Array.isArray(condition)) {
     let predicates = condition.map(c => createSinglePredicate(c));
     return (x: any) => predicates.every(t => t(x));
@@ -502,7 +505,19 @@ function createPredicate(condition: IConditionOptions|IConditionOptions[]): Pred
   }
 }
 
-function createSinglePredicate(condition: IConditionOptions): Predicate<any> {
+/**
+ * Creates a predicate for a condition in disjunctive normal form.
+ */
+export function createPredicateOrOfAnd(condition: IConditionOptions|IConditionOptions[]): Predicate<any> {
+  if (Array.isArray(condition)) {
+    let predicates = condition.map(c => createSinglePredicate(c));
+    return (x: any) => predicates.some(t => t(x));
+  } else {
+    return createPredicateAnd(condition);
+  }
+}
+
+export function createSinglePredicate(condition: IConditionOptions): Predicate<any> {
   let { property, value, op, invert } = condition;
 
   switch (op) {
@@ -580,7 +595,7 @@ export class ModelTypeConstraintConditionalValue extends ModelTypeConstraintOpti
 
       this._settings = {
         condition,
-        predicate: createPredicate(condition),
+        predicate: createPredicateAnd(condition),
         valueCheck: createValuePredicate(allowed),
         properties: props,
         possibleValues: allowed,

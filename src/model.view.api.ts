@@ -5,7 +5,8 @@ import {
   IStatusMessage,
   IPropertyStatusMessage,
   MessageSeverity,
-  Primitive
+  Primitive,
+  Predicate
 } from "./model.api";
 
 
@@ -22,6 +23,7 @@ export interface IModelViewPage {
   type:IModelTypeComposite<any>;
   fields:string[];
   pages: IModelViewPage[];
+  skipPredicate?: Predicate<any>;
   extraInfo?: any;
 }
 
