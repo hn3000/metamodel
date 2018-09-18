@@ -510,7 +510,7 @@ export function createPredicateAnd(condition: IConditionOptions|IConditionOption
  */
 export function createPredicateOrOfAnd(condition: IConditionOptions|IConditionOptions[]): Predicate<any> {
   if (Array.isArray(condition)) {
-    let predicates = condition.map(c => createSinglePredicate(c));
+    let predicates = condition.map(c => createPredicateAnd(c));
     return (x: any) => predicates.some(t => t(x));
   } else {
     return createPredicateAnd(condition);
@@ -525,6 +525,8 @@ export function createSinglePredicate(condition: IConditionOptions): Predicate<a
     case null:
     case '==':
     case '=': return createPredicateEquals(property, value, invert);
+
+    case '!=': return createPredicateEquals(property, value, !invert);
 
     case '<':
     case '<=':
