@@ -60,13 +60,15 @@ export class ModelViewField implements IModelViewField {
 
 export class ModelViewPage implements IModelViewPage {
   constructor(
-    alias:string, 
+    alias:string,
+    index: number,
     pageType:IModelTypeComposite<any>, 
     pages: IModelViewPage[]=[],
     extraInfo?: any,
     skipCondition?: IConditionOptions|IConditionOptions[]
   ) {
     this._alias = alias;
+    this._index = index;
     this._type = pageType;
     this._pages = pages;
     this._extraInfo = extraInfo;
@@ -75,6 +77,9 @@ export class ModelViewPage implements IModelViewPage {
 
   get alias(): string {
     return this._alias;
+  }
+  get index(): number {
+    return this._index;
   }
   get type():IModelTypeComposite<any> {
     return this._type;
@@ -95,6 +100,7 @@ export class ModelViewPage implements IModelViewPage {
   }
 
   private _alias: string;
+  private _index: number;
   private _type: IModelTypeComposite<any>;
   private _pages: IModelViewPage[];
   private _extraInfo: any;
@@ -156,7 +162,7 @@ function createPageObjects<T>(
       skipCondition = thisPage[actualConditions[0]];
     }
 
-    return new ModelViewPage(alias, model, pages, thisPage.extraInfo, skipCondition);
+    return new ModelViewPage(alias, index, model, pages, thisPage.extraInfo, skipCondition);
   });
 }
 
@@ -170,7 +176,7 @@ export class ModelViewMeta<T> {
       let pages = createPageObjects({ pageArray: schema.pages, type });
       this._pages = pages;
     } else {
-      this._pages = [ new ModelViewPage('default', type) ];
+      this._pages = [ new ModelViewPage('default', 0, type) ];
     }
     //TODO: construct fields (we haven't needed them, yet)
   }
@@ -567,6 +573,14 @@ export class ModelView<T> implements IModelView<T> {
   getFocusedPage() {
     return this._focusedPage;
   }
+
+  getFocusedPageNo() {
+    if (null != this._focusedPage) {
+      return this._focusedPage.index + 1;
+    }
+
+    return undefined;
+  }
   
   _isPage(page: IModelViewPage) {
     let pages = [ ... this.getPages() ];
@@ -586,6 +600,10 @@ export class ModelView<T> implements IModelView<T> {
     if (null != this._focusedPage) {
       return this._focusedSubPages;
     }
+    return this._viewMeta.getPages();
+  }
+
+  getAllPages() {
     return this._viewMeta.getPages();
   }
 

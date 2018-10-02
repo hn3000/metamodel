@@ -20,6 +20,7 @@ export interface IModelViewField {
 
 export interface IModelViewPage {
   alias:string;
+  index:number;
   type:IModelTypeComposite<any>;
   fields:string[];
   pages: IModelViewPage[];
@@ -66,7 +67,9 @@ export interface IModelView<T> {
   withFocusedPage(page: string|number|IModelViewPage): IModelView<any>;
   withAllPages(): IModelView<any>;
   getFocusedPage(): undefined|IModelViewPage;
+  getFocusedPageNo(): undefined|number;
   getPages():IModelViewPage[];
+  getAllPages():IModelViewPage[];
   getPage(aliasOrIndex?:string|number):IModelViewPage;
   getPageMessages(aliasOrIndex?:string|number):IStatusMessage[];
   isPageVisited(aliasOrIndex: string | number):boolean;
