@@ -685,13 +685,6 @@ export class ModelView<T> implements IModelView<T> {
     return this._statusMessages;
   }
 
-  get currentPageIndex():number {
-    return this._currentPage;
-  }
-  get currentPageNo():number {
-    return this._currentPage+1;
-  }
-
   get currentPageAlias(): string {
     const pageCount = this.getPages().length;
     if (this.currentPageIndex === pageCount) {
@@ -701,6 +694,38 @@ export class ModelView<T> implements IModelView<T> {
     return null != thePage ? thePage.alias : null;
   }
 
+  get currentPageIndex():number {
+    return this._currentPage;
+  }
+
+  get currentPageNo():number {
+    return this._currentPage+1;
+  }
+  get totalPageCount():number {
+    return this.getPages().length;
+  }
+
+  _countSkippedPages(upto:number) {
+    let skippedPages = 0;
+    for (let i = upto; i > 0; --i) {
+      let page = this.getPage(i-1);
+      if (this.shouldSkip(page)) {
+        skippedPages += 1;
+      }
+    }
+    return skippedPages;
+  }
+  _countUnskippedPages(upto:number) {
+    let skippedPages = this._countSkippedPages(upto);
+    return upto - skippedPages;
+  }
+  get currentUnskippedPageNo():number {
+    return this._countUnskippedPages(this.currentPageNo);
+  }
+
+  get totalUnskippedPageCount():number {
+    return this._countUnskippedPages(this.totalPageCount);
+  }
   isFinished():boolean {
     return this._currentPage > this.getPages().length;
   }

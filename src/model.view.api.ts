@@ -81,9 +81,13 @@ export interface IModelView<T> {
 
   getStatusMessages():IStatusMessage[];
 
+  currentPageAlias: string;
   currentPageIndex:number; // 0 based
   currentPageNo:number;    // 1 based
-  currentPageAlias: string;
+  totalPageCount: number;
+  currentUnskippedPageNo: number;
+  totalUnskippedPageCount: number;
+
   changePage(step:number):IModelView<T>;
   gotoPage(index:number, validationScope?:ValidationScope):IModelView<T>;
 
