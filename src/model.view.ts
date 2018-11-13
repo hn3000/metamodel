@@ -645,6 +645,40 @@ export class ModelView<T> implements IModelView<T> {
     return page;
   }
 
+  getPageByUnskippedPageNo(no: number): IModelViewPage {
+    let pages = this.getPages();
+    let count = no+1;
+    let page = undefined;
+    for (let i = 0, n = pages.length; i <= n; ++i) {
+      page = pages[i];
+      if (!this.shouldSkip(page)) {
+        --count;
+        if (count == 0) break;
+      }
+    }
+    return page;
+  }
+
+  _getNextUnskippedPage(step: number): [IModelViewPage, number] {
+    let nextPage = this._currentPage + step;
+
+    if (nextPage < 0 || nextPage > this.getPages().length) {
+      return [ undefined, undefined ];
+    }
+
+    let thePage = this.getPage(nextPage);
+    while (this.shouldSkip(thePage)) {
+      nextPage += step > 0 ? 1 : -1;
+      thePage = this.getPage(nextPage);
+    }
+    return [ thePage, nextPage ];
+  }
+  getNextUnskippedPage(step: 1 | -1): IModelViewPage {
+    let [ nextPage ] = this._getNextUnskippedPage(step);
+
+    return nextPage;
+  }
+
   getPageMessages(aliasOrIndex?:string|number):IStatusMessage[] {
     let result:IStatusMessage[] = [];
     const page = this.getPage(aliasOrIndex);
@@ -749,19 +783,13 @@ export class ModelView<T> implements IModelView<T> {
   }
 
   changePage(step:number):IModelView<T> {
-    let nextPage = this._currentPage + step;
+    let [ nextPage, nextPageIndex ] = this._getNextUnskippedPage(step);
 
-    if (nextPage < 0 || nextPage > this.getPages().length) {
+    if (undefined === nextPage) {
       return this;
     }
 
-    let thePage = this.getPage(nextPage);
-    while (this.shouldSkip(thePage)) {
-      nextPage += step > 0 ? 1 : -1;
-      thePage = this.getPage(nextPage);
-    }
-
-    return this.gotoPage(nextPage, ValidationScope.VISITED);
+    return this.gotoPage(nextPageIndex, ValidationScope.VISITED);
   }
 
   gotoPage(index:number, validationScope:ValidationScope=ValidationScope.VISITED):IModelView<T> {

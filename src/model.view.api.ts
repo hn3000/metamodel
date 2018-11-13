@@ -71,6 +71,8 @@ export interface IModelView<T> {
   getPages():IModelViewPage[];
   getAllPages():IModelViewPage[];
   getPage(aliasOrIndex?:string|number):IModelViewPage;
+  getPageByUnskippedPageNo(no: number): IModelViewPage;
+  getNextUnskippedPage(dir: 1 | -1): IModelViewPage;
   getPageMessages(aliasOrIndex?:string|number):IStatusMessage[];
   isPageVisited(aliasOrIndex: string | number):boolean;
   isPageValid(aliasOrIndex?:string|number):boolean;
