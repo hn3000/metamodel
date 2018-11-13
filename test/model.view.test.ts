@@ -112,9 +112,9 @@ export class ModelViewTest extends TestClass {
     view = await view.validateFull();
 
     this.isTrue(view.isPageValid(0), 'page 0 should be valid');
-    this.isTrue(view.isPageValid('a-aa'), 'page a-aa should be valid');
+    this.isTrue(view.isPageValid('aa'), 'page aa should be valid');
     this.isFalse(view.isPageValid(1), 'page 1 should be invalid');
-    this.isFalse(view.isPageValid('b-ba'), 'page b-ba should not be valid');
+    this.isFalse(view.isPageValid('ba'), 'page ba should not be valid');
 
     this.isTrue(view.arePagesUpToCurrentValid(), 'visited pages should be valid');
     this.isFalse(view.areVisitedPagesValid(), 'visited pages should be invalid');
@@ -127,8 +127,8 @@ export class ModelViewTest extends TestClass {
 
     this.isTrue(view.isPageValid(0), 'page 0 should be valid');
     this.isTrue(view.isPageValid(1), 'page 1 should be valid');
-    this.isTrue(view.isPageValid('a-aa'), 'page a-aa should be valid');
-    this.isTrue(view.isPageValid('b-ba'), 'page b-ba should be valid');
-    this.isFalse(view.isPageValid('c-cc'), 'page c-cc still does not exist, should not be valid');
+    this.isTrue(view.isPageValid('aa'), 'page aa should be valid');
+    this.isTrue(view.isPageValid('ba'), 'page ba should be valid');
+    this.isFalse(view.isPageValid('cc'), 'page cc still does not exist, should not be valid');
   }
 }
