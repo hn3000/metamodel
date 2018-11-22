@@ -55,9 +55,45 @@ export class ModelViewTest extends TestClass {
     ]
   };
 
+  private _pagedSchemaSkippedPage = {
+    type: 'object',
+    properties: {
+      aa: { type: 'string' },
+      ab: { type: 'string' },
+      ba: { type: 'string' },
+      bb: { type: 'string' },
+      ca: { type: 'string' },
+      cb: { type: 'string' }
+    },
+    pages: [
+      {
+        alias: 'a',
+        properties: [ 'aa', 'ab' ],
+        pages: [
+          { properties: [ 'aa' ] }
+        ]
+      },
+      {
+        alias: 'b',
+        properties: [ 'ba', 'bb' ],
+        pages: [
+          { properties: [ 'ba' ] }
+        ],
+        skipIf: [[
+          { property: 'aa', op: '==', value: 'skip!' }
+        ]]
+      },
+      {
+        alias: 'c',
+        properties: [ 'ca', 'cb' ]
+      }
+    ]
+  };
+
   private _schemaParser: ModelSchemaParser;
   private _tinyModel: IModelTypeComposite<any>;
   private _pagedModel: IModelTypeComposite<any>;
+  private _pagedSkippedPageModel: IModelTypeComposite<any>;
 
   setUp() {
     this._schemaParser = new ModelSchemaParser(undefined, {
@@ -67,6 +103,7 @@ export class ModelViewTest extends TestClass {
     });
     this._tinyModel = this._schemaParser.parseSchemaObject(this._tinySchema) as IModelTypeComposite<any>;
     this._pagedModel = this._schemaParser.parseSchemaObject(this._pagedSchema) as IModelTypeComposite<any>;
+    this._pagedSkippedPageModel = this._schemaParser.parseSchemaObject(this._pagedSchemaSkippedPage) as IModelTypeComposite<any>;
   }
 
   async testFieldValidity(): Promise<void> {
@@ -112,9 +149,9 @@ export class ModelViewTest extends TestClass {
     view = await view.validateFull();
 
     this.isTrue(view.isPageValid(0), 'page 0 should be valid');
-    this.isTrue(view.isPageValid('a-aa'), 'page a-aa should be valid');
+    this.isTrue(view.isPageValid('aa'), 'page aa should be valid');
     this.isFalse(view.isPageValid(1), 'page 1 should be invalid');
-    this.isFalse(view.isPageValid('b-ba'), 'page b-ba should not be valid');
+    this.isFalse(view.isPageValid('ba'), 'page ba should not be valid');
 
     this.isTrue(view.arePagesUpToCurrentValid(), 'visited pages should be valid');
     this.isFalse(view.areVisitedPagesValid(), 'visited pages should be invalid');
@@ -127,8 +164,32 @@ export class ModelViewTest extends TestClass {
 
     this.isTrue(view.isPageValid(0), 'page 0 should be valid');
     this.isTrue(view.isPageValid(1), 'page 1 should be valid');
-    this.isTrue(view.isPageValid('a-aa'), 'page a-aa should be valid');
-    this.isTrue(view.isPageValid('b-ba'), 'page b-ba should be valid');
-    this.isFalse(view.isPageValid('c-cc'), 'page c-cc still does not exist, should not be valid');
+    this.isTrue(view.isPageValid('aa'), 'page aa should be valid');
+    this.isTrue(view.isPageValid('ba'), 'page ba should be valid');
+    this.isFalse(view.isPageValid('cc'), 'page cc still does not exist, should not be valid');
   }
+
+  async testPageSkipping(): Promise<void> {
+    var view: IModelView<any> = new ModelView(this._pagedSkippedPageModel, {}, -1);
+  
+    this.areIdentical(-1, view.currentPageIndex);
+
+    view = view.withAddedData({
+      aa: "skip!",
+      ba: null,
+      ca: null
+    });
+  
+    view = await view.changePage(1);
+
+    this.areIdentical(0, view.currentPageIndex);
+    this.areIdentical('c', view.getPageByUnskippedPageNo(1).alias);
+
+    view = await view.changePage(1);
+  
+    this.areIdentical(2, view.currentPageIndex);
+    this.areIdentical('a', view.getNextUnskippedPage(-1).alias);
+  
+  }
+  
 }
