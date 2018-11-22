@@ -62,7 +62,7 @@ export class ModelViewPage implements IModelViewPage {
   constructor(
     alias:string,
     index: number,
-    pageType:IModelTypeComposite<any>, 
+    pageType:IModelTypeComposite<any>,
     pages: IModelViewPage[]=[],
     extraInfo?: any,
     skipCondition?: IConditionOptions|IConditionOptions[]
@@ -120,7 +120,7 @@ function createPageObjects<T>(
   if (null == pageArray || 0 == pageArray.length) {
     return [];
   }
-  
+
   return pageArray.map((thisPage:any, index:number) => {
     var properties:string[] = null;
 
@@ -581,7 +581,7 @@ export class ModelView<T> implements IModelView<T> {
 
     return undefined;
   }
-  
+
   _isPage(page: IModelViewPage) {
     let pages = [ ... this.getPages() ];
     while (pages.length) {
@@ -643,6 +643,12 @@ export class ModelView<T> implements IModelView<T> {
     }
 
     return page;
+  }
+
+  getPageIndex(alias: string) {
+    const thePage = this.getPage(alias);
+    const index = this.getPages().indexOf(thePage);
+    return index;
   }
 
   getPageMessages(aliasOrIndex?:string|number):IStatusMessage[] {
