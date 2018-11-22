@@ -770,8 +770,17 @@ export class ModelView<T> implements IModelView<T> {
     return this.gotoPage(nextPage, ValidationScope.VISITED);
   }
 
-  gotoPage(index:number, validationScope:ValidationScope=ValidationScope.VISITED):IModelView<T> {
+  gotoPage(indexOrAlias:number|string, validationScope:ValidationScope=ValidationScope.VISITED):IModelView<T> {
     let result = new ModelView(this, this._inputModel);
+    let index : number;
+    if ('string' === typeof indexOrAlias) {
+      index = this.getPageIndex(indexOrAlias);
+      if (-1 === index) {
+        console.warn(`page not found in pages: ${this.currentPageAlias}`);
+      }
+    } else {
+      index = indexOrAlias;
+    }
     result._currentPage = index;
     result._validationScope = validationScope;
     return result;

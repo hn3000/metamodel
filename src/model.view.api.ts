@@ -93,7 +93,7 @@ export interface IModelView<T> {
   totalUnskippedPageCount: number;
 
   changePage(step:number):IModelView<T>;
-  gotoPage(index:number, validationScope?:ValidationScope):IModelView<T>;
+  gotoPage(indexOrAlias:number|string, validationScope?:ValidationScope):IModelView<T>;
 
   withValidationMessages(messages:IPropertyStatusMessage[]):IModelView<T>;
   withStatusMessages(messages:IStatusMessage[]):IModelView<T>;
