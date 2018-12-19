@@ -788,9 +788,9 @@ export class ModelView<T> implements IModelView<T> {
   }
 
   changePage(step:number):IModelView<T> {
-    let [ nextPage, nextPageIndex ] = this._getNextUnskippedPage(step);
+    let [ _, nextPageIndex ] = this._getNextUnskippedPage(step);
 
-    if (undefined === nextPage) {
+    if (undefined === nextPageIndex) {
       return this;
     }
 

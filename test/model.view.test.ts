@@ -1,4 +1,4 @@
-import { 
+import {
     IModelTypeComposite,
     IModelView,
     ModelParseContext,
@@ -137,7 +137,7 @@ export class ModelViewTest extends TestClass {
     this.isFalse(view.isPageValid(1), 'page 1 should not be valid');
     this.isFalse(view.isPageValid(2), 'page 2 should not be valid');
     this.isFalse(view.isPageValid('c-cc'), 'page c-cc does not exist, should not be valid');
-  }  
+  }
 
   async testVisitedFields(): Promise<void> {
     var view: IModelView<any> = new ModelView(this._pagedModel);
@@ -171,7 +171,7 @@ export class ModelViewTest extends TestClass {
 
   async testPageSkipping(): Promise<void> {
     var view: IModelView<any> = new ModelView(this._pagedSkippedPageModel, {}, -1);
-  
+
     this.areIdentical(-1, view.currentPageIndex);
 
     view = view.withAddedData({
@@ -179,17 +179,20 @@ export class ModelViewTest extends TestClass {
       ba: null,
       ca: null
     });
-  
+
     view = await view.changePage(1);
 
     this.areIdentical(0, view.currentPageIndex);
     this.areIdentical('c', view.getPageByUnskippedPageNo(1).alias);
 
     view = await view.changePage(1);
-  
+
     this.areIdentical(2, view.currentPageIndex);
     this.areIdentical('a', view.getNextUnskippedPage(-1).alias);
-  
+
+    view = await view.changePage(1);
+
+    this.areIdentical(3, view.currentPageIndex);
   }
-  
+
 }
