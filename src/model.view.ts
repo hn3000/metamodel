@@ -562,7 +562,9 @@ export class ModelView<T> implements IModelView<T> {
       console.warn('page to be focused has no pages or sections, will use whole page', page);
     }
     result._focusedSubPages = hasPages ? thePage.pages : [ thePage ];
-    result._currentPage = 0;
+    result._currentPage = -1;
+    let [ _, nextPageIndex ] = result._getNextUnskippedPage(1);
+    result._currentPage = null != nextPageIndex ? nextPageIndex : 0;
     return result;
   }
 
