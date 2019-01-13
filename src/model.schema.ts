@@ -20,10 +20,6 @@ import {
 } from "./model.base";
 
 import {
-  ObjectTraversal
-} from "./model.infra";
-
-import {
     ModelTypeNumber,
     ModelTypeConstraintLess,
     ModelTypeConstraintLessEqual,
@@ -42,7 +38,6 @@ import {
 } from "./model.string"
 
 import {
-    ModelTypeDate,
     ModelTypeConstraintBefore,
     ModelTypeConstraintAfter,
     ModelTypeConstraintOlder
@@ -71,19 +66,6 @@ import { invertedRE } from './regex-util';
 import { JsonReferenceProcessor } from "@hn3000/json-ref"
 
 import * as fetch from "isomorphic-fetch";
-
-function shallowMerge(a:any, b:any):any {
-  let result:any = {};
-  let tmp:any = {};
-  Object.keys(a).forEach((x) => tmp[x]=x);
-  Object.keys(b).forEach((x) => tmp[x]=x);
-  let keys = Object.keys(tmp);
-
-  for (var k of keys) {
-    result[k] = null != b[k] ? b[k] : a[k];
-  }
-  return result;
-}
 
 export interface IConstraintFactory<T> {
   [k:string]: (o:any) => IModelTypeConstraint<T>;
