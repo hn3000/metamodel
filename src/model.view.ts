@@ -62,7 +62,7 @@ export class ModelViewPage implements IModelViewPage {
   constructor(
     alias:string,
     index: number,
-    pageType:IModelTypeComposite<any>, 
+    pageType:IModelTypeComposite<any>,
     pages: IModelViewPage[]=[],
     extraInfo?: any,
     skipCondition?: IConditionOptions|IConditionOptions[]
@@ -120,7 +120,7 @@ function createPageObjects<T>(
   if (null == pageArray || 0 == pageArray.length) {
     return [];
   }
-  
+
   return pageArray.map((thisPage:any, index:number) => {
     var properties:string[] = null;
 
@@ -562,7 +562,9 @@ export class ModelView<T> implements IModelView<T> {
       console.warn('page to be focused has no pages or sections, will use whole page', page);
     }
     result._focusedSubPages = hasPages ? thePage.pages : [ thePage ];
-    result._currentPage = 0;
+    result._currentPage = -1;
+    let [ _, nextPageIndex ] = result._getNextUnskippedPage(1);
+    result._currentPage = null != nextPageIndex ? nextPageIndex : 0;
     return result;
   }
 
@@ -581,7 +583,7 @@ export class ModelView<T> implements IModelView<T> {
 
     return undefined;
   }
-  
+
   _isPage(page: IModelViewPage) {
     let pages = [ ... this.getPages() ];
     while (pages.length) {
@@ -645,6 +647,11 @@ export class ModelView<T> implements IModelView<T> {
     return page;
   }
 
+  getPageIndex(alias: string) {
+    const thePage = this.getPage(alias);
+    const index = this.getPages().indexOf(thePage);
+    return index;
+  }
   getPageByUnskippedPageNo(no: number): IModelViewPage {
     let pages = this.getPages();
     let count = no+1;
@@ -783,17 +790,26 @@ export class ModelView<T> implements IModelView<T> {
   }
 
   changePage(step:number):IModelView<T> {
-    let [ nextPage, nextPageIndex ] = this._getNextUnskippedPage(step);
+    let [ _, nextPageIndex ] = this._getNextUnskippedPage(step);
 
-    if (undefined === nextPage) {
+    if (undefined === nextPageIndex) {
       return this;
     }
 
     return this.gotoPage(nextPageIndex, ValidationScope.VISITED);
   }
 
-  gotoPage(index:number, validationScope:ValidationScope=ValidationScope.VISITED):IModelView<T> {
+  gotoPage(indexOrAlias:number|string, validationScope:ValidationScope=ValidationScope.VISITED):IModelView<T> {
     let result = new ModelView(this, this._inputModel);
+    let index : number;
+    if ('string' === typeof indexOrAlias) {
+      index = this.getPageIndex(indexOrAlias);
+      if (-1 === index) {
+        console.warn(`page not found in pages: ${this.currentPageAlias}`);
+      }
+    } else {
+      index = indexOrAlias;
+    }
     result._currentPage = index;
     result._validationScope = validationScope;
     return result;

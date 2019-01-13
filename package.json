@@ -1,6 +1,6 @@
 {
   "name": "@hn3000/metamodel",
-  "version": "1.5.1",
+  "version": "1.5.4",
   "description": "Meta Model for TypeScript and EcmaScript apps, to help with JSON schema processing and UI construction.",
   "repository": "git@github.com:hn3000/metamodel",
   "scripts": {
@@ -23,6 +23,12 @@
   ],
   "author": "Harald Niesche",
   "license": "MIT",
+  "files": [
+    "src/**",
+    "out/**",
+    "!out/node_modules/**",
+    "test/*.ts"
+  ],
   "devDependencies": {
     "@types/isomorphic-fetch": "0.0.34",
     "@types/node": "^10.12.0",

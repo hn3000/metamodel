@@ -71,6 +71,7 @@ export interface IModelView<T> {
   getPages():IModelViewPage[];
   getAllPages():IModelViewPage[];
   getPage(aliasOrIndex?:string|number):IModelViewPage;
+  getPageIndex(alias: string):number;
   getPageByUnskippedPageNo(no: number): IModelViewPage;
   getNextUnskippedPage(dir: 1 | -1): IModelViewPage;
   getPageMessages(aliasOrIndex?:string|number):IStatusMessage[];
@@ -94,7 +95,7 @@ export interface IModelView<T> {
   totalUnskippedPageCount: number;
 
   changePage(step:number):IModelView<T>;
-  gotoPage(index:number, validationScope?:ValidationScope):IModelView<T>;
+  gotoPage(indexOrAlias:number|string, validationScope?:ValidationScope):IModelView<T>;
 
   withValidationMessages(messages:IPropertyStatusMessage[]):IModelView<T>;
   withStatusMessages(messages:IStatusMessage[]):IModelView<T>;
