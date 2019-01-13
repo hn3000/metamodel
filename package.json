@@ -12,7 +12,7 @@
     "pretest-debug": "tsc",
     "test-debug": "node --inspect-brk out/test/allTests.js",
     "precover": "tsc",
-    "cover": "istanbul cover out/test/allTests.js"
+    "cover": "nyc --reporter=html --reporter=text npm test"
   },
   "main": "out/src/model.js",
   "typings": "out/src/model.d.ts",
