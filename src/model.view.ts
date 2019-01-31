@@ -542,14 +542,16 @@ export class ModelView<T> implements IModelView<T> {
     return null == m || 0 == m.length;
   }
 
-  withFocusedPage(page: string|number|IModelViewPage): IModelView<any> {
+  withFocusedPage(page: string|number|IModelViewPage|undefined|null): IModelView<any> {
     let thePage: IModelViewPage;
     if (typeof page == 'string' || typeof page == 'number') {
       thePage = this.getPage(page);
     } else if (!Array.isArray(page) && this._isPage(page)) {
       thePage = page;
     } else {
-      console.warn('invalid page to be focused', page);
+      if (undefined !== page && null !== page) {
+        console.warn('invalid page to be focused', page);
+      }
       thePage = null;
     }
     if (thePage == this._focusedPage) {

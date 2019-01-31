@@ -64,7 +64,7 @@ export interface IModelView<T> {
   isFieldValid(keyPath:string|string[]):boolean;
   areFieldsValid(fields:string[]):boolean;
 
-  withFocusedPage(page: string|number|IModelViewPage): IModelView<any>;
+  withFocusedPage(page: string|number|IModelViewPage|undefined|null): IModelView<any>;
   withAllPages(): IModelView<any>;
   getFocusedPage(): undefined|IModelViewPage;
   getFocusedPageNo(): undefined|number;
