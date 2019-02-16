@@ -1,6 +1,7 @@
 import { ModelTest } from "./model.test";
 import { ModelParsingTest } from "./model.parsing.test";
 import { ModelObjectTest } from "./model.object.test";
+import { ModelArrayTest } from "./model.array.test";
 import { ModelViewTest } from './model.view.test'
 import { TestRegexUtil } from "./regex-util.test"
 
@@ -19,6 +20,7 @@ export function runTests() {
   let test = new TestAsync();
   test.addTestClass(new ModelTest(), "ModelTest");
   test.addTestClass(new ModelObjectTest(), "ModelObjectTest");
+  test.addTestClass(new ModelArrayTest(), "ModelArrayTest");
   test.addTestClass(new ModelParsingTest(), "ModelParsingTest");
   test.addTestClass(new ModelViewTest(), "ModelViewTest");
   test.addTestClass(new TestRegexUtil(), "TestRegexUtil");

@@ -16,21 +16,31 @@ export class ModelTypeArray<T> extends ModelTypeConstrainable<T[]> implements IM
     super(name || (elementType.name+"[]"), constraints);
     this._elementType = elementType;
   }
+  protected _clone(constraints:ModelConstraints<any>):this {
+    let result = new (<any>this.constructor)(this._elementType, null, constraints);
+    return result;
+  }
   parse(ctx:IModelParseContext):T[] {
-    let source = ctx.currentValue();
+    let value = ctx.currentValue();
 
-    if (null != source) {
+    if (null != value && Array.isArray(value)) {
       let result:T[] = [];
       // TODO: determine minimum length and maximum length from constraints?
-      for (let i=0,n=source.length; i<n; ++i) {
+      for (let i=0,n=value.length; i<n; ++i) {
         ctx.pushItem(i, false, this._elementType);
         result[i] = this._elementType.parse(ctx);
         ctx.popItem();
       }
       result = this._checkAndAdjustValue(result, ctx);
       return result;
+    } else {
+      if (null == value && ctx.currentRequired()) {
+        ctx.addErrorEx('required value is missing', 'required-empty', { value });
+      } else if (null != value) {
+        ctx.addErrorEx('value is wrong type', 'value-type', { value });
+      }
     }
-    return source;
+    return value;
   }
   validate(ctx:IModelParseContext):void {
     this.parse(ctx);
@@ -92,14 +102,19 @@ export class ModelTypeArraySizeConstraint<T> extends ModelTypeConstraintOptional
 
   checkAndAdjustValue(v:T[], c:IModelParseContext):T[] {
     let length = v && v.length;
-    let valid = true;
     if (null != length) {
       let { minLength, maxLength } = this._settings;
-      if (null != minLength) {
-        valid = valid &&  (length >= minLength);
+      if (null != minLength && (length < minLength)) {
+        c.addError(
+          `expected array length to be at least ${minLength} but got ${length}`,
+          'array-short'
+        );
       }
-      if (null != maxLength) {
-        valid = valid &&  (length <= maxLength);
+      if (null != maxLength && length > maxLength) {
+        c.addError(
+          `expected array length to be at most ${maxLength} but got ${length}`,
+          'array-long'
+        );
       }
     }
     return v;
