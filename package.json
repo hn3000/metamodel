@@ -1,6 +1,6 @@
 {
   "name": "@hn3000/metamodel",
-  "version": "1.5.6",
+  "version": "1.6.0",
   "description": "Meta Model for TypeScript and EcmaScript apps, to help with JSON schema processing and UI construction.",
   "repository": "git@github.com:hn3000/metamodel",
   "scripts": {
@@ -35,7 +35,7 @@
     "tslint": "^5.12.1",
     "tsunit.external": "^2.1.1",
     "typescript": "^3.2.2",
-    "nyc": "^13.1.0"
+    "nyc": "^13.3.0"
   },
   "dependencies": {
     "@hn3000/json-ref": "^1.0.0"
