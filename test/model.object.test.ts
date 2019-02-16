@@ -4,7 +4,6 @@ import {
     ModelTypeConstraintConditionalValue,
     ModelTypeConstraintCompareProperties,
     ModelTypeConstraintEqualProperties,
-    ModelTypeConstraints,
     ModelTypeObject
 } from "../src/model";
 
