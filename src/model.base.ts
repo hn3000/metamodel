@@ -70,7 +70,7 @@ export class ModelConstraints<T> implements IModelTypeConstraint<T> {
       return x && (!x.usedItems || !x.usedItems() || x.usedItems().every(innames));
     }
 
-    let sliced = this._constraints.map(slicer);   
+    let sliced = this._constraints.map(slicer);
     sliced = sliced.filter(predicate);
 
     return new ModelConstraints<T>(sliced);
@@ -225,4 +225,3 @@ export abstract class ModelTypeConstraintOptional<T> implements IModelTypeConstr
 
   private _onlyWarn: boolean;
 }
-
