@@ -9,7 +9,7 @@ import {
 } from "tsunit.external/tsUnitAsync";
 import { ModelTypeArraySizeConstraint, ModelTypeArrayUniqueElementsConstraint } from '../src/model.array';
 
-export class ModelArrayTest extends TestClass {
+export class ModelTypeArrayTest extends TestClass {
 
   private model: ModelTypeArray<string>;
   private modelLengthConstraint: ModelTypeArray<string>;

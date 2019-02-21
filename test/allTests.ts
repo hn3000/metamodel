@@ -1,7 +1,10 @@
 import { ModelTest } from "./model.test";
 import { ModelParsingTest } from "./model.parsing.test";
-import { ModelObjectTest } from "./model.object.test";
-import { ModelArrayTest } from "./model.array.test";
+import { ModelTypeObjectTest } from "./model.object.test";
+import { ModelTypeArrayTest } from "./model.array.test";
+import { ModelTypeNumberTest } from "./model.number.test";
+import { ModelTypeStringTest } from "./model.string.test";
+import { ModelTypeDateTest } from "./model.date.test";
 import { ModelViewTest } from './model.view.test'
 import { TestRegexUtil } from "./regex-util.test"
 
@@ -19,8 +22,11 @@ export function runTests() {
   "use strict";
   let test = new TestAsync();
   test.addTestClass(new ModelTest(), "ModelTest");
-  test.addTestClass(new ModelObjectTest(), "ModelObjectTest");
-  test.addTestClass(new ModelArrayTest(), "ModelArrayTest");
+  test.addTestClass(new ModelTypeObjectTest(), "ModelTypeObjectTest");
+  test.addTestClass(new ModelTypeArrayTest(), "ModelTypeArrayTest");
+  test.addTestClass(new ModelTypeNumberTest(), "ModelTypeNumberTest");
+  test.addTestClass(new ModelTypeStringTest(), "ModelTypeStringTest");
+  test.addTestClass(new ModelTypeDateTest(), "ModelTypeDateTest");
   test.addTestClass(new ModelParsingTest(), "ModelParsingTest");
   test.addTestClass(new ModelViewTest(), "ModelViewTest");
   test.addTestClass(new TestRegexUtil(), "TestRegexUtil");

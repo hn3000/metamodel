@@ -45,21 +45,26 @@ export class ModelTypeDate extends ModelTypeItem<Date> {
     let value = ctx.currentValue();
     let result:Date = null;
     var error:any = null;
-    try {
-      if (typeof value === 'number') {
-        // we might not want to allow this in a UI
-        result = new Date(value as number);
-      } else if (typeof value === 'string') {
-        result = new Date(value as string);
+
+    if (value instanceof Date) {
+      result = value;
+    } else if (ctx.allowConversion) {
+      try {
+        if (typeof value === 'number') {
+          // we might not want to allow this in a UI
+          result = new Date(value as number);
+        } else if (typeof value === 'string') {
+          result = new Date(value as string);
+        }
+      } catch (xx) {
+        error = xx;
       }
-    } catch (xx) {
-      error = xx;
     }
-    if (null == result && ctx.currentRequired()) {
+    if (null == result && (ctx.currentRequired() || (null != value && !ctx.allowConversion))) {
       if (null == value) {
-        ctx.addErrorEx('can not convert to Date', 'required-empty', { value, error});
+        ctx.addErrorEx('expected to find Date', 'required-empty', { value, error});
       } else {
-        ctx.addErrorEx('can not convert to Date', 'value-type', { value, error } );
+        ctx.addErrorEx('can not convert to Date', 'value-invalid', { value, error } );
       }
     } else {
       result = this._checkAndAdjustValue(result, ctx);

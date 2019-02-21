@@ -11,7 +11,7 @@ import {
   TestClass
 } from "tsunit.external/tsUnitAsync";
 
-export class ModelObjectTest extends TestClass {
+export class ModelTypeObjectTest extends TestClass {
 
   private model:IModelTypeComposite<any>;
   private modelNested:IModelTypeComposite<any>;
