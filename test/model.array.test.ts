@@ -1,6 +1,6 @@
 
 import {
-  modelTypes, IModelTypeComposite, ModelTypeArray, ModelParseContext,
+  modelTypes, ModelTypeArray, ModelParseContext,
 } from '../src/model';
 
 
