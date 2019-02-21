@@ -71,7 +71,7 @@ export interface IModelParseContext {
   warnings:IPropertyStatusMessage[];
   errors:  IPropertyStatusMessage[];
 
-  allowConversion:boolean;
+  readonly allowConversion:boolean;
 }
 
 export interface IModelType<T> extends IClientProps {
