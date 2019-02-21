@@ -69,6 +69,7 @@ export {
 
 export {
     ModelTypeNumber,
+    ModelTypeConstraintInteger,
     ModelTypeConstraintLess,
     ModelTypeConstraintLessEqual,
     ModelTypeConstraintMore,
