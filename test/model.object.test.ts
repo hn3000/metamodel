@@ -14,6 +14,7 @@ import {
 export class ModelObjectTest extends TestClass {
 
   private model:IModelTypeComposite<any>;
+  private modelNested:IModelTypeComposite<any>;
   setUp() {
     modelTypes.removeType('test');
     this.model = (
@@ -22,6 +23,24 @@ export class ModelObjectTest extends TestClass {
         .addItem('q', modelTypes.type('string'))
         .addItem('r', modelTypes.type('string'))
         .addItem('s', modelTypes.type('string'))
+    );
+    modelTypes.removeType('nested');
+    modelTypes.removeType('o');
+    modelTypes.removeType('r');
+    this.modelNested = (
+      modelTypes.addObjectType('nested')
+        .addItem('p', modelTypes.type('string'))
+        .addItem('q', modelTypes.type('string'))
+        .addItem('o', (
+          modelTypes.addObjectType('o'))
+          .addItem('s', modelTypes.type('string'), true)
+          .addItem('n', modelTypes.type('number'), true)
+        , false)
+        .addItem('r', (
+          modelTypes.addObjectType('r'))
+          .addItem('s', modelTypes.type('string'), true)
+          .addItem('n', modelTypes.type('number'), true)
+        , true)
     );
   }
 
@@ -297,4 +316,26 @@ export class ModelObjectTest extends TestClass {
     this.areIdentical(2, context.errors.length);
     this.areIdentical('r', context.errors[0].property);
     this.areIdentical('s', context.errors[1].property);
-  }}
+  }
+
+  testOptionalObjectWithRequiredMembersIsNotRequired() {
+    const model = this.modelNested;
+    const t: any = {
+      p: ['11','12','13'],
+      q: '13',
+      o: null,
+      r: { n: 1, s: '#' }
+    };
+    let context = modelTypes.createParseContext(t, model);
+    model.validate(context);
+
+    this.areIdentical(0, context.messages.length, "validate should not find errors");
+
+    context = modelTypes.createParseContext(t, model);
+    model.parse(context);
+
+    console.debug(context.messages);
+    this.areIdentical(0, context.messages.length, "parse should not find errors");
+
+  }
+}

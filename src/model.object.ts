@@ -170,38 +170,49 @@ export class ModelTypeObject<T>
     let result = this.create();
 
     let val = ctx.currentValue();
-    let keys: string[] = [];
-    if (this._allowAdditional && val) {
-      keys = Object.keys(val);
-    }
-    for (let e of this._entries) {
-      ctx.pushItem(e.key, e.required, e.type);
-      (<any>result)[e.key] = e.type.parse(ctx);
-      let kp = keys.indexOf(e.key);
-      if (-1 != kp) {
-        keys.splice(kp, 1);
-      }
-      ctx.popItem();
-    }
 
-    if (keys.length) {
-      for (var k of keys) {
-        (result as any)[k] = val[k];
+    if (val != null) {
+      let keys: string[] = [];
+      if (this._allowAdditional && val) {
+        keys = Object.keys(val);
       }
-    }
+      for (let e of this._entries) {
+        ctx.pushItem(e.key, e.required, e.type);
+        (<any>result)[e.key] = e.type.parse(ctx);
+        let kp = keys.indexOf(e.key);
+        if (-1 != kp) {
+          keys.splice(kp, 1);
+        }
+        ctx.popItem();
+      }
 
-    result = this._checkAndAdjustValue(result, ctx);
+      if (keys.length) {
+        for (var k of keys) {
+          (result as any)[k] = val[k];
+        }
+      }
+
+      result = this._checkAndAdjustValue(result, ctx);
+    } else if (ctx.currentRequired()) {
+      ctx.addError('required value not found', 'missing-value');
+    }
 
     return result;
   }
   validate(ctx:IModelParseContext):void {
-    for (let e of this._entries) {
-      ctx.pushItem(e.key, e.required, e.type);
-      e.type.validate(ctx);
-      ctx.popItem();
-    }
+    const val = ctx.currentValue();
 
-    this._checkAndAdjustValue(ctx.currentValue(), ctx);
+    if (val != null) {
+      for (let e of this._entries) {
+        ctx.pushItem(e.key, e.required, e.type);
+        e.type.validate(ctx);
+        ctx.popItem();
+      }
+
+      this._checkAndAdjustValue(val, ctx);
+    } else if (ctx.currentRequired()) {
+      ctx.addError('required value not found', 'missing-value');
+    }
   }
   unparse(value:T):any {
     let result:any = {};
