@@ -21,10 +21,6 @@ export {
 } from "./model.api";
 
 import {
-  ModelParseContext
-} from "./model.infra";
-
-import {
   ModelTypeRegistry
 } from "./model.registry";
 
@@ -56,6 +52,10 @@ import {
 import {
     ModelTypeBool
 } from "./model.bool";
+
+import {
+  ModelTypeDate
+} from './model.date';
 
 export {
   ModelParseContext,
@@ -90,6 +90,10 @@ export {
 export {
   ModelTypeArray
 } from "./model.array";
+
+export {
+  ModelTypeDate
+} from './model.date';
 
 export {
   ModelTypeAny,
@@ -140,6 +144,7 @@ modelTypes.addType(new ModelTypeBool());
 modelTypes.addType(new ModelTypeNumber());
 modelTypes.addType(modelTypes.itemType('number').withConstraints(new ModelTypeConstraintInteger()));
 modelTypes.addType(new ModelTypeString());
+modelTypes.addType(new ModelTypeDate());
 
 modelTypes.addArrayType(modelTypes.type('number'));
 modelTypes.addArrayType(modelTypes.type('number/int'));
