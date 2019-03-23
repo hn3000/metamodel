@@ -64,10 +64,11 @@ export interface IModelView<T> {
   isFieldValid(keyPath:string|string[]):boolean;
   areFieldsValid(fields:string[]):boolean;
 
-  withFocusedPage(page: string|number|IModelViewPage|undefined|null): IModelView<any>;
+  withFocusedPage(pageOrAliasOrIndex: IModelViewPage|string|number|undefined|null): IModelView<any>;
   withAllPages(): IModelView<any>;
   getFocusedPage(): undefined|IModelViewPage;
   getFocusedPageNo(): undefined|number;
+  getFocusedPageUnskippedPageNo(): undefined|number;
   getPages():IModelViewPage[];
   getAllPages():IModelViewPage[];
   getPage(aliasOrIndex?:string|number):IModelViewPage;

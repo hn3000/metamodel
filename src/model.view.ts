@@ -251,7 +251,7 @@ export class ModelViewMeta<T> {
  * based validation and support for copy-on-write mutation.
  *
  */
-export class ModelView<T> implements IModelView<T> {
+export class ModelView<T = any> implements IModelView<T> {
   constructor(modelTypeOrSelf:IModelTypeComposite<T> | ModelView<T>, modelData?:any, initialPage:number=0) {
     if (modelTypeOrSelf instanceof ModelView) {
       let that = <ModelView<T>>modelTypeOrSelf;
@@ -586,6 +586,16 @@ export class ModelView<T> implements IModelView<T> {
     return undefined;
   }
 
+  getFocusedPageUnskippedPageNo() {
+    if (null != this._focusedPage) {
+      let no = this._focusedPage.index + 1;
+      no -= this._countSkippedPages(no, this.getAllPages());
+      return no;
+    }
+
+    return undefined;
+  }
+
   _isPage(page: IModelViewPage) {
     let pages = [ ... this.getPages() ];
     while (pages.length) {
@@ -617,16 +627,16 @@ export class ModelView<T> implements IModelView<T> {
 
     if (null == aliasOrIndex) {
       index = this.currentPageIndex;
-    } else if (typeof aliasOrIndex == 'string') {
+    } else if (typeof aliasOrIndex == 'number') {
+      index = +aliasOrIndex;
+    } else {
       let parsed = Number.parseInt(aliasOrIndex);
       if (''+parsed == aliasOrIndex) {
         index = parsed;
       } else {
         index = aliasOrIndex;
       }
-    } else {
-      index = +aliasOrIndex;
-    }
+    } 
 
     if (null == page) {
       if (typeof index === 'string') {
@@ -766,10 +776,11 @@ export class ModelView<T> implements IModelView<T> {
     return this.getPages().length;
   }
 
-  _countSkippedPages(upto:number) {
+  _countSkippedPages(upto:number, pages: IModelViewPage[] = this.getAllPages()) {
+    let countPages = pages
     let skippedPages = 0;
     for (let i = upto; i > 0; --i) {
-      let page = this.getPage(i-1);
+      let page = countPages[i-1];
       if (this.shouldSkip(page)) {
         skippedPages += 1;
       }
