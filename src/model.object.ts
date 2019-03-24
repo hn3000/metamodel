@@ -258,6 +258,7 @@ function safeArray<T>(val:T|T[]):T[] {
 }
 
 export type ComparisonOp = "=" | "==" | "<" | "<=" | ">" | ">=" | "!=";
+export type UnaryOp =  | "!" | "!!";
 
 const ComparisonOp_Names : { [op:string]: string; } = {
   "=":  "equal",
@@ -351,9 +352,9 @@ export class ModelTypeConstraintCompareProperties extends ModelTypeConstraintOpt
     } else {
       let props = (fieldsOrSelf as IComparePropertiesConstraintOptions);
       if (props && props.properties) {
-      this._fields = safeArray(props.properties);
-      this._op = props.op;
-      this._comparator = ComparisonOp_Comparator[props.op] || comparisonEquals;
+        this._fields = safeArray(props.properties);
+        this._op = props.op;
+        this._comparator = ComparisonOp_Comparator[props.op] || comparisonEquals;
       } else {
         let that = (<ModelTypeConstraintCompareProperties>fieldsOrSelf);
         this._fields = that._fields.slice();
@@ -476,18 +477,34 @@ export class ModelTypeConstraintEqualProperties extends ModelTypeConstraintOptio
   private _fields:string[];
 }
 
-export interface IConditionOptions {
+export type IConditionOptions = IComparisonOptions | IUnaryOpOptions;
+
+export interface IComparisonOptions {
   property: string;
   value: string|string[]|number|number[];
   op?: ComparisonOp;
   invert?: boolean;
 }
 
+export interface IUnaryOpOptions {
+  property: string;
+  op: UnaryOp;
+  invert?: boolean;
+}
+
+function createPredicateTruthy(property:string, invert:boolean): Predicate<any> {
+  return (x) => {
+    const p = x[property];
+
+    return !!p === !invert;
+  }
+}
+
 function createPredicateEquals(property:string, value:any, invert:boolean): Predicate<any> {
   if (Array.isArray(value)) {
     let valueArray = value.slice() as any[];
 
-    return (x:any) => {
+    return function(x:any): boolean {
       let p = x[property];
       if (Array.isArray(p)) {
         return p.some(x => (-1 != valueArray.indexOf(x)) == !invert);
@@ -519,7 +536,7 @@ export function createPredicateAnd(condition: IConditionOptions|IConditionOption
 /**
  * Creates a predicate for a condition in disjunctive normal form.
  */
-export function createPredicateOrOfAnd(condition: IConditionOptions|IConditionOptions[]): Predicate<any> {
+export function createPredicateOrOfAnd(condition: IConditionOptions|IConditionOptions[][]): Predicate<any> {
   if (Array.isArray(condition)) {
     let predicates = condition.map(c => createPredicateAnd(c));
     return (x: any) => predicates.some(t => t(x));
@@ -529,24 +546,28 @@ export function createPredicateOrOfAnd(condition: IConditionOptions|IConditionOp
 }
 
 export function createSinglePredicate(condition: IConditionOptions): Predicate<any> {
-  let { property, value, op, invert } = condition;
+  let { property, op, invert } = condition;
+  let cc = condition as IComparisonOptions;
 
   switch (op) {
     case undefined:
     case null:
     case '==':
-    case '=': return createPredicateEquals(property, value, invert);
-
-    case '!=': return createPredicateEquals(property, value, !invert);
+    case '=': return createPredicateEquals(property, cc.value, invert);
+    case '!=': return createPredicateEquals(property, cc.value, !invert);
 
     case '<':
     case '<=':
     case '>':
     case '>=':
       if (invert) {
-        return (o:any) => inverse(ComparisonOp_Comparator[op])(o[property], value);
+        return (o:any) => inverse(ComparisonOp_Comparator[op])(o[property], cc.value);
       }
-      return (o:any) => ComparisonOp_Comparator[op](o[property], value);
+      return (o:any) => ComparisonOp_Comparator[op](o[property], cc.value);
+
+    case '!':  return createPredicateTruthy(property, !invert);
+    case '!!': return createPredicateTruthy(property, invert);
+
   }
 
   console.warn(`unsupported condition: ${op}`, condition);

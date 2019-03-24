@@ -1,6 +1,7 @@
 import { ModelTest } from "./model.test";
 import { ModelParsingTest } from "./model.parsing.test";
 import { ModelTypeObjectTest } from "./model.object.test";
+import { ModelTypePredicatesTest } from "./model.predicates.test";
 import { ModelTypeArrayTest } from "./model.array.test";
 import { ModelTypeNumberTest } from "./model.number.test";
 import { ModelTypeStringTest } from "./model.string.test";
@@ -23,6 +24,7 @@ export function runTests() {
   let test = new TestAsync();
   test.addTestClass(new ModelTest(), "ModelTest");
   test.addTestClass(new ModelTypeObjectTest(), "ModelTypeObjectTest");
+  test.addTestClass(new ModelTypePredicatesTest(), "ModelTypePredicatesTest");
   test.addTestClass(new ModelTypeArrayTest(), "ModelTypeArrayTest");
   test.addTestClass(new ModelTypeNumberTest(), "ModelTypeNumberTest");
   test.addTestClass(new ModelTypeStringTest(), "ModelTypeStringTest");

@@ -19,8 +19,8 @@ import {
   IModelViewPage,
   ValidationScope
 } from "./model.view.api";
-import { modelTypes } from "./model";
-import { ModelTypeAny, createPredicateOrOfAnd, IConditionOptions } from "./model.object";
+
+import { createPredicateOrOfAnd, IConditionOptions } from "./model.object";
 
 // constant, to make sure empty array is always the same instance
 // should be unmodifiable, to be sure
@@ -65,7 +65,7 @@ export class ModelViewPage implements IModelViewPage {
     pageType:IModelTypeComposite<any>,
     pages: IModelViewPage[]=[],
     extraInfo?: any,
-    skipCondition?: IConditionOptions|IConditionOptions[]
+    skipCondition?: IConditionOptions|IConditionOptions[][]
   ) {
     this._alias = alias;
     this._index = index;

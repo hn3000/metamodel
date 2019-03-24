@@ -228,6 +228,38 @@ export class ModelTypeObjectTest extends TestClass {
     this.areIdentical(1, context.errors.length);
     this.areIdentical('q', context.errors[0].property);
   }
+  testConstraintConditionalValueAllowsOneFromArrayOfValues() {
+    var model = this.model as ModelTypeObject<any>;
+    model = model.withConstraints(new ModelTypeConstraintConditionalValue({
+        condition: { property: 'p', value: '12' },
+        properties:  'q',
+        possibleValue: ['13', '15'],
+        clearOtherwise: false
+    }));
+
+    let t:any = {
+      p: '12',
+      q: '13',
+      r: '14'
+    };
+
+    var context = modelTypes.createParseContext(t, model);
+    model.validate(context);
+
+    this.areIdentical(0, context.errors.length);
+
+    t.q = '13';
+    context = modelTypes.createParseContext(t, model);
+    model.validate(context);
+
+    this.areIdentical(0, context.errors.length);
+
+    t.q = '15';
+    context = modelTypes.createParseContext(t, model);
+    model.validate(context);
+
+    this.areIdentical(0, context.errors.length);
+  }
   testConstraintConditionalValueIgnoresWhenConditionFalse() {
     var model:ModelTypeObject<any> = this.model.slice(['p']) as ModelTypeObject<any>;
     model = model.withConstraints(new ModelTypeConstraintConditionalValue({
