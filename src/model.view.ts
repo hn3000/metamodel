@@ -776,7 +776,7 @@ export class ModelView<T = any> implements IModelView<T> {
     return this.getPages().length;
   }
 
-  _countSkippedPages(upto:number, pages: IModelViewPage[] = this.getAllPages()) {
+  _countSkippedPages(upto:number, pages: IModelViewPage[]) {
     let countPages = pages
     let skippedPages = 0;
     for (let i = upto; i > 0; --i) {
@@ -787,16 +787,16 @@ export class ModelView<T = any> implements IModelView<T> {
     }
     return skippedPages;
   }
-  _countUnskippedPages(upto:number) {
-    let skippedPages = this._countSkippedPages(upto);
+  _countUnskippedPages(upto:number, pages: IModelViewPage[]) {
+    let skippedPages = this._countSkippedPages(upto, pages);
     return upto - skippedPages;
   }
   get currentUnskippedPageNo():number {
-    return this._countUnskippedPages(this.currentPageNo);
+    return this._countUnskippedPages(this.currentPageNo, this.getPages());
   }
 
   get totalUnskippedPageCount():number {
-    return this._countUnskippedPages(this.totalPageCount);
+    return this._countUnskippedPages(this.totalPageCount, this.getPages());
   }
   isFinished():boolean {
     return this._currentPage > this.getPages().length;

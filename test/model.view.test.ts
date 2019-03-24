@@ -60,6 +60,8 @@ export class ModelViewTest extends TestClass {
     properties: {
       aa: { type: 'string' },
       ab: { type: 'string' },
+      ac: { type: 'string' },
+      ad: { type: 'string' },
       ba: { type: 'string' },
       bb: { type: 'string' },
       ca: { type: 'string' },
@@ -68,9 +70,28 @@ export class ModelViewTest extends TestClass {
     pages: [
       {
         alias: 'a',
-        properties: [ 'aa', 'ab' ],
+        properties: [ 'aa', 'ab', 'ac', 'ad' ],
         pages: [
-          { properties: [ 'aa' ] }
+          { 
+            alias: 'aa',
+            properties: [ 'aa' ],
+            skipIf: [[ { property: 'aa', value: 'skip!', op: '==' } ]]
+          },
+          { 
+            alias: 'ab',
+            properties: [ 'ab' ],
+            skipIf: [[ { property: 'ab', value: 'skip!', op: '==' } ]]
+          },
+          { 
+            alias: 'ac',
+            properties: [ 'ac' ],
+            skipIf: [[ { property: 'ac', value: 'skip!', op: '==' } ]]
+          },
+          { 
+            alias: 'ad',
+            properties: [ 'ad' ],
+            skipIf: [[ { property: 'ad', value: 'skip!', op: '==' } ]]
+          }
         ],
         skipIf: [[
           { property: 'ab', op: '==', value: 'skip!' }
@@ -186,18 +207,62 @@ export class ModelViewTest extends TestClass {
     view = view.changePage(1);
 
     this.areIdentical(0, view.currentPageIndex);
+    this.areIdentical(1, view.currentUnskippedPageNo, 'unskipped page no should be 1');
     this.areIdentical('c', view.getPageByUnskippedPageNo(1).alias);
 
     view = view.changePage(1);
 
     this.areIdentical(2, view.currentPageIndex);
+    this.areIdentical(2, view.currentUnskippedPageNo, 'unskipped page no should be 2');
     this.areIdentical('a', view.getNextUnskippedPage(-1).alias);
 
     view = view.changePage(1);
 
     this.areIdentical(3, view.currentPageIndex);
   }
-  async testFocusedPageSkipping(): Promise<void> {
+  async testFocusedPageSkippingPageA(): Promise<void> {
+    var view: IModelView<any> = new ModelView(this._pagedSkippedPageModel, {}, -1);
+
+    this.areIdentical(-1, view.currentPageIndex);
+
+    view = view.withAddedData({
+      aa: "skip!",
+      ab: "skip!",
+      ba: null,
+      ca: null
+    });
+
+    view = view.withFocusedPage('a');
+
+    this.areIdentical('a', view.getFocusedPage().alias);
+    this.areIdentical(1, view.getFocusedPageNo());
+    this.areIdentical(0, view.getFocusedPageUnskippedPageNo());  // page 'a' is skipped itself
+    this.areIdentical('ac', view.currentPageAlias);
+    this.areIdentical(3, view.currentPageNo);
+    this.areIdentical(1, view.currentUnskippedPageNo);
+
+    view = view.withAddedData({
+      ab: "do not skip!"
+    });
+
+    this.areIdentical(1, view.getFocusedPageNo());
+    this.areIdentical(1, view.getFocusedPageUnskippedPageNo());
+    this.areIdentical('ac', view.currentPageAlias);
+    this.areIdentical(3, view.currentPageNo);
+    this.areIdentical(2, view.currentUnskippedPageNo);
+
+    view = view.withAddedData({
+      aa: "do not skip!"
+    });
+
+    this.areIdentical(1, view.getFocusedPageNo());
+    this.areIdentical(1, view.getFocusedPageUnskippedPageNo());
+    this.areIdentical('ac', view.currentPageAlias);
+    this.areIdentical(3, view.currentPageNo);
+    this.areIdentical(3, view.currentUnskippedPageNo);
+  }
+
+  async testFocusedPageSkippingPageC(): Promise<void> {
     var view: IModelView<any> = new ModelView(this._pagedSkippedPageModel, {}, -1);
 
     this.areIdentical(-1, view.currentPageIndex);
