@@ -12,6 +12,12 @@ import {
 } from "./model.string"
 
 export class ClientProps implements IClientProps {
+
+  constructor(initProps?: IClientProps|any) {
+    if (null != initProps) {
+      this.propsCopyFrom(initProps);
+    }
+  }
   propExists(key:string):boolean {
     return this._data.hasOwnProperty(key);
   }
@@ -25,9 +31,17 @@ export class ClientProps implements IClientProps {
     return Object.keys(this._data);
   }
 
-  propsCopyFrom(that: IClientProps) {
-    for (let k of that.propKeys()) {
-      this.propSet(k, that.propGet(k));
+  propsCopyFrom(that: IClientProps|any) {
+    if (that.propKeys && that.propGet) {
+      const keys = that.propKeys();
+      for (let k of keys) {
+        this.propSet(k, that.propGet(k));
+      }
+    } else {
+      const keys = Object.keys(that);
+      for (let k of keys) {
+        this.propSet(k, that[k]);
+      }
     }
   }
 
