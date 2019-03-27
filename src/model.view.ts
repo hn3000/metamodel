@@ -21,6 +21,7 @@ import {
 } from "./model.view.api";
 
 import { createPredicateOrOfAnd, IConditionOptions } from "./model.object";
+import { ClientProps } from "./model.base";
 
 // constant, to make sure empty array is always the same instance
 // should be unmodifiable, to be sure
@@ -58,21 +59,78 @@ export class ModelViewField implements IModelViewField {
   private _type: IModelType<any>;
 }
 
-export class ModelViewPage implements IModelViewPage {
+const skipFields = 'x-skipIfAny|x-skipIf|skipIfAny|skipIf'.split('|');
+
+function getFirstDefined(pageSpec: any, fields: string[], alias:string) {
+  const found = fields.reduce((r,f) => (f in pageSpec) ? r.concat(f): r, []);
+  if (found.length > 0) {
+    if (found.length > 1) {
+      console.warn(`multiple variants in page ${pageSpec.alias} : ${found.join(',')}, using ${found[0]} only`);
+    }
+    return pageSpec[found[0]];
+  }
+
+  return null;
+}
+
+interface IFlagPredicates {
+  [name: string]: {
+    n: string;
+    p: Predicate<any>;
+  }
+}
+
+function getFlagPredicates(pageSpec: any, alias: string) {
+  let keys = Object.keys(pageSpec);
+  let cnames = keys.filter(k => k.endsWith('If'));
+  let predicates : IFlagPredicates = {};
+  cnames.forEach(c => {
+    const cv = pageSpec[c];
+    const start = c.startsWith('x-') ? 2 : 0; // lob off 'x-'
+    const end = c.length - 2; // lob off 'If'
+    let cn = c.substring(start, end);
+
+    if (predicates[cn] === undefined) {
+      predicates[cn] = {
+        n: c,
+        p: createPredicateOrOfAnd(cv)
+      };
+    } else {
+      let thisOne = predicates[cn];
+      console.warn(`found variants for flag ${cn}: ${thisOne.n} and ${c} in page ${alias}, using ${thisOne.n}`);
+    }
+  });
+
+  return predicates;
+}
+
+export class ModelViewPage extends ClientProps implements IModelViewPage {
   constructor(
     alias:string,
     index: number,
     pageType:IModelTypeComposite<any>,
     pages: IModelViewPage[]=[],
-    extraInfo?: any,
-    skipCondition?: IConditionOptions|IConditionOptions[][]
+    props?: any
   ) {
+    super(props);
+
     this._alias = alias;
     this._index = index;
     this._type = pageType;
     this._pages = pages;
-    this._extraInfo = extraInfo;
-    this._skipPredicate = skipCondition != null ? createPredicateOrOfAnd(skipCondition) : null;
+
+
+
+    if (this.propExists('schema')) {
+      const pageSpec = this.propGet('schema');
+      const skipCondition = getFirstDefined(pageSpec, skipFields, alias);
+      this._skipPredicate = skipCondition != null ? createPredicateOrOfAnd(skipCondition) : null;
+      this._flags = getFlagPredicates(pageSpec, alias);
+    } else {
+      this._skipPredicate = null;
+      this._flags = null;
+      this._flagNames = [];
+    }
   }
 
   get alias(): string {
@@ -91,19 +149,32 @@ export class ModelViewPage implements IModelViewPage {
   get pages(): IModelViewPage[] {
     return this._pages;
   }
-  get extraInfo(): string {
-    return this._extraInfo;
-  }
-
   get skipPredicate(): Predicate<any> {
     return this._skipPredicate;
+  }
+
+  flagExists(name: string) {
+    return this._flags.hasOwnProperty(name);
+  }
+
+  flagNames() {
+    return this._flagNames;
+  }
+
+  flagIsTrue(name: string, obj: any) {
+    const p = this._flags[name];
+    if (null != p) {
+      return p.p(obj);
+    }
+    return false;
   }
 
   private _alias: string;
   private _index: number;
   private _type: IModelTypeComposite<any>;
   private _pages: IModelViewPage[];
-  private _extraInfo: any;
+  private _flags: IFlagPredicates;
+  private _flagNames: string[];
   private _skipPredicate: Predicate<any>;
 }
 
@@ -152,17 +223,7 @@ function createPageObjects<T>(
       parentAlias: alias
     });
 
-    const conditionFields = ['x-skipIfAny', 'x-skipIf', 'skipIfAny', 'skipIf'];
-    const actualConditions = conditionFields.reduce((r,x) => (x in thisPage) ? r.concat(x): r, []);
-    let skipCondition = null;
-    if (actualConditions.length > 0) {
-      if (actualConditions.length > 1) {
-        console.warn(`multiple skip conditions specified on page ${alias} : ${actualConditions.join(',')}, using ${actualConditions[0]} only`);
-      }
-      skipCondition = thisPage[actualConditions[0]];
-    }
-
-    return new ModelViewPage(alias, index, model, pages, thisPage.extraInfo, skipCondition);
+    return new ModelViewPage(alias, index, model, pages, { schema: thisPage });
   });
 }
 
@@ -725,6 +786,11 @@ export class ModelView<T = any> implements IModelView<T> {
     var pages = this.getPages().slice(0, this._currentPage);
     var fields = pages.reduce((r,p) => (r.concat(...p.fields)), []);
     return this.areFieldsValid(fields) && !this.hasStatusError();
+  }
+
+  isPageFlagTrue(name: string) {
+    const page = this.getPage();
+    return page.flagIsTrue(name, this._inputModel);
   }
   isVisitedValid() {
     return this.areFieldsValid(Object.keys(this._visitedFields))  && !this.hasStatusError();

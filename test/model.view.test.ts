@@ -114,10 +114,28 @@ export class ModelViewTest extends TestClass {
     ]
   };
 
+  private _flaggySchema = {
+    type: 'object',
+    properties: {
+      aa: { type: 'string' },
+      ab: { type: 'string' },
+    },
+    pages: [
+      {
+        alias: 'a',
+        properties: [ 'aa', 'ab' ],
+        fooIf: true,
+        "x-barIf": 'false',
+        blahIf: { op: '>', property: "aa", value: 12 }
+      }
+    ]
+  };
+
   private _schemaParser: ModelSchemaParser;
   private _tinyModel: IModelTypeComposite<any>;
   private _pagedModel: IModelTypeComposite<any>;
   private _pagedSkippedPageModel: IModelTypeComposite<any>;
+  private _flaggyModel: IModelTypeComposite<any>;
 
   setUp() {
     this._schemaParser = new ModelSchemaParser(undefined, {
@@ -128,6 +146,7 @@ export class ModelViewTest extends TestClass {
     this._tinyModel = this._schemaParser.parseSchemaObject(this._tinySchema) as IModelTypeComposite<any>;
     this._pagedModel = this._schemaParser.parseSchemaObject(this._pagedSchema) as IModelTypeComposite<any>;
     this._pagedSkippedPageModel = this._schemaParser.parseSchemaObject(this._pagedSchemaSkippedPage) as IModelTypeComposite<any>;
+    this._flaggyModel = this._schemaParser.parseSchemaObject(this._flaggySchema) as IModelTypeComposite<any>;
   }
 
   async testFieldValidity(): Promise<void> {
@@ -294,5 +313,54 @@ export class ModelViewTest extends TestClass {
     this.areIdentical(3, view.getFocusedPageNo());
     this.areIdentical(3, view.getFocusedPageUnskippedPageNo());
     
+  }
+
+  async testPageFlagsExist() {
+    let view: IModelView<any> = new ModelView(this._flaggyModel, {}, -1);
+
+    this.areIdentical(-1, view.currentPageIndex);
+
+    view = await view.changePage(1);
+
+    this.areIdentical(0, view.currentPageIndex);
+    this.areIdentical('a', view.currentPageAlias);
+
+    const page = view.getPage();
+    this.isTruthy(page);
+    this.isTrue(page.flagExists('foo'), 'should have flag foo');
+    this.isTrue(page.flagExists('bar'), 'should have flag bar');
+    this.isTrue(page.flagExists('blah'), 'should have flag blah');
+
+    this.isTrue(page.flagIsTrue('foo', {}), 'foo should be true');
+    this.isFalse(page.flagIsTrue('bar', {}), 'bar should be false');
+  }
+
+  async testPageFlagsCheckValues() {
+    var view: IModelView<any> = new ModelView(this._flaggyModel, {}, -1);
+
+    this.areIdentical(-1, view.currentPageIndex);
+
+    view = view.withAddedData({
+      aa: '13',
+      ab: ''
+    });
+
+    view = await view.changePage(1);
+
+    this.areIdentical(0, view.currentPageIndex);
+    this.areIdentical('a', view.currentPageAlias);
+
+    const page = view.getPage();
+
+    this.isTrue(page.flagIsTrue('blah', { aa: 13}), 'blah should be true for literal');
+    this.isTrue(view.isPageFlagTrue('blah'), 'blah should be true for view');
+
+    view = view.withAddedData({
+      aa: '12',
+      ab: ''
+    });
+
+    this.isFalse(view.isPageFlagTrue('blah'), 'blah should be false for view');
+
   }
 }

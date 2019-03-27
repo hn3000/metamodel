@@ -166,4 +166,14 @@ export class ModelTypePredicatesTest extends TestClass {
     const pred = createPredicateOrOfAnd({ op: '#not-an-operator#' } as any);
     this.isFalse(pred(undefined));
   }
+
+  testComparisonDoesNotCareAboutType() {
+    const pred = createPredicateOrOfAnd({ op: '>', property: 'a', value: 12 } as any);
+    this.isFalse(pred({}));
+    this.isFalse(pred({ a: 12 }));
+    this.isFalse(pred({ a: '12' }));
+
+    this.isTrue(pred({ a: 13 }));
+    this.isTrue(pred({ a: '13' }));
+  }
 }

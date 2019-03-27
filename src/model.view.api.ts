@@ -25,7 +25,9 @@ export interface IModelViewPage {
   fields:string[];
   pages: IModelViewPage[];
   skipPredicate?: Predicate<any>;
-  extraInfo?: any;
+  flagIsTrue(flagName: string, object: any): boolean;
+  flagExists(flagName: string): boolean;
+  flagNames(): string[];
 }
 
 export enum ValidationScope {
@@ -78,6 +80,10 @@ export interface IModelView<T> {
   getPageMessages(aliasOrIndex?:string|number):IStatusMessage[];
   isPageVisited(aliasOrIndex: string | number):boolean;
   isPageValid(aliasOrIndex?:string|number):boolean;
+
+  // page flags: properties of the current page ending in If
+  // e.g. xxxIf defines the flag 'xxx', prefix 'x-' is removed from name
+  isPageFlagTrue(flag: string): boolean;
 
   isVisitedValid():boolean;
   areVisitedPagesValid():boolean;
