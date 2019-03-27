@@ -258,7 +258,7 @@ function safeArray<T>(val:T|T[]):T[] {
 }
 
 export type ComparisonOp = "=" | "==" | "<" | "<=" | ">" | ">=" | "!=";
-export type UnaryOp =  | "!" | "!!";
+export type UnaryOp =  | "!" | "!!"|'true'|'false'|true|false;
 
 const ComparisonOp_Names : { [op:string]: string; } = {
   "=":  "equal",
@@ -477,7 +477,12 @@ export class ModelTypeConstraintEqualProperties extends ModelTypeConstraintOptio
   private _fields:string[];
 }
 
-export type IConditionOptions = IComparisonOptions | IUnaryOpOptions;
+export type IConditionOptions = 
+      | IComparisonOptions 
+      | IUnaryOpOptions 
+      | boolean 
+      | 'true' 
+      | 'false';
 
 export interface IComparisonOptions {
   property: string;
@@ -546,6 +551,14 @@ export function createPredicateOrOfAnd(condition: IConditionOptions|IConditionOp
 }
 
 export function createSinglePredicate(condition: IConditionOptions): Predicate<any> {
+  if (typeof condition !== 'object') {
+    if (condition === true || condition === 'true') {
+      return () => true;
+    } else if (condition === false || condition === 'false') {
+      return () => false;
+    }
+  }
+
   let { property, op, invert } = condition;
   let cc = condition as IComparisonOptions;
 
@@ -561,13 +574,12 @@ export function createSinglePredicate(condition: IConditionOptions): Predicate<a
     case '>':
     case '>=':
       if (invert) {
-        return (o:any) => inverse(ComparisonOp_Comparator[op])(o[property], cc.value);
+        return (o:any) => inverse(ComparisonOp_Comparator[cc.op])(o[property], cc.value);
       }
-      return (o:any) => ComparisonOp_Comparator[op](o[property], cc.value);
+      return (o:any) => ComparisonOp_Comparator[cc.op](o[property], cc.value);
 
     case '!':  return createPredicateTruthy(property, !invert);
     case '!!': return createPredicateTruthy(property, invert);
-
   }
 
   console.warn(`unsupported condition: ${op}`, condition);
