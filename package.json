@@ -1,6 +1,6 @@
 {
   "name": "@hn3000/metamodel",
-  "version": "1.6.5",
+  "version": "1.6.6",
   "description": "Meta Model for TypeScript and EcmaScript apps, to help with JSON schema processing and UI construction.",
   "repository": "git@github.com:hn3000/metamodel",
   "scripts": {
@@ -12,7 +12,7 @@
     "pretest-debug": "tsc",
     "test-debug": "node --inspect-brk out/test/allTests.js",
     "precover": "tsc",
-    "cover": "nyc --reporter=html --reporter=text npm test"
+    "cover": "nyc npm test"
   },
   "main": "out/src/model.js",
   "typings": "out/src/model.d.ts",
@@ -35,12 +35,32 @@
     "nyc": "^14.1.1",
     "tslint": "^5.14.0",
     "tsunit.external": "^2.1.1",
-    "typescript": "^3.3.4000"
+    "typescript": "^3.4.5"
   },
   "dependencies": {
     "@hn3000/json-ref": "^1.0.0"
   },
   "optionalDependencies": {
     "isomorphic-fetch": "^2.2.1"
+  },
+  "nyc": {
+    "all": true,
+    "excludeAfterRemap": false,
+    "extension": [
+      ".js",
+      ".ts"
+    ],
+    "include": [
+      "out/**",
+      "src/*.ts"
+    ],
+    "exclude": [
+      "test/**",
+      "out/test/**"
+    ],
+    "reporter": [
+      "text",
+      "html"
+    ]
   }
 }

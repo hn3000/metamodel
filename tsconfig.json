@@ -15,10 +15,9 @@
     "outDir": "out",
     "declaration": true
   },
-  "files": [
-    "src/model.ts",
-    "src/model.api.ts",
-    "test/allTests.ts",
+  "include": [
+    "src/**/*.ts",
+    "test/**/*.ts",
     "test/model.test.ts",
     "node_modules/tsunit.external/tsUnit.ts",
     "node_modules/tsunit.external/tsUnitAsync.ts"
