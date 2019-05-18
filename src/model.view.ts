@@ -360,7 +360,11 @@ export class ModelView<T = any> implements IModelView<T> {
   }
 
   withValidationMessages(messages:IPropertyStatusMessage[]):ModelView<T> {
-    if (0 === messages.length && 0 === this._messages.length) {
+    if (
+      0 === messages.length 
+      && 0 === this._messages.length 
+      && 0 === this._statusMessages.length
+    ) {
       // avoid bogus changes
       return this;
     }

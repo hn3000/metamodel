@@ -5,7 +5,8 @@ import {
     ModelTypeConstraints,
     ModelSchemaParser,
     ModelView,
-    modelTypes
+    modelTypes,
+    MessageSeverity
 } from "../src/model";
 
 import {
@@ -161,6 +162,27 @@ export class ModelViewTest extends TestClass {
 
     this.isTrue(view.isFieldValid('a'), 'field a should be valid');
     this.isFalse(view.isFieldValid('r'), 'field r should not be valid');
+  }
+
+
+  async testValidationRemovesAllMessages(): Promise<void> {
+    var view: IModelView<any> = new ModelView(this._tinyModel);
+
+    view = view.withAddedData({
+      a: null,
+      r: '##' // minLength: 2
+    });
+
+    view = view.withStatusMessages([ { code: 'code', msg: 'message', severity: MessageSeverity.ERROR } ]);
+
+    this.isFalse(view.isPageValid(), 'page should be invalid');
+
+    view = await view.validateFull();
+
+    this.isTrue(view.isFieldValid('a'), 'field a should be valid');
+    this.isTrue(view.isFieldValid('r'), 'field r should be valid');
+
+    this.isTrue(view.isPageValid(), 'page should be valid');
   }
 
   async testPageValidity(): Promise<void> {
