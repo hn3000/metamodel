@@ -16,6 +16,9 @@ export class ModelTypeArray<T> extends ModelTypeConstrainable<T[]> implements IM
     super(name || (elementType.name+"[]"), constraints);
     this._elementType = elementType;
   }
+
+  asCompositeType() : IModelTypeComposite<T[]> | undefined { return this; }
+
   protected _clone(constraints:ModelConstraints<any>):this {
     let result = new (<any>this.constructor)(this._elementType, null, constraints);
     return result;

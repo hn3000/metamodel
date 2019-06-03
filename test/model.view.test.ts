@@ -132,11 +132,26 @@ export class ModelViewTest extends TestClass {
     ]
   };
 
+  private _nestedSchema = {
+    type: 'object',
+    properties: {
+      sub: { 
+        type: 'object',
+        properties: {
+          x: { type: 'number' },
+          s: { type: 'string' }
+        }
+      },
+      flat: { type: 'string' },
+    }
+  };
+
   private _schemaParser: ModelSchemaParser;
   private _tinyModel: IModelTypeComposite<any>;
   private _pagedModel: IModelTypeComposite<any>;
   private _pagedSkippedPageModel: IModelTypeComposite<any>;
   private _flaggyModel: IModelTypeComposite<any>;
+  private _nestedModel: IModelTypeComposite<any>;
 
   setUp() {
     this._schemaParser = new ModelSchemaParser(undefined, {
@@ -148,6 +163,7 @@ export class ModelViewTest extends TestClass {
     this._pagedModel = this._schemaParser.parseSchemaObject(this._pagedSchema) as IModelTypeComposite<any>;
     this._pagedSkippedPageModel = this._schemaParser.parseSchemaObject(this._pagedSchemaSkippedPage) as IModelTypeComposite<any>;
     this._flaggyModel = this._schemaParser.parseSchemaObject(this._flaggySchema) as IModelTypeComposite<any>;
+    this._nestedModel = this._schemaParser.parseSchemaObject(this._nestedSchema) as IModelTypeComposite<any>;
   }
 
   async testFieldValidity(): Promise<void> {
@@ -384,5 +400,44 @@ export class ModelViewTest extends TestClass {
 
     this.isFalse(view.isPageFlagTrue('blah'), 'blah should be false for view');
 
+  }
+
+
+  testGetFieldType() {
+    const model = this._nestedModel;
+
+    const viewmodel = new ModelView(model, {});
+
+    const xFieldType = viewmodel.getFieldType('sub.x');
+    this.isTrue(null != xFieldType, 'getFieldType("x") should not be null');
+    this.areIdentical(xFieldType.kind, 'number', 'field type x should be number');
+    const sFieldType = viewmodel.getFieldType('sub.s');
+    this.isTrue(null != sFieldType, 'getFieldType("s") should not be null');
+    this.areIdentical(sFieldType.kind, 'string', 'field type s should be string');
+
+  }
+
+  testGetFieldContainerTypeRoot() {
+    const model = this._nestedModel;
+
+    const viewmodel = new ModelView(model, {});
+
+    const rootContainerFieldType = viewmodel.getFieldContainerType('sub');
+    this.isTrue(null != rootContainerFieldType, 'getFieldContainerType("sub") should not be null');
+    this.areIdentical(rootContainerFieldType, model, 'container type for root property should be model itself');
+  }
+
+  testGetFieldContainerType() {
+    const model = this._nestedModel;
+
+    const viewmodel = new ModelView(model, {});
+
+    const subFieldType = viewmodel.getFieldType('sub');
+    this.isTrue(null != subFieldType, 'getFieldType("sub") should not be null');
+    this.areIdentical(subFieldType.kind, 'object', 'field type sub should be object');
+
+    const subAsContainerFieldType = viewmodel.getFieldContainerType('sub.s');
+    this.isTrue(null != subAsContainerFieldType, 'getFieldContainerType("sub.s") should not be null');
+    this.areIdentical(subFieldType, subAsContainerFieldType, 'types for field sub and sub-as-container-of-s should be identical');
   }
 }

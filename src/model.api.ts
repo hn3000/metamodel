@@ -74,7 +74,7 @@ export interface IModelParseContext {
   readonly allowConversion:boolean;
 }
 
-export interface IModelType<T> extends IClientProps {
+export interface IModelType<T = any> extends IClientProps {
   name:string;
   kind:string;
   qualifiers:string[];
@@ -84,15 +84,16 @@ export interface IModelType<T> extends IClientProps {
 
   create():T;
 
-  asItemType(): IModelTypeItem<T>;
+  asItemType(): IModelTypeItem<T> | undefined;
+  asCompositeType(): IModelTypeComposite<T> | undefined;
 }
 
-export interface IModelTypeConstrainable<T> extends IModelType<T> {
+export interface IModelTypeConstrainable<T = any> extends IModelType<T> {
   withConstraints(...c:IModelTypeConstraint<T>[]):this;
   findConstraints(p:Predicate<IModelTypeConstraint<T>>):IModelTypeConstraint<T>[];
 }
 
-export interface IModelTypeConstraint<T> {
+export interface IModelTypeConstraint<T = any> {
   id:string;
   checkAndAdjustValue(val:T, ctx:IModelParseContext):T;
   usedItems?():string[];
@@ -107,7 +108,7 @@ export interface IModelTypeConstraintFactory {
   [kind:string]:(options:any) => IModelTypeConstraint<any>;
 }
 
-export interface IModelTypeItem<T> extends IModelTypeConstrainable<T> {
+export interface IModelTypeItem<T = any> extends IModelTypeConstrainable<T> {
   fromString(valStr:string):T;
   asString(val:T):string;
 
@@ -122,7 +123,7 @@ export interface IModelTypeEntry {
   required:boolean;
 }
 
-export interface IModelTypeComposite<C> extends IModelTypeConstrainable<C> {
+export interface IModelTypeComposite<C = any> extends IModelTypeConstrainable<C> {
   items:IModelTypeEntry[];
   itemType(name:string|number):IModelType<any>;
   slice(name:string[]|number[]):IModelTypeComposite<C>;
@@ -133,7 +134,7 @@ export interface IModelTypeComposite<C> extends IModelTypeConstrainable<C> {
   possibleValuesForContextData(name:string|number, data:any):any[];
 }
 
-export interface IModelTypeCompositeBuilder<C> extends IModelTypeComposite<C> {
+export interface IModelTypeCompositeBuilder<C = any> extends IModelTypeComposite<C> {
   extend<X>(type:IModelTypeComposite<X>):IModelTypeCompositeBuilder<C>;
   addItem<T>(key:string, type:IModelType<T>, required?:boolean):IModelTypeCompositeBuilder<C>;
   findItem(key: string): IModelTypeEntry;

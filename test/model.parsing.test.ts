@@ -446,4 +446,54 @@ export class ModelParsingTest extends TestClass {
 
     this.areIdentical(2, view.getFieldMessages("p").length);
   }
+
+  testFlavouredSchema() {
+    var parser = new ModelSchemaParser();
+
+    parser.addSchemaObject('FlavorObject', {
+      type: "object",
+      properties: {
+        "text": {
+          type: "string",
+          flavour: "stringy-text"
+        },
+        "number": {
+          type: "number",
+          flavor: "digital-number"
+        },
+        "number2": {
+          type: "number",
+          'x-flavor': "digit-flavored-number"
+        },
+        "text2": {
+          type: "string",
+          'x-Flavour': "cheese-flavoured-string"
+        }
+      }
+    });
+
+    var type = parser.type('FlavorObject').asCompositeType();
+
+    this.areNotIdentical(undefined, type, 'parsed type must be composite');
+
+    this.isTrue(null != type.itemType('text'), 'composite should have item for text');
+    this.isTrue(null != type.itemType('text').propGet('flavor'), 'item text should have flavor');
+    this.isTrue(null != type.itemType('text2').propGet('flavor'), 'item text2 should have flavor');
+    this.isTrue(null != type.itemType('number').propGet('flavor'), 'item for number should have flavor');
+    this.isTrue(null != type.itemType('number2').propGet('flavor'), 'item for number should have flavor');
+    this.isTrue(null != type.itemType('text').propGet('flavour'), 'item text should have flavour');
+    this.isTrue(null != type.itemType('text2').propGet('flavour'), 'item text should have flavour');
+    this.isTrue(null != type.itemType('number').propGet('flavour'), 'item for number should have flavour');
+    this.isTrue(null != type.itemType('number2').propGet('flavour'), 'item for number should have flavour');
+    
+    this.areIdentical('stringy-text', type.itemType('text').propGet('flavor'), 'item text should have flavor');
+    this.areIdentical('stringy-text', type.itemType('text').propGet('flavour'), 'item text should have flavour');
+    this.areIdentical('cheese-flavoured-string', type.itemType('text2').propGet('flavor'), 'item text should have flavor');
+    this.areIdentical('cheese-flavoured-string', type.itemType('text2').propGet('flavour'), 'item text should have flavour');
+    this.areIdentical('digital-number', type.itemType('number').propGet('flavor'), 'item for number should have flavor');
+    this.areIdentical('digital-number', type.itemType('number').propGet('flavour'), 'item for number should have flavour');
+    this.areIdentical('digit-flavored-number', type.itemType('number2').propGet('flavor'), 'item for number should have flavor');
+    this.areIdentical('digit-flavored-number', type.itemType('number2').propGet('flavour'), 'item for number should have flavour');
+  }
+
 }

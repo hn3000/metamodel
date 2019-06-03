@@ -182,6 +182,16 @@ var constraintFactoriesDefault:IConstraintFactories = {
   }
 };
 
+const flavorProps = [
+  'flavor',
+  'flavour',
+  'x-Flavour',
+  'x-Flavor',
+  'x-flavour',
+  'x-flavor',
+];
+
+
 export class ModelSchemaParser implements IModelTypeRegistry {
   constructor(constraintFactory?:IModelTypeConstraintFactory, defaultValues?: IModelSchemaParserDefaults) {
     this._constraintFactory = constraintFactory || {};
@@ -248,6 +258,16 @@ export class ModelSchemaParser implements IModelTypeRegistry {
     }
 
     if (result != null) {
+      const flavours = flavorProps.filter(x => x in schemaObject);
+      if (flavours.length) {
+        if (flavours.length > 1) {
+          const flavoursArr = flavours.reduce((r,x) => (r.push(`${x}=${schemaObject[x]}`), r), []);
+          console.debug(`found multiple flavours (${flavoursArr.join(';')}), using ${flavours[0]}`);
+        }
+        const flavour = schemaObject[flavours[0]];
+        result.propSet('flavor', flavour);
+        result.propSet('flavour', flavour);
+      }
       result.propSet("schema", schemaObject);
     }
 

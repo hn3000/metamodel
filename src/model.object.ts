@@ -92,6 +92,8 @@ export class ModelTypeObject<T>
     this._entriesByName = { };
   }
 
+  asCompositeType() : IModelTypeComposite<T> | undefined { return this; }
+
   protected _clone(constraints:ModelConstraints<T>):this {
     let result = new (<any>this.constructor)(this.name, this._constructFun, constraints);
     for (var e of this._entries) {

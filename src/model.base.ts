@@ -4,7 +4,8 @@ import {
   IModelTypeConstrainable,
   Predicate,
   IModelTypeItem,
-  IClientProps
+  IClientProps,
+  IModelTypeComposite
 } from "./model.api"
 
 import {
@@ -125,7 +126,8 @@ export abstract class ModelTypeConstrainable<T>
   get qualifiers():string[] { return this._qualifiers; }
   get kind():string { return this._kind(); }
 
-  asItemType() : IModelTypeItem<T> { return null; }
+  asItemType() : IModelTypeItem<T> | undefined { return undefined; }
+  asCompositeType() : IModelTypeComposite<T> | undefined { return undefined; }
 
   withConstraints(...c:IModelTypeConstraint<T>[]):this {
     let result = this._clone(this._constraints.add(...c));
@@ -178,6 +180,10 @@ export abstract class ModelTypeItem<T>
 {
   asItemType() : IModelTypeItem<T> {
       return this;
+  }
+
+  asCompositeType(): undefined {
+    return undefined;
   }
 
   abstract lowerBound(): IModelTypeConstraint<T>;

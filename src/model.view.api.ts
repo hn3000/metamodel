@@ -39,7 +39,7 @@ export enum ValidationScope {
  * based validation and support for copy-on-write mutation.
  *
  */
-export interface IModelView<T> {
+export interface IModelView<T = any> {
   getModelType():IModelType<T>;
   getModel():Readonly<T>; // might actually be a read-only view of underlying data
 
@@ -54,6 +54,7 @@ export interface IModelView<T> {
 
   getFieldValue(keyPath:string|string[]):any;
   getFieldType(keyPath:string|string[]):IModelType<any>;
+  getFieldContainerType(keyPath:string|string[]):IModelTypeComposite<any>;
 
   getField(keyPath:string|string[]):IModelViewField;
   getFields(fields?:string[]):IModelViewField[];

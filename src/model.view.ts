@@ -592,6 +592,13 @@ export class ModelView<T = any> implements IModelView<T> {
     let path = this._asKeyArray(keyPath);
     return path.reduce((o:IModelTypeComposite<any>,k:string):any => (o && o.itemType && o.itemType(k)), this._viewMeta.getModelType());
   }
+  getFieldContainerType(keyPath:string|string[]): IModelTypeComposite {
+    let path = this._asKeyArray(keyPath);
+    path = path.slice(0, path.length-1);
+    let type = this.getFieldType(path) as IModelTypeComposite;
+
+    return type.itemType ? type : undefined;
+  }
 
   getFieldMessages(keyPath:string|string[]):IPropertyStatusMessage[] {
     let path = this._asKeyString(keyPath);
