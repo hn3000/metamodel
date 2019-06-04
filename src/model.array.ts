@@ -62,7 +62,12 @@ export class ModelTypeArray<T> extends ModelTypeConstrainable<T[]> implements IM
   get items():IModelTypeEntry[] {
     return [];
   }
-
+  findItem(name: string | number): IModelTypeEntry {
+    if (typeof name === 'string' && isNaN(parseInt(name))) {
+      return undefined;
+    }
+    return { key: String(name), type: this.itemType(), required: false };
+  }
   itemType() {
     return this._elementType;
   }

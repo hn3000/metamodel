@@ -125,6 +125,7 @@ export interface IModelTypeEntry {
 
 export interface IModelTypeComposite<C = any> extends IModelTypeConstrainable<C> {
   items:IModelTypeEntry[];
+  findItem(name: string | number): IModelTypeEntry;
   itemType(name:string|number):IModelType<any>;
   slice(name:string[]|number[]):IModelTypeComposite<C>;
   /**
