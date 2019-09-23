@@ -21,7 +21,7 @@ A metamodel is created like this:
 
     var modelTypes = require("metamodel").modelTypes;
 
-    var model = modelTypes.addObjectType('sample', ()=>({}))
+    var model = modelTypes.addObjectType('sample')
       .addItem('lala', modelTypes.type('number/int'))
       .addItem('blah', modelTypes.type('string'))
       .addItem('blub', modelTypes.type('number'));
@@ -39,10 +39,17 @@ And input data can be validated by the model:
         blub: 27.12
     };
     
-    var context = modelTypes.createParseContext(inputData);
+    var context = modelTypes.createParseContext(inputData, model);
     context.allowConversion = true;
     model.validate(context);
-    
+    if (context.warnings.length) {
+        console.warn(`context.messages.map(e => e.msg).join(', ')`);
+    }
+    if (context.errors.length) {
+        console.error(`context.errors.map(e => e.msg).join(', ')`);
+        throw new Error('Validation failed');
+    }
+
 At this point, context will contain warnings and errors if the data does
 not fit the metamodel. With allowConversion=true, the metamodel will
 parse "12" into a number, if allowConversion=false, the string value will
