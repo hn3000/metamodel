@@ -1,6 +1,11 @@
 
-
 export type Primitive = string|number|boolean|string[]|number[];
+
+export interface IKeypath {
+  readonly keys: string[];
+  readonly path: string;
+  readonly pointer: string; // JsonPointer syntax
+}
 
 export interface Predicate<T> {
   (x:T):boolean;
@@ -9,8 +14,8 @@ export interface Comparison<T> {
   (x:T, y:T):boolean;
 }
 
-export interface IModelObject {
-  [key:string]:any;
+export interface IModelObject<T = any> {
+  [key:string]:T;
 }
 
 export interface IClientProps {
@@ -123,6 +128,7 @@ export interface IModelTypeEntry {
   required:boolean;
 }
 
+
 export interface IModelTypeComposite<C = any> extends IModelTypeConstrainable<C> {
   items:IModelTypeEntry[];
   findItem(name: string | number): IModelTypeEntry;
@@ -139,6 +145,9 @@ export interface IModelTypeCompositeBuilder<C = any> extends IModelTypeComposite
   extend<X>(type:IModelTypeComposite<X>):IModelTypeCompositeBuilder<C>;
   addItem<T>(key:string, type:IModelType<T>, required?:boolean):IModelTypeCompositeBuilder<C>;
   findItem(key: string): IModelTypeEntry;
+
+  withReplacedItems(newItems: { [key: string]: IModelType<any>|undefined; }): IModelTypeComposite<any>;
+
 }
 
 export interface IModelTypeRegistry {

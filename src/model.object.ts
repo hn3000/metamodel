@@ -19,6 +19,11 @@ import {
   intersectArrays
 } from "./model.base"
 
+import {
+  _asKeyArray
+} from "./keypath"
+
+
 function constructionNotAllowed<T>():T {
   throw new Error('can not use subtype for construction');
 }
@@ -148,7 +153,28 @@ export class ModelTypeObject<T>
     return null;
   }
 
-  slice(names:string[]|number[]):IModelTypeComposite<T> {
+  keyPathType(keyPath: string|string[]):IModelType<any>|undefined {
+    let item = this.keyPathItem(keyPath);
+    return item != null ? item.type : undefined;
+  }
+
+  keyPathItem(keyPath: string|string[]):IModelTypeEntry|undefined {
+    const itemReducer = (e: IModelTypeEntry|undefined, x:string) => {
+      if (e && e.type.asCompositeType()) {
+        return e.type.asCompositeType().findItem(x);
+      }
+      return undefined;
+    };
+    let kp = _asKeyArray(keyPath);
+    let item = kp.slice(1).reduce(itemReducer, this.findItem(kp[0]));
+    return item;
+  }
+
+  slice(names:string[]|number[]): IModelTypeComposite<T> {
+    return this._slice(names);
+  }
+
+  _slice(names:string[]|number[]): ModelTypeObject<T> {
     if (Array.isArray(names)) {
       let filteredConstraints = this._getConstraints().slice(names);
 
@@ -162,6 +188,34 @@ export class ModelTypeObject<T>
       return result;
     }
     return null;
+  }
+
+  withReplacedItems(replaceItems: { [key: string]: IModelType<any>|undefined; }): ModelTypeObject<any> {
+    let names = Object.keys(this._entriesByName);
+    let replaceKeys = Object.keys(replaceItems);
+    let replaceNames = new Set(replaceKeys.map(x => x.split('.')[0]));
+    let remainNames = names.filter(x => !replaceNames.has(x));
+
+    let result = this._slice(remainNames);
+
+    for (let r of replaceNames.values()) {
+      if (null != replaceItems[r]) {
+        result = result.addItem(r, replaceItems[r]) as ModelTypeObject<any>;
+      } else {
+        const item = this.findItem(r);
+        if (item && item.type instanceof ModelTypeObject) {
+          const prefix = `${r}.`;
+          const keys = replaceKeys.filter(x => x.startsWith(prefix));
+          const replaceThese = {} as typeof replaceItems;
+          for (let k of keys) {
+            replaceThese[k.substring(prefix.length)] = replaceItems[k];
+          }
+          result = result.addItem(r, item.type.withReplacedItems(replaceThese)) as ModelTypeObject<any>;
+        }
+      }
+    }
+
+    return result;
   }
 
   get items():IModelTypeEntry[] {

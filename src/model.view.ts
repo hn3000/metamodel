@@ -22,6 +22,7 @@ import {
 
 import { createPredicateOrOfAnd, IConditionOptions } from "./model.object";
 import { ClientProps } from "./model.base";
+import { _asKeyString, _asKeyArray } from "./keypath";
 
 // constant, to make sure empty array is always the same instance
 // should be unmodifiable, to be sure
@@ -498,7 +499,7 @@ export class ModelView<T = any> implements IModelView<T> {
       flags[k] = !flags[k];
     }
 
-    var key = this._asKeyString(keypath);
+    var key = _asKeyString(keypath);
     flags[key] = flag;
     return this.withFieldEditableFlags(flags);
   }
@@ -511,7 +512,7 @@ export class ModelView<T = any> implements IModelView<T> {
     return result;
   }
   isFieldEditable(keypath:string|string[]):boolean {
-    let k = this._asKeyString(keypath);
+    let k = _asKeyString(keypath);
     return !this._readonlyFields.hasOwnProperty(k) || !this._readonlyFields[k];
   }
 
@@ -546,33 +547,13 @@ export class ModelView<T = any> implements IModelView<T> {
     return result;
   }
 
-  _asKeyArray(keyPath:string|string[]) {
-    var path: string[];
-    if (Array.isArray(keyPath)) {
-      path = keyPath;
-    } else {
-      path = keyPath.split('.');
-    }
-    return path;
-  }
-
-  _asKeyString(keyPath:string|string[]) {
-    var path: string;
-    if (Array.isArray(keyPath)) {
-      path = keyPath.join('.');
-    } else {
-      path = keyPath;
-    }
-    return path;
-  }
-
   getFieldValue(keyPath:string|string[]):any {
-    let path = this._asKeyArray(keyPath);
+    let path = _asKeyArray(keyPath);
     return path.reduce((o:any,k:string):any => (o && o[k]), this._inputModel);
   }
 
   getPossibleFieldValues(keyPath:string|string[]):any[] {
-    let path = this._asKeyArray(keyPath);
+    let path = _asKeyArray(keyPath);
     let last = path.splice(path.length-1, 1)[0];
 
     let type = this.getFieldType(path) as IModelTypeComposite<any>;
@@ -589,11 +570,11 @@ export class ModelView<T = any> implements IModelView<T> {
   }
 
   getFieldType(keyPath:string|string[]):IModelType<any> {
-    let path = this._asKeyArray(keyPath);
+    let path = _asKeyArray(keyPath);
     return path.reduce((o:IModelTypeComposite<any>,k:string):any => (o && o.itemType && o.itemType(k)), this._viewMeta.getModelType());
   }
   getFieldContainerType(keyPath:string|string[]): IModelTypeComposite {
-    let path = this._asKeyArray(keyPath);
+    let path = _asKeyArray(keyPath);
     path = path.slice(0, path.length-1);
     let type = this.getFieldType(path) as IModelTypeComposite;
 
@@ -601,7 +582,7 @@ export class ModelView<T = any> implements IModelView<T> {
   }
 
   getFieldMessages(keyPath:string|string[]):IPropertyStatusMessage[] {
-    let path = this._asKeyString(keyPath);
+    let path = _asKeyString(keyPath);
     return this._messagesByField[path] || ARRAY_EMPTY;
   }
 
@@ -610,7 +591,7 @@ export class ModelView<T = any> implements IModelView<T> {
   }
 
   isFieldValid(keyPath:string|string[]):boolean {
-    let m = this._messagesByField[this._asKeyString(keyPath)];
+    let m = this._messagesByField[_asKeyString(keyPath)];
     return null == m || 0 == m.length;
   }
 
@@ -816,7 +797,7 @@ export class ModelView<T = any> implements IModelView<T> {
     return fields.every((x) => this.isFieldValid(x));
   }
   isFieldVisited(field: string | string[]):boolean {
-    let fieldPath = this._asKeyString(field);
+    let fieldPath = _asKeyString(field);
     return null != this._visitedFields[fieldPath];
   }
   isPageVisited(aliasOrIndex: string | number):boolean {

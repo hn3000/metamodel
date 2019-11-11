@@ -331,7 +331,7 @@ export class ModelTypeObjectTest extends TestClass {
   testConstraintConditionalValueArrayOnArrayRequiresCorrectValues() {
     var model:ModelTypeObject<any> = this.model.slice(['p']) as ModelTypeObject<any>;
     model = model.withConstraints(new ModelTypeConstraintConditionalValue({
-        condition: { property: 'p', operator: "=", value: ['6', '12', '24'] },
+        condition: { property: 'p', op: "=", value: ['6', '12', '24'] },
         properties:  ['q','r','s'],
         clearOtherwise: false
     }));
@@ -370,4 +370,21 @@ export class ModelTypeObjectTest extends TestClass {
     this.areIdentical(0, context.messages.length, "parse should not find errors");
 
   }
+
+  testTypeObjectWithReplacedItems() {
+    const model = (this.modelNested as ModelTypeObject<any>).withReplacedItems(
+      {
+        'r.s': modelTypes.type('boolean'),
+        'r.n': undefined,
+        'o': modelTypes.type('number')
+      }
+    );
+
+    this.areIdentical('number', model.itemType('o').name);
+    this.areIdentical('object', model.itemType('r').kind);
+    this.areIdentical('bool', model.itemType('r').asCompositeType().itemType('s').kind);
+    this.areIdentical(undefined, model.itemType('r').asCompositeType().itemType('n'));
+  }
+
+
 }
