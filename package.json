@@ -33,9 +33,9 @@
     "@types/isomorphic-fetch": "0.0.35",
     "@types/node": "^11.11.4",
     "nyc": "^14.1.1",
-    "tslint": "^5.14.0",
-    "tsunit.external": "^2.1.1",
-    "typescript": "^3.4.5"
+    "tslint": "^5.20.0",
+    "tsunit.external": "=2.0.10",
+    "typescript": "^3.6.4"
   },
   "dependencies": {
     "@hn3000/json-ref": "^1.0.0"
