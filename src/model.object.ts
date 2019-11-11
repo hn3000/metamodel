@@ -190,13 +190,22 @@ export class ModelTypeObject<T>
     return null;
   }
 
-  withReplacedItems(replaceItems: { [key: string]: IModelType<any>|undefined; }): ModelTypeObject<any> {
+  withReplacedItems(
+    replaceItems: { [key: string]: IModelType<any>|undefined; }, 
+    options?: { name?: string; }
+  ): ModelTypeObject<any> {
+
     let names = Object.keys(this._entriesByName);
     let replaceKeys = Object.keys(replaceItems);
     let replaceNames = new Set(replaceKeys.map(x => x.split('.')[0]));
     let remainNames = names.filter(x => !replaceNames.has(x));
 
     let result = this._slice(remainNames);
+    if (options) {
+      if (options.name) {
+        result._setName(options.name);
+      }
+    }
 
     for (let r of replaceNames.values()) {
       if (null != replaceItems[r]) {
