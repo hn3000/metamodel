@@ -76,6 +76,15 @@ export class ModelTypePredicatesTest extends TestClass {
     this.isFalse(pred1({ a: 'some other value' }), 'does not accept value not in array');
   }
 
+  testPredicateNotEqualsAllowsArrayValue() {
+    const pred1 = createSinglePredicate({ op: '!=', property: 'a', value: ['#', '+'] });
+    this.isFalse(pred1({ }), 'ignores undefined properties');
+
+    this.isFalse(pred1({ a: '#' }), 'finds # -- first value from array');
+    this.isFalse(pred1({ a: '+' }), 'finds + -- second value from array');
+    this.isTrue(pred1({ a: 'some other value' }), 'does not find value not in array');
+  }
+
   testPredicateTruthy() {
     const pred = createSinglePredicate({ op: '!!', property: 'a' });
 
