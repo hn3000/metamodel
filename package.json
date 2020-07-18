@@ -1,6 +1,6 @@
 {
   "name": "@hn3000/metamodel",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "description": "Meta Model for TypeScript and EcmaScript apps, to help with JSON schema processing and UI construction.",
   "repository": "git@github.com:hn3000/metamodel",
   "scripts": {
@@ -31,11 +31,11 @@
   ],
   "devDependencies": {
     "@types/isomorphic-fetch": "0.0.35",
-    "@types/node": "^11.11.4",
-    "nyc": "^14.1.1",
-    "tslint": "^5.20.0",
-    "tsunit.external": "=2.0.10",
-    "typescript": "^3.6.4"
+    "@types/node": "^13.7.1",
+    "nyc": "^15.0.0",
+    "tslint": "^6.1.0",
+    "tsunit.external": "2.1.1",
+    "typescript": "^3.8.3"
   },
   "dependencies": {
     "@hn3000/json-ref": "^1.1.0"
