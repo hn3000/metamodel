@@ -728,7 +728,6 @@ export class ModelTypeConstraintConditionalValue extends ModelTypeConstraintOpti
   }
 
   checkAndAdjustValue(val:any, ctx:IModelParseContext):Date {
-    var check = true;
     let s = this._settings;
     if (s.predicate(val)) {
       let isError = !this.isWarningOnly;
