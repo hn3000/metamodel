@@ -6,7 +6,8 @@ import {
   IPropertyStatusMessage,
   MessageSeverity,
   Primitive,
-  Predicate
+  Predicate,
+  IClientProps
 } from "./model.api";
 
 
@@ -18,7 +19,7 @@ export interface IModelViewField {
   validate(val:any):IPropertyStatusMessage[];
 }
 
-export interface IModelViewPage {
+export interface IModelViewPage extends IClientProps {
   alias:string;
   index:number;
   type:IModelTypeComposite<any>;
