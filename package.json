@@ -1,6 +1,6 @@
 {
   "name": "@hn3000/metamodel",
-  "version": "1.8.4",
+  "version": "1.8.5",
   "description": "Meta Model for TypeScript and EcmaScript apps, to help with JSON schema processing and UI construction.",
   "repository": "git@github.com:hn3000/metamodel",
   "scripts": {
