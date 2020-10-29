@@ -85,6 +85,15 @@ export class ModelTypePredicatesTest extends TestClass {
     this.isTrue(pred1({ a: 'some other value' }), 'does not find value not in array');
   }
 
+  testPredicateEqualsChecksNullishValue() {
+    const pred1 = createSinglePredicate({ op: '==', property: 'a', value: [null, 'a'] });
+    this.isTrue(pred1({ }), 'does not ignore undefined properties if null specified');
+
+    this.isTrue(pred1({ a: null }), 'finds null');
+    this.isTrue(pred1({ a: undefined }), 'finds undefined (implied value)');
+    this.isFalse(pred1({ a: 'some other value' }), 'does not find value not in array');
+  }
+
   testPredicateTruthy() {
     const pred = createSinglePredicate({ op: '!!', property: 'a' });
 

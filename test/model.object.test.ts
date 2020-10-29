@@ -74,6 +74,34 @@ export class ModelTypeObjectTest extends TestClass {
     this.areIdentical(0, context.errors.length);
   }
 
+  testComparePropertiesConstraintEqualWithNullishValues() {
+    var model:ModelTypeObject<any> = this.model.slice(['p']) as ModelTypeObject<any>;
+    model = model.withConstraints(new ModelTypeConstraintCompareProperties({
+      properties: ['p', 'q'], 
+      op: '=='
+    }));
+
+    let t: { [k: string]: null|undefined|string|number } = {
+      p: null,
+      q: undefined
+    };
+
+    let context = modelTypes.createParseContext(t, model);
+    model.validate(context);
+
+    this.areIdentical(0, context.errors.length);
+    t = {
+      p: null,
+      q: undefined
+    };
+
+    context = modelTypes.createParseContext(t, model);
+    model.validate(context);
+
+    this.areIdentical(0, context.errors.length);
+  }
+
+
   testComparePropertiesConstraintLessWithCorrectValues() {
     var model:ModelTypeObject<any> = this.model.slice(['p']) as ModelTypeObject<any>;
     model = model.withConstraints(new ModelTypeConstraintCompareProperties({properties: ['p','q'], op: '<'}));

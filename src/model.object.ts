@@ -342,6 +342,9 @@ function comparisonEquals(a: Primitive, b: Primitive) {
   if ((null == a) != (null == b)) {
     return false;
   }
+  if ((null == a) && (null == b)) {
+    return true;
+  }
 
   let isArrA = Array.isArray(a);
   let isArrB = Array.isArray(b);
@@ -573,11 +576,23 @@ function createPredicateTruthy(property:string, invert:boolean): Predicate<any> 
 function createPredicateEquals(property:string, value:any, invert:boolean): Predicate<any> {
   if (Array.isArray(value)) {
     let valueArray = value.slice() as any[];
+    let hasNull = false;
+    if (-1 < valueArray.indexOf(null) && 0 > valueArray.indexOf(undefined)) {
+      valueArray.push(undefined);
+      hasNull = true;
+    }
+    if (-1 < valueArray.indexOf(undefined) && 0 > valueArray.indexOf(null)) {
+      valueArray.push(null);
+      hasNull = true;
+    }
 
     return function(x:any): boolean {
       let p = x[property];
       if (Array.isArray(p)) {
         return p.some(x => (-1 != valueArray.indexOf(x)) == !invert);
+      }
+      if (undefined === p && hasNull) {
+        return !invert;
       }
       return (p !== undefined) && (-1 != valueArray.indexOf(p)) == !invert;
     }
