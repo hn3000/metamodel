@@ -468,6 +468,10 @@ export class ModelParsingTest extends TestClass {
         "text2": {
           type: "string",
           'x-Flavour': "cheese-flavoured-string"
+        },
+        "text3": {
+          type: "string",
+          'x-flavour': "cheese-flavoured-string"
         }
       }
     });
@@ -483,6 +487,7 @@ export class ModelParsingTest extends TestClass {
     this.isTrue(null != type.itemType('number2').propGet('flavor'), 'item for number should have flavor');
     this.isTrue(null != type.itemType('text').propGet('flavour'), 'item text should have flavour');
     this.isTrue(null != type.itemType('text2').propGet('flavour'), 'item text should have flavour');
+    this.isTrue(null != type.itemType('text3').propGet('flavour'), 'item text should have flavour');
     this.isTrue(null != type.itemType('number').propGet('flavour'), 'item for number should have flavour');
     this.isTrue(null != type.itemType('number2').propGet('flavour'), 'item for number should have flavour');
     
@@ -490,6 +495,8 @@ export class ModelParsingTest extends TestClass {
     this.areIdentical('stringy-text', type.itemType('text').propGet('flavour'), 'item text should have flavour');
     this.areIdentical('cheese-flavoured-string', type.itemType('text2').propGet('flavor'), 'item text should have flavor');
     this.areIdentical('cheese-flavoured-string', type.itemType('text2').propGet('flavour'), 'item text should have flavour');
+    this.areIdentical('cheese-flavoured-string', type.itemType('text3').propGet('flavor'), 'item text should have flavor');
+    this.areIdentical('cheese-flavoured-string', type.itemType('text3').propGet('flavour'), 'item text should have flavour');
     this.areIdentical('digital-number', type.itemType('number').propGet('flavor'), 'item for number should have flavor');
     this.areIdentical('digital-number', type.itemType('number').propGet('flavour'), 'item for number should have flavour');
     this.areIdentical('digit-flavored-number', type.itemType('number2').propGet('flavor'), 'item for number should have flavor');

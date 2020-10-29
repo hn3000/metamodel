@@ -196,7 +196,7 @@ export class ModelSchemaParser implements IModelTypeRegistry {
   constructor(constraintFactory?:IModelTypeConstraintFactory, defaultValues?: IModelSchemaParserDefaults) {
     this._constraintFactory = constraintFactory || {};
     this._registry = new ModelTypeRegistry();
-    this._defaults = defaultValues || {};
+    this._defaults = defaultValues ?? {};
   }
 
   addSchemaFromURL(url:string):Promise<any> {
@@ -217,42 +217,43 @@ export class ModelSchemaParser implements IModelTypeRegistry {
    * @param defaults can be used to override defaults
    */
   addSchemaObject(name:string, schemaObject:any, defaults?: IModelSchemaParserDefaults):IModelType<any> {
-    var type = this.parseSchemaObject(schemaObject, name);
+    const nameOrId = name || schemaObject.id;
+    var type = this.parseSchemaObject(schemaObject, nameOrId);
 //console.log(`parsed type for name ${name}: ${type.name} / ${type.kind}`);
      type && this._registry.addType(type);
 
      return type;
   }
 
-  parseSchemaObject(schemaObject:any, name?:string):IModelType<any> {
+  parseSchemaObject(schemaObject:any, nameOrId?:string):IModelType<any> {
     var schemaType = schemaObject['type'];
     var result:IModelTypeConstrainable<any> = null;
 
     switch (schemaType) {
       case 'object':
-        result = this.parseSchemaObjectTypeObject(schemaObject, name);
+        result = this.parseSchemaObjectTypeObject(schemaObject, nameOrId);
         break;
       case 'array':
-        result = this.parseSchemaObjectTypeArray(schemaObject, name);
+        result = this.parseSchemaObjectTypeArray(schemaObject, nameOrId);
         break;
       case 'string':
-        result = this.parseSchemaObjectTypeString(schemaObject, name);
+        result = this.parseSchemaObjectTypeString(schemaObject, nameOrId);
         break;
       case 'number':
-        result = this.parseSchemaObjectTypeNumber(schemaObject, name);
+        result = this.parseSchemaObjectTypeNumber(schemaObject, nameOrId);
         break;
       case 'integer':
-        result = this.parseSchemaObjectTypeNumber(schemaObject, name, new ModelTypeConstraintInteger());
+        result = this.parseSchemaObjectTypeNumber(schemaObject, nameOrId, new ModelTypeConstraintInteger());
         break;
       case 'boolean':
-        result = this.parseSchemaObjectTypeBoolean(schemaObject, name);
+        result = this.parseSchemaObjectTypeBoolean(schemaObject, nameOrId);
         break;
       case 'bool':
         console.log("warning: non-standard type 'bool' found in schema");
-        result = this.parseSchemaObjectTypeBoolean(schemaObject, name);
+        result = this.parseSchemaObjectTypeBoolean(schemaObject, nameOrId);
         break;
       default:
-        result = this.parseSchemaObjectUntyped(schemaObject, name);
+        result = this.parseSchemaObjectUntyped(schemaObject, nameOrId);
         //console.log(`don't know how to handle type ${schemaType} in`, schemaObject);
         break;
     }
@@ -284,28 +285,17 @@ export class ModelSchemaParser implements IModelTypeRegistry {
 
   parseSchemaObjectTypeString(schemaObject:any, name?: string) {
 
-    //var format = schemaObject['format'];
-    var minLen = schemaObject['minLength'];
-    var maxLen = schemaObject['maxLength'];
-    var pattern = schemaObject['pattern'];
-
-    if (this._defaults.strings) {
-      if (minLen === undefined) {
-        minLen = this._defaults.strings.minLength;
-      }
-      if (maxLen === undefined) {
-        maxLen = this._defaults.strings.maxLength;
-      }
-      if (pattern === undefined) {
-        pattern = this._defaults.strings.pattern;
-      }
-    }
+    const sources = [schemaObject, this._defaults.strings];
+    const minLen = findFirst<number>(sources, 'minLength');
+    const maxLen = findFirst<number>(sources, 'maxLength');
+    const pattern = findFirst<string|RegExp>(sources, 'pattern');
+    //const format = findFirst<string>(sources, 'format');
 
     var constraints = this._parseConstraints(schemaObject, [ constraintFactoriesDefault.strings, constraintFactoriesDefault.universal ]);
-    if (minLen != null || maxLen != null) {
+    if (minLen != undefined || maxLen != undefined) {
       constraints = constraints.add(new ModelTypeConstraintLength(minLen, maxLen));
     }
-    if (pattern != null) {
+    if (pattern != undefined) {
       let ire = invertedRE(pattern);
       if (ire) {
         constraints = constraints.add(new ModelTypeConstraintInvalidRegex(`(${ire})`));
@@ -323,30 +313,12 @@ export class ModelSchemaParser implements IModelTypeRegistry {
   }
 
   parseSchemaObjectTypeNumber(schemaObject:any, name?: string, ...constraints:IModelTypeConstraint<number>[]) {
-    var min = schemaObject['minimum'];
-    var max = schemaObject['maximum'];
-    var minOut = schemaObject['minimumExclusive'];
-    var maxOut = schemaObject['maximumExclusive'];
-    var multipleOf = schemaObject['multipleOf'];
-
-    if (null != this._defaults.numbers) {
-      if (min === undefined) {
-        min = this._defaults.numbers.minimum;
-      }
-      if (minOut === undefined) {
-        minOut = this._defaults.numbers.minimumExclusive;
-      }
-      if (max === undefined) {
-        max = this._defaults.numbers.maximum;
-      }
-      if (maxOut === undefined) {
-        maxOut = this._defaults.numbers.maximumExclusive;
-      }
-      if (multipleOf === undefined) {
-        multipleOf = this._defaults.numbers.multipleOf;
-      }
-    }
-
+    const sources = [schemaObject, this._defaults.numbers];
+    const min = findFirst<number>(sources, 'minimum');
+    const max = findFirst<number>(sources, 'maximum');
+    const minOut = findFirst<number>(sources, 'minimumExclusive');
+    const maxOut = findFirst<number>(sources, 'maximumExclusive');
+    const multipleOf = findFirst<number>(sources, 'multipleOf');
 
     if (typeof(min) === "number") {
       if (minOut) {
@@ -531,9 +503,9 @@ function fetchFetcher(url:string):Promise<string> {
   });
 }
 
-function findFirst<T>(tt:{[k:string]:T}[], name:string):T {
+function findFirst<T=unknown>(tt:{[k:string]:T}[], name:string):T|undefined {
   for (var t of tt) {
-    if (t[name]) return t[name];
+    if (t && t[name]) return t[name];
   }
-  return null;
+  return undefined;
 }

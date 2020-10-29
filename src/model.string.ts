@@ -97,7 +97,7 @@ export class ModelTypeConstraintPossibleValues<T> extends ModelTypeConstraintOpt
 
 
 export class ModelTypeConstraintLength extends ModelTypeConstraintOptional<string> {
-  constructor(minLen:number, maxLen:number, message?:string) {
+  constructor(minLen: number|undefined, maxLen: number|undefined, message?: string) {
     super();
     this._minLength = minLen;
     this._maxLength = maxLen;
@@ -106,7 +106,7 @@ export class ModelTypeConstraintLength extends ModelTypeConstraintOptional<strin
       this._message = message;
     } else {
       var msg:string;
-      if (minLen == null || minLen == 0) {
+      if (minLen == undefined || minLen == 0) {
         msg = `length must be at most ${maxLen}:`;
       } else if (maxLen == null) {
         msg = `length must be at least ${minLen||0}:`;
