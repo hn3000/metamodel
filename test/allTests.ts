@@ -1,3 +1,4 @@
+import { KeypathTest } from "./keypath.test";
 import { ModelTest } from "./model.test";
 import { ModelParsingTest } from "./model.parsing.test";
 import { ModelTypeObjectTest } from "./model.object.test";
@@ -22,6 +23,7 @@ function parmNum(t:TestDescription) {
 export function runTests() {
   "use strict";
   let test = new TestAsync();
+  test.addTestClass(new KeypathTest(), "KeypathTest");
   test.addTestClass(new ModelTest(), "ModelTest");
   test.addTestClass(new ModelTypeObjectTest(), "ModelTypeObjectTest");
   test.addTestClass(new ModelTypePredicatesTest(), "ModelTypePredicatesTest");

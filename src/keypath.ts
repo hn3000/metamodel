@@ -1,6 +1,6 @@
 import { IKeypath } from "./model.api";
 import { JsonPointer } from "@hn3000/json-ref";
-import { isString } from "util";
+export { IKeypath } from "./model.api";
 
 export function _asKeyArray(keyPath:string|string[]) {
   var path: string[];
@@ -35,29 +35,29 @@ class Keypath implements IKeypath {
     if (keypath instanceof JsonPointer) {
       this._pointer = keypath;
       this._keys = keypath.keys;
-      this._path = null;
+      this._path = undefined;
     } else {
       this._keys = _asKeyArray(keypath);
-      this._path = null;
-      this._pointer = null;
+      this._path = undefined;
+      this._pointer = undefined;
     }
   }
 
   get keys() { return this._keys; }
   get path() {
-    if (null == this._path) {
+    if (undefined == this._path) {
       this._path = this._keys.join('.');
     }
     return this._path;
   }
   get pointer() {
-    if (null == this._pointer) {
-      new JsonPointer(this._keys)
+    if (undefined === this._pointer) {
+      this._pointer = new JsonPointer(this._keys);
     }
     return this._pointer.asString();
   }
 
   private _keys: string[] = [];
-  private _path: string | null;
-  private _pointer: JsonPointer | null;
+  private _path: string | undefined;
+  private _pointer: JsonPointer | undefined;
 }
