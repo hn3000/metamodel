@@ -1,13 +1,12 @@
 
 import {
-  modelTypes, ModelTypeDate, ModelParseContext,
+  ModelTypeDate, ModelParseContext,
 } from '../src/model';
 
 
 import {
   TestClass
 } from "tsunit.external/tsUnitAsync";
-import { ModelTypeArraySizeConstraint, ModelTypeArrayUniqueElementsConstraint } from '../src/model.array';
 
 export class ModelTypeDateTest extends TestClass {
   testSomeDateIsValid() {
