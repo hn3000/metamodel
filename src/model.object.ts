@@ -569,6 +569,10 @@ function createPredicateTruthy(property:string, invert:boolean): Predicate<any> 
   return (x) => {
     const p = x[property];
 
+    if (Array.isArray(p)) {
+      return !!(p.length) === !invert;
+    }
+
     return !!p === !invert;
   }
 }
