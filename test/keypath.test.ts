@@ -24,10 +24,14 @@ export class KeypathTest extends TestClass {
     this.areIdentical('/a/b/c', kp.pointer);
   }
   testKeypathFromKeypath() {
-    const kp: IKeypath = keypath(keypath('/a/b/c'));
-    this.areCollectionsIdentical(['a','b','c'], kp.keys);
-    this.areIdentical('a.b.c', kp.path);
-    this.areIdentical('/a/b/c', kp.pointer);
+    const kp0 = keypath('a.b.c');
+    const kp1: IKeypath = keypath(kp0);
+    this.areCollectionsIdentical(['a','b','c'], kp0.keys, `${kp0.keys.join(',')}`);
+    this.areCollectionsIdentical(['a','b','c'], kp1.keys, `${kp1.keys.join(',')}`);
+    this.areIdentical('a.b.c', kp0.path);
+    this.areIdentical('a.b.c', kp1.path);
+    this.areIdentical('/a/b/c', kp0.pointer);
+    this.areIdentical('/a/b/c', kp1.pointer);
   }
   testKeypathPathCaching() {
     const kp: IKeypath = keypath(['a','b','c']);
