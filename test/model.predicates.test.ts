@@ -101,15 +101,35 @@ export class ModelTypePredicatesTest extends TestClass {
     this.isTrue(pred({ a: 1 }), '1 is truthy');
     this.isTrue(pred({ a: 17 }), '17 is truthy');
     this.isTrue(pred({ a: -17 }), '-17 is truthy');
-    this.isTrue(pred({ a: [] }), 'empty array is truthy');
+    this.isTrue(pred({ a: [1] }), 'non empty array is truthy');
     this.isTrue(pred({ a: " " }), 'non-empty string is truthy');
 
     this.isFalse(pred({ }), 'undefined is not truthy');
     this.isFalse(pred({ a: null }), 'null is not truthy');
     this.isFalse(pred({ a: false }), 'false is not truthy');
     this.isFalse(pred({ a: 0 }), '0 is not truthy');
+    this.isFalse(pred({ a: [] }), 'empty array is not truthy');
     this.isFalse(pred({ a: "" }), 'empty string is not truthy');
   }
+
+  testPredicateTruthyInvertFalse() {
+    const pred = createSinglePredicate({ op: '!!', property: 'a', invert: false });
+
+    this.isTrue(pred({ a: true }), 'true is truthy');
+    this.isTrue(pred({ a: 1 }), '1 is truthy');
+    this.isTrue(pred({ a: 17 }), '17 is truthy');
+    this.isTrue(pred({ a: -17 }), '-17 is truthy');
+    this.isTrue(pred({ a: [1] }), 'non empty array is truthy');
+    this.isTrue(pred({ a: " " }), 'non-empty string is truthy');
+
+    this.isFalse(pred({ }), 'undefined is not truthy');
+    this.isFalse(pred({ a: null }), 'null is not truthy');
+    this.isFalse(pred({ a: false }), 'false is not truthy');
+    this.isFalse(pred({ a: 0 }), '0 is not truthy');
+    this.isFalse(pred({ a: [] }), 'empty array is not truthy');
+    this.isFalse(pred({ a: "" }), 'empty string is not truthy');
+  }
+
 
   testPredicateFalsey() {
     const pred = createSinglePredicate({ op: '!', property: 'a' });
@@ -118,13 +138,14 @@ export class ModelTypePredicatesTest extends TestClass {
     this.isTrue(!pred({ a: 1 }), '1 is truthy');
     this.isTrue(!pred({ a: 17 }), '17 is truthy');
     this.isTrue(!pred({ a: -17 }), '-17 is truthy');
-    this.isTrue(!pred({ a: [] }), 'empty array is truthy');
+    this.isTrue(!pred({ a: [1] }), 'non empty array is truthy');
     this.isTrue(!pred({ a: " " }), 'non-empty string is truthy');
 
     this.isFalse(!pred({ }), 'undefined is not truthy');
     this.isFalse(!pred({ a: null }), 'null is not truthy');
     this.isFalse(!pred({ a: false }), 'false is not truthy');
     this.isFalse(!pred({ a: 0 }), '0 is not truthy');
+    this.isFalse(!pred({ a: [] }), 'empty array is not truthy');
     this.isFalse(!pred({ a: "" }), 'empty string is not truthy');
   }
   testUnaryPredicateInvert() {
